@@ -1,0 +1,11 @@
+ 查看本机CPU
+ sysctl machdep.cpu.brand_string
+
+ postman  
+ 谷歌中的插件  用来在线调试 能模拟post get 等提交
+
+#包要看demo
+
+# ssh root@219.235.14.156  
+
+// https://github.com/thenbsp/wechat/wiki/wechat_cache  设置缓存

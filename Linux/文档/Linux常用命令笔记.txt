@@ -1,0 +1,270 @@
+Linux常用命令
+一.
+命令格式：  命令名称   [选项]     参数 
+            ls         -la       目录/文件
+                       --all
+
+#ls 
+#ls -l      l 长格式 显示详细信息
+#ls -hl     h  常见单位显示文件大小
+#ls -a       --all     显示全部文件  文件前带.隐藏文件   
+. 当前目录   .. 上一级目录 
+
+#ls  -l  install.log 
+
+#ls  /boot  
+#ls  -d  /boot  d 显示目录
+#ls  -ld /boot    显示目录详细信息
+
+[root@localhost ~]# 
+ 用户名 主机名  ~ 当前用户家目录     
+ root  超级用户 家目录: /root  # 超级管理员身份
+ zhangsan 普通用户 家目录:/home/zhangsan/  $ 普通用户
+
+二.目录操作命令
+#cd  切换目录       命令简单分类：     系统命令 ls  
+                                  shell内置命令 cd 
+相对路径   绝对路径 
+#cd  /boot  切换到/boot目录
+切换回家目录
+#cd 
+#cd ~          #cd - 回到上一次的操作目录
+#cd /root
+#cd ../root   
+#cd .. 回到上一级目录
+
+显示当前目录
+#pwd  
+
+Linux常见目录
+/		根目录
+				/bin		命令保存目录（普通用户就可以读取的命令）
+				/boot	启动目录，启动相关文件
+				/dev		设备文件保存目录
+				/etc		配置文件保存目录
+				/home	普通用户的家目录
+				/mnt		系统挂载目录
+				/media		挂载目录
+				/root	超级用户的家目录
+				/tmp		临时目录
+				/sbin	命令保存目录（超级用户才能使用的目录）
+				/proc	直接写入内存的		
+				/usr		系统软件资源目录
+					/usr/bin/		系统命令（普通用户）
+					/usr/sbin/		系统命令（超级用户）
+				/var		系统相关文档内容
+					/var/log/		系统日志位置 
+
+
+建立目录
+#mkdir  www
+#mkdir  lamp
+#ls
+
+#mkdir -p admin/png/test/  递归建立目录                                             ※※※※
+
+删除目录
+#rmdir  lamp
+#ls 
+
+#rm -rf  admin  强制删除admin     
+
+* 通配符  所有   ？ 单一字符
+
+
+对文件操作命令
+#touch  index.php   建立空文件
+#touch  a.txt   b.txt
+
+#rm  a.txt  
+#rm -rf  lamp      r  删除目录  f 强制 
+
+查看文件内容 
+#cat  install.log    适合查看内容少的文件 
+Shift+PgUp  向上翻页  Shift+PgDn 向下翻页
+#cat -n install.log   n 显示行数
+
+#more install.log   空格 向下  b 向上  q 退出
+
+#head  install.log  默认显示文件前10行 
+#head -n 20 install.log   n 显示前n行
+#head -20  install.log   
+
+#tail  install.log  默认显示文件的后10行
+#tail -n  20 install.log 
+#tail -20 install.log 
+
+编辑器
+#nano index.php    
+
+快捷键   清屏  ctrl+l = clear
+         强制终止 ctrl+c 
+         退出系统 ctrl+d = exit
+         Tab 补全  命令补全     文件/目录补全
+  
+链接文件
+#ln -s  index.php  a.php   同目录建立链接文件
+#ls -l
+#ln -s  /root/index.php   /tmp/c.php   跨目录建立链接
+#ls -l /tmp/
+
+文件与目录操作命令
+复制文件
+#cp b.html  c.html
+#ls
+#cp c.html  www/
+#ls www
+复制目录
+#cp -r  www   php  r 复制目录
+-a =  -pdr 
+
+改名与剪切
+#mv  b.html   abc.php 修改文件名
+#mv  php  html  修改目录名
+
+#mv abc.php  html/  剪切到html目录下
+  
+权限管理
+#ls -l  
+权限位  十位
+第一位  文件类型   - 普通文件   l  链接文件   d 目录
+第二三四位  u=user  属主（文件所有者）  rw-   6
+第五六七位  g=group 属组                r--   4
+第八九十位  o=other 其它人              r--   4
+
+#ls -l c.html 默认建立的文件  644
+-rw-r--r--  644
+#ls -ld www/  默认建立的目录  755
+drwxr-xr-x  755
+
+链接文件
+lrwxrwxrwx  777
+
+r  read    w write   x  exe   - 无权限
+4          2         1        0
+
+修改文件权限
+#chmod  u+x c.html  
+#ls -l
+#chmod  u-x,g+w,o+w  c.html 
+#ls -l 
+#chmod  u=rwx c.html
+#ls -l 
+
+#chmod  777 c.html 
+#ls -l 
+#chmod  000 c.html
+#ls -l
+
+属主与属组修改
+#useradd zhangsan  添加用户
+#passwd  zhangsan  设置密码
+
+#chown  zhangsan  c.html  修改属主
+#chown  :zhangsan  c.html  修改属组
+#ls  -l
+#chown  zhangsan:zhangsan index.html 
+#ls -l
+
+帮助命令（帮助手册）
+#man ls
+#help cd  内置命令帮助命令
+帮助选项 --help 
+#ls --help 
+
+查找命令 whereis   find   grep 
+#whereis  ls  查找命令所在位置
+
+find 搜索查找
+按照文件名查找
+#find  /root  -name  c.html  查找c.html的位置  -iname 不区分大小写
+
+按照文件属主属组查找 -user -group
+#find /root -user  root
+#find /root -user  zhangsan
+
+#find /root  -group  root
+#find /root  -group  zhangsan
+
+#find /  -user zhangsan 
+
+查找无主文件 -nouser
+#find /  -nouser
+
+按照类型查找 -type  f  file   l link   d  dir
+#find  /root  -type  f 
+#find  /root  -type  l 
+#find  /root  -type  d 
+
+按照权限查找  -perm   777   755  644  000
+#find /  -perm  777
+#find /  -perm  000
+
+按照文件大小查找 -size   +  -    k  M  G
+#find  /root  -size  +1k 
+#find  /  -size   -1k
+
+#find  /  -size  +5M  -a  -size  -7M   
+
+二次查找 -exec
+#find  / -size   +5M  -a  -size  -7M  -exec ls -l {} \;  
+
+查找文件内容
+#grep  "root"  install.log  查找文件内含有root的行
+#grep -i "ROOT" install.log  不区分大小写
+#grep -v  "echo" index.php   查找不含有echo的行
+
+管道符 |
+#ls -l /etc | more
+#cat -n install.log | grep "root"
+
+
+压缩与解压缩
+.tar.gz  
+#tar -zcvf  songjiang.tar.gz   install.log  c.html 压缩install.log c.html文件
+#ls 
+#tar -ztvf  songjiang.tar.gz   查看不解压
+#tar -zxvf  songjiang.tar.gz   解压
+#tar -zxvf  songjiang.tar.gz  -C  www/  定向解压到www目录
+
+.tar.bz2
+#tar -jcvf  yongxiang.tar.bz2  index.php 压缩index.php 
+#tar -jtvf  yongxiang.tar.bz2 查看不解压
+#tar -jxvf  yongxiang.tar.bz2 解压
+#tar -jxvf  yongxiang.tar.bz2 -C www/  定向解压到www目录
+
+关闭系统 重启系统
+#shutdown -h  now   现在关机
+#shutdown -r  now   重启
+
+#reboot  重启 
+
+挂载命令   命令 mount      设备名  /dev/cdrom /dev/sr0   挂载点 /mnt  
+物理操作：已连接
+建立挂载点：#mkdir /mnt/cdrom
+进行挂载#mount -t iso9660 /dev/cdrom /mnt/cdrom
+        #mount  /dev/sr0 /mnt/cdrom
+
+卸载 #umount /dev/sr0    卸载设备
+     #umount /mnt/cdrom  卸载挂载点    （退出挂载点卸载）
+
+网络命令
+#ifconfig  查看网络设备    lo  本地回环地址
+#ifconfig  eth0 192.168.155.251  设置临时IP 
+
+#ping  -c 5 192.168.155.250  测试网络连通
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

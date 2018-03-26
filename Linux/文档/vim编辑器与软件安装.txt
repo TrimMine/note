@@ -1,0 +1,186 @@
+vi编辑器 
+
+vi-> vim (加强版/升级版)
+
+三种模式
+命令模式   插入模式    末行模式
+   a i o    ESC       :wq 保存退出   :w 保存  :q 退出  :q! 不保存退出 
+                       !强制  :wq! 强制保存退出（root）
+
+#vi  index.php
+
+光标移动 h j k l    :n   :30   gg 光标移动第一行  G 光标移动最后一行
+行号显示：set nu   
+取消行号：set nonu   
+
+
+删除(剪切) 字符 x  nx     删除（剪切） 行  dd  ndd     dG 
+
+撤销 u    反撤销 ctrl+r
+
+复制 yy  nyy
+
+粘贴 p
+
+
+颜色开关（语法高亮）
+:syntax on  开启         :syntax off 关闭
+
+建立配置文件
+#vim  /root/.vimrc 
+set nu
+
+查找 /   /hello   n 向下  N 向上
+
+替换  i686  666666
+   :30,90s/i686/666666/g
+   :%s/i686/666666/g 全文替换
+
+注释  #   // 
+:5,20s/^/#/g 添加注释    :10,20s/^#//g 取消注释  
+
+:30,50s/^/\/\//g 添加注释  :40,50s/^\/\///g 取消注释
+
+
+软件的安装
+Linux常见软件包分类:   源码包 (.tar.gz  .tar.bz2)
+                       优点：源代码开发  自定义安装  
+                       缺点：编译时间长  一旦报错 比较难于解决
+                      二进制包  .rpm 
+                       优点：安装速度快  简易
+                       缺点：不能自定义  依赖性 
+
+二进制包安装：1）rpm 命令    2）yum 自动化安装
+1）
+#mount /dev/sr0 /mnt/cdrom
+#ls /mnt/cdrom
+#cd /mnt/cdrom/Packages/
+#ls | wc -l  统计
+
+命名：软件名-版本号-更新次数linux平台-硬件平台.rpm 
+                                      i686（i386） 32位
+                                      x86_64  64位
+                                      noarch  跨平台 
+
+依赖性 
+
+安装tree目录树
+#rpm  -ivh  tree-tab补全 
+#tree
+#tree /
+
+升级#rpm -Uvh
+
+卸载
+#rpm -e  tree 
+(--nodeps 不检查依赖关系)
+
+查询 -q 
+#rpm -qa | wc -l  查询系统安装的二进制包和统计
+#rpm -qa | grep httpd   查询系统是否安装的httpd 
+
+查询软件信息 -qi  -qip
+#rpm -qip tree-tab补全 查看未安装的软件包的信息
+#rpm -ivh tree-tab补全
+#rpm -qi tree  查看已经安装的软件包的信息
+
+查询软件安装的位置 -ql 
+#rpm -qlp tree-tab 补全  查看软件包将要安装的位置
+#rpm -ql tree  查看当前软件安装的位置
+
+查看命令属于哪个软件包 -qf 
+#rpm -qf  /bin/ls
+
+2)yum 自动化安装
+#yum -y install  tree  安装
+#yum -y remove  tree   卸载
+#yum -y update  tree   升级
+#yum list   查看可以使用yum安装的软件包
+
+配置光盘yum源
+1）挂载
+#mount /dev/sr0 /mnt/cdrom 
+2) 修改文件名
+#cd /etc/yum.repos.d/
+#mv CentOS-Base.repo  CentOS-Base.repo.bak
+3)修改光盘yum源
+#vim CentOS-Media.repo
+baseurl=file:///mnt/cdrom/
+gpgcheck=0
+enabled=1
+
+#yum list 
+
+#yum -y  remove tree  卸载 tree
+#yum -y  install tree  安装 tree 
+#tree
+
+安装gcc （c语言编译器）
+#yum -y install gcc
+
+
+源码包安装：
+xshell 远程管理工具 
+#ifconfig  eth0 192.168.155.251
+#ping 192.168.155.250  
+
+xftp 远程文件传输工具
+
+安装httpd-2.2.29.tar.gz 
+1)解压
+#tar -zxvf httpd-2.2.29.tar.gz
+2)进入目录
+#cd httpd-2.2.29
+#ls
+3)查看README INSTALL文件
+#vim README
+#vim INSTALL
+4)检查配置
+#./configure --prefix=/usr/local/apache2/
+5)编译
+#make
+6)编译安装
+#make install
+
+关闭linux防火墙
+#setup
+
+启动运行：
+#/usr/local/apache2/bin/apachectl  start  开启
+
+
+测试: windows 浏览器 192.168.155.251    It works!
+
+
+卸载
+#/usr/local/apache2/bin/apachectl stop  关闭服务
+#rm -rf /usr/local/apache2/
+
+
+
+命令：
+#date 查看时间
+#date -s 20160819
+#date -s 12:16:59
+
+#du -sh  查看目录大小
+#du -sh  /  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

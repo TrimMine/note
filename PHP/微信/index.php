@@ -1,0 +1,84 @@
+php<?php
+namespace app\system\controller;
+use think\Controller;
+
+/**
+*  首页
+*/
+class Index extends Controller
+{
+
+		  private $appId = 'wxef1b278da1060f61';
+		  private $appSecret = 'dfbb02bff91a032d9b91e4aebd631ee8';
+
+		  public function test() {
+		  		$jsapiTicket = $this->getJsApiTicket();
+			    # 注意 URL 一定要动态获取，不能 hardcode.
+			    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+			    $url = "$protocol$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+			    $timestamp = time();
+			    $nonceStr = $this->createNonceStr();
+			    #这里参数的顺序要按照 key 值 ASCII 码升序排序
+			    $string = "jsapi_ticket=$jsapiTicket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
+
+			    $signature = sha1($string);
+			    $signPackage = array(
+			      "appId"     => $this->appId,
+			      "nonceStr"  => $nonceStr,
+			      "timestamp" => $timestamp,
+			      "url"       => $url,
+			      "signature" => $signature,
+			      "rawString" => $string
+			    );
+			    return $this->fetch('test',['data'=>$signPackage]);
+		    
+		  }
+
+		  private function createNonceStr($length = 16) {
+		    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		    $str = "";
+		    for ($i = 0; $i < $length; $i++) {
+		      $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+		    }
+		    return $str;
+		  }
+		  	#获取ticket
+		    public function getJsApiTicket(){
+			    if (session('ticket.time') < time()) {
+			       $accessToken = $this->getAccessToken();
+			       #如果是企业号用以下 URL 获取 ticket
+			       #$url = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?access_token=$accessToken";
+			       $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token=$accessToken";
+			       $res = json_decode($this->httpGet($url),true);
+			       session('ticket.ticket',$res['ticket']);
+			       session('ticket.time',time()+7000);
+			    } 
+		  	    return session('ticket.ticket');
+		    }
+
+		  	#获取Token
+		    public function getAccessToken() {
+			   if (session('token.time') < time()) {
+			  		$token = $this->httpGet("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wxef1b278da1060f61&secret=dfbb02bff91a032d9b91e4aebd631ee8");
+					session('token.access_token',json_decode($token,true)['access_token']);
+					session('token.time',time() + 7000);
+			  	}
+			    return  session('token.access_token');
+		    }
+
+
+		  private  function httpGet($url) {
+		    $curl = curl_init();
+		    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		    curl_setopt($curl, CURLOPT_TIMEOUT, 500);
+		    // 为保证第三方服务器与微信服务器之间数据传输的安全性，所有微信接口采用https方式调用，必须使用下面2行代码打开ssl安全校验。
+		    // 如果在部署过程中代码在此处验证失败，请到 http://curl.haxx.se/ca/cacert.pem 下载新的证书判别文件。
+		    #curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+		    #curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, true);
+		    curl_setopt($curl, CURLOPT_URL, $url);
+		    $res = curl_exec($curl);
+		    curl_close($curl);
+		    return $res;
+		  }
+		 
+}

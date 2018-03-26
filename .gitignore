@@ -1,0 +1,10 @@
+Swoole/
+*.zip
+*.pdf
+*.exe
+*.pptx
+*.kux
+*.cap
+*.gz
+*.msi
+*.bz2
