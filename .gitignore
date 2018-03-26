@@ -1,4 +1,3 @@
-Swoole/
 *.zip
 *.pdf
 *.exe
@@ -9,3 +8,4 @@ Swoole/
 *.msi
 *.bz2
 OTHER/note.php
+*.rar

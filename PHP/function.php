@@ -2416,3 +2416,6 @@ function divisible(int $dividend, int $divider): int {
 divisible(6, 3);
 divisible(6, 4);
 Return type hints对类型的处理，和参数使用的规则是相同的。默认采用coersive type，当开启strict type之后，不满足约定的类型将会导致\TypeError异常。
+
+
+//=================================  PHP    PHP7新特性  ====================================
