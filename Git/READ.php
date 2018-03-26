@@ -41,14 +41,28 @@ $ cat ~/.ssh/id_rsa.pub
 9.推送之前最好先拉取一下 				$ git pull
 10.查看两个分支有何不同					$ git log branch_1...branch2
 11.分支创建分支：             			$ git branch mybranch
-12.查看日志								$ git log　　　　　　
+12.查看日志								$ git log　　　　　
+　
 --查看修改历史 git show <hash值> 可以显示出这条commit修改的内容。
 (git log内容其中commit后面的64个字符16进制的字符串，称为commit hash, 是这条的commit的唯一标识，全球唯一)
 	commit 85b6d9de45e4efe8220508f845a2a3d11ca609b2
 　　Author: YuanSuyi<tech31@hzdusun.com>
 　　Date:   Mon May 22 14:51:13 2017 +0800
+
 12.git reset --hard　　　　　　
 --撤消一切本地的修改，将本地目录恢复为最后一次提交时的状态。包括被修改的文件，删除的文件都会被恢复原样。我们称之为hard reset。
+
+13.git branch -a  查看远程分支
+
+14.git checkout xf  切换本地分支：git checkout <分支名>
+
+15.git pull origin xf:xf   把远程分支的代码pull到本地分支：git pull <远程主机名> <远程分支名>:<本地分支名>
+
+16.git push origin xf:xf   最后一步：git push <远程主机名> <本地分支名>:<远程分支名>
+
+第二种写法 :git push origin test
+如果省略远程分支名，则表示将本地分支推送与之存在"追踪关系"的远程分支（通常两者同名），如果该远程分支不存在，则会被新建。
+
 /*-----------------------   git GIT PUSH/PULL时总需要输入用户名密码的解决方案  ------------------------*/
 /*
 1.git config --global credential.helper store  
