@@ -8,3 +8,4 @@ Swoole/
 *.gz
 *.msi
 *.bz2
+OTHER/note.php
