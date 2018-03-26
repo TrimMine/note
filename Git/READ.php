@@ -33,7 +33,7 @@ $ cat ~/.ssh/id_rsa.pub
 1.创建新的文件夹 						$ mdkir test
 2.进入文件夹  							$ git init
 3.创建本地分支然后从地址拉取 			$ git remote add master1 仓库地址 
-4.添加文件或文件夹跟踪  				$ git add . 
+4.添加文件或文件夹跟踪  				$ git add . (每次提交都需要git add . 点代表追踪全部)
 5.拉取文件从地址  						$ git pull 地址 
 6.提交修改 								$ git commit -m '提交信息'
 7.选择推送分支							$ git push master 
