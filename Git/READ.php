@@ -35,12 +35,13 @@ $ cat ~/.ssh/id_rsa.pub
 3.创建本地分支然后从地址拉取 			$ git remote add master1 仓库地址 
 4.添加文件或文件夹跟踪  				$ git add . 
 5.拉取文件从地址  						$ git pull 地址 
-6.选择推送分支							$ git push master 
-7.设置分支								$ git push --set-upstream master1 master
-8.推送之前最好先拉取一下 				$ git pull
-9.查看两个分支有何不同					$ git log branch_1...branch2
-10.分支创建分支：             			$ git branch mybranch
-11.查看日志								$ git log　　　　　　
+6.提交修改 								$ git commit -m '提交信息'
+7.选择推送分支							$ git push master 
+8.设置分支								$ git push --set-upstream master1 master
+9.推送之前最好先拉取一下 				$ git pull
+10.查看两个分支有何不同					$ git log branch_1...branch2
+11.分支创建分支：             			$ git branch mybranch
+12.查看日志								$ git log　　　　　　
 --查看修改历史 git show <hash值> 可以显示出这条commit修改的内容。
 (git log内容其中commit后面的64个字符16进制的字符串，称为commit hash, 是这条的commit的唯一标识，全球唯一)
 	commit 85b6d9de45e4efe8220508f845a2a3d11ca609b2
