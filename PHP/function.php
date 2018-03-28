@@ -747,37 +747,68 @@ define(NAME,'1234');
 
 
 
+
 #==============================  #微信授权登陆   =================================
-class WechatController extends Controller{
+    protected static $appid = '';
+    protected static $secret = '';
+    protected static $redirect_uri = '';
 
-  protected static $appid = 'wx1067a0c94e9bb8a6';
-  protected static $secret = 'c74f9a75d87a48da21a020fcb15ce42d';
-  protected static $redirect_uri = 'http://cf.ewtouch.com/Home/Wechat/wechat_info.html';  
-
-  public function wechat_login()
-  {
-    $url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='.self::$appid.'&redirect_uri='.self::$redirect_uri.'&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect';
-    header('Location:'.$url);
-  }
-
-  public function wechat_info()
-  {
-    #判断是否已经获取了用户信息 避免用户刷新或返回报错 用户每次进入都请求微信授权 如果近期授权则不用再次同意 直接获取用户信息 这是的code和session中的code不同 所以需要加上  $_SESSION['code'] == $_GET['code'] 防止出现两次跳转获取code
-    if (!empty($_SESSION['code']) && $_SESSION['code'] == $_GET['code']) {
-      unset($_SESSION['code']);
-      redirect('wechat_login');
+    public function __construct()
+    {
+        self::$appid = config('wx_config.app_id');
+        self::$secret = config('WECHAT_CONF.secret');
+        self::$redirect_uri = config('WECHAT_CONF.redirect_uri');
     }
-    $code = $_GET['code'];
-    $state = $_GET['state'];
-    $url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='.self::$appid.'&secret='.self::$secret.'&code='.$code.'&grant_type=authorization_code ';
-    $res = json_decode(file_get_contents($url),true);
-    $url = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$res['access_token'].'&openid='.$res['openid'].'&lang=zh_CN';
+    #授权登录 获取个人信息
+    public function wechat_login()
+    {
+        #是否是携带code  session('code') == input('param.code')避免一个code获取两次信息
+        if (input('param.code') == '' || session('code') == input('param.code')){
+            $url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . self::$appid . '&redirect_uri=' . self::$redirect_uri . '&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect';
+            header('Location:'. $url);exit;
+        //在每个重定向之后都必须加上 exit ,避免发生错误后，继续执行。
+        }
+        #获取code
+        $code = input('param.code');
+        #存到session 避免刷新
+        session('code', input('param.code'));
+        #state
+        $state = input('param.state');
+        #跳转地址
+        $url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . self::$appid . '&secret=' . self::$secret . '&code=' . $code . '&grant_type=authorization_code ';
+        #获取access_token和openid
+        $res = json_decode($this->https_request($url), true);
+        #获取用户信息
+        $url = 'https://api.weixin.qq.com/sns/userinfo?access_token=' .   $res['access_token'] . '&openid=' .$res['openid'] . '&lang=zh_CN';
+        #用户信息
+        $userinfo = json_decode($this->https_request($url), true);
+        #检查用户信息
+        session('wechat', $userinfo);
+        #重定向到
+        $this->redirect('/index/index/index');
+    }
 
-    $userinfo = json_decode(file_get_contents($url),true);
-    echo "<pre>";
-    var_dump($userinfo);
-    echo "</pre>";
-  }
+
+    function https_request($url)
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $data = curl_exec($curl);
+        if (curl_errno($curl)) {
+            return 'ERROR ' . curl_error($curl);
+        }
+        curl_close($curl);
+        return $data;
+    }
+
+#==============================  PHP header   =================================
+
+ Header("Location: http://www.php.net"); exit;   
+//在每个重定向之后都必须加上 exit,避免发生错误后，继续执行。
+
 #==============================  #TP redirect   =================================
   
   //重定向到New模块的Category操作  可携带参数
