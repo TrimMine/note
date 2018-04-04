@@ -1334,7 +1334,7 @@ urldecode()函数与urlencode()# 函数原理相反，用于解码已编码的 U
 
 
 #bcadd — 将两个高精度数字相加 
-#bccomp — 比较两个高精度数字，返回-1, 0, 1 
+#bccomp — 比较两个高精度数字，返回 bccomp(1,2) 结果为 -1   小于-1, 相等 0, 大于 1 
 #bcdiv — 将两个高精度数字相除 
 #bcmod — 求高精度数字余数 
 #bcmul — 将两个高精度数字相乘 
@@ -1896,7 +1896,7 @@ Apache提示You don't have permission to access / on this server问题解决
 #================  #php 对二维数组排序 =========
 //1.
 $sort_num[] = $return[$key]['total_results'];
-                //要排序的字段值(数组) //要排序的数组
+                //要排序的字段值(数组) //要排序的数组     如果数组里面元素的数量不同将会报错 array_multisort(): Array sizes are inconsistent 
 array_multisort($sort_num, SORT_DESC, $return); // SORT_DESC SORT_ASC
 return $return;
 //2.
@@ -2515,9 +2515,219 @@ include("a.php");
 5.需判断返回状态是否成功
 6.需判断金额是否与订单一致
 7.tp5因为驼峰命名导致地址栏的事自动转换为 _和小写  这个时候和微信商户号支付授权目录会找不到该目录,避免这种写法
+8.回调结束如果不成功可输出 exit('success');微信 exit(xml)
 
 
 //=================================  PHP    商户号配置  ====================================
  
 1.产品中心 ->开发配置 -> 包括选项  商户号 授权目录 扫码支付回调
 2.账户中心 api配置  ->包括选项     证书下载  MD5秘钥设置(自己设置任意值)   此项所有操作都需要安装客户端操作证书
+//=================================  PHP    js判断是在微信还是php  ====================================
+
+
+function isWeiXin() {
+var ua = window.navigator.userAgent.toLowerCase();
+console.log(ua);//mozilla/5.0 (iphone; cpu iphone os 9_1 like mac os x) applewebkit/601.1.46 (khtml, like gecko)version/9.0 mobile/13b143 safari/601.1
+if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+return true;
+} else {
+return false;
+}
+}
+
+//=================================  PHP   导出表格  ====================================
+
+compsoer包  
+"phpoffice/phpexcel":"1.8.1"
+下载完成  只有Classes文件夹是有用的
+
+一.导出的三种方法  此处使用的是  makeExport 包是 index 和 makeExport 包含的包
+
+Excel.php 可写为控制器或者service
+
+namespace app\system\controller;
+
+use PHPExcel;
+use PHPExcel_IOFactory;
+class Excel extends Base{
+
+
+  /**
+   * excel保存表格
+   *   */
+   public function index(){
+      $path = dirname(__FILE__); //找到当前脚本所在路径
+      $PHPExcel = new PHPExcel(); //实例化PHPExcel类，类似于在桌面上新建一个Excel表格
+      $PHPSheet = $PHPExcel->getActiveSheet(); //获得当前活动sheet的操作对象
+      $PHPSheet->setTitle('demo'); //给当前活动sheet设置名称
+      $PHPSheet->setCellValue('A1','姓名')->setCellValue('B1','分数');//给当前活动sheet填充数据，数据填充是按顺序一行一行填充的，假如想给A1留空，可以直接setCellValue('A1',');
+      $PHPSheet->setCellValue('A2','张三')->setCellValue('B2','50');
+      $PHPWriter = PHPExcel_IOFactory::createWriter($PHPExcel,'Excel2007');//按照指定格式生成Excel文件，'Excel2007'表示生成2007版本的xlsx，
+      $PHPWriter->save($path.'/demo.xlsx'); //表示在$path路径下面生成demo.xlsx文件
+    }
+
+  /**
+    * excel表格导出 第一种 
+    * @param string $name 当前活动名称
+    * @param string $title 文件名称
+    * @param array  $th 表头名称
+    * @param array  $tr 要导出的数据
+    * @author  */
+    public function makeExport($tr,$th='',$title='订单列表',$name='普通订单'){
+      $PHPExcel = new PHPExcel();
+      #获得当前活动sheet的操作对象    
+          $PHPSheet = $PHPExcel->getActiveSheet();     
+          #给当前活动sheet设置名称 
+      $PHPSheet->setTitle($name);   
+      #判断数据大小
+      if (count($tr) < 500) {
+           $array =array_merge_recursive([$th],$tr); 
+               $PHPSheet -> fromArray($array);//数据较大时，不建议使用此方法，建议使用setCellValue()  
+      }else{
+         $PHPSheet->setCellValue('A1','订单ID')->setCellValue('B1','订单编号')->setCellValue('C1','用户名/收货人')->setCellValue('D1','收货地址')->setCellValue('E1','套餐名称')->setCellValue('F1','订单价格')->setCellValue('G1','订单状态')->setCellValue('H1','商品标题')->setCellValue('I1','商品价格')->setCellValue('J1','商品图片')->setCellValue('K1','商品数量');  
+      }
+       
+      #给当前活动sheet填充数据，数据填充是按顺序一行一行填充的，假如想给A1留空，可以直接setCellValue('A1',');
+      $PHPWriter = PHPExcel_IOFactory::createWriter($PHPExcel,'Excel2007');     
+      #按照指定格式生成Excel文件，'Excel2007'表示生成2007版本的xlsx，'Excel5'表示生成2003版本Excel文件
+      #告诉浏览器输出07Excel文件
+      header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');     
+      #header('Content-Type:application/vnd.ms-excel');     #告诉浏览器将要输出Excel03版本文件
+      #告诉浏览器输出浏览器名称
+          header('Content-Disposition: attachment;filename="'.$title.'.xlsx"');  
+          #禁止缓存   
+          header('Cache-Control: max-age=0');     
+          $PHPWriter->save("php://output");
+          
+  }
+
+   /**
+    * excel表格导出 第二种 
+    * @param string $fileName 文件名称
+    * @param array $headArr 表头名称
+    * @param array $data 要导出的数据
+    * @author static7  */
+  public function excelTwo($data){
+      $title=array('订单ID','收货人','地址','收货人手机','订单号','支付单号','金额','订单状态','支付类型','下单时间');//表格中的标题
+      header('Pragma: public');
+      header('Expires: 0');
+      header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+      header('Content-Type: application/force-download');
+      header('Content-Type: application/octet-stream');
+      header('Content-Type: application/download');;
+      header('Content-Disposition: attachment;filename='.'订单表_'.date('Y-m-d',time()).'.xls');
+      header('Content-Transfer-Encoding: binary ');
+      //导出xls 开始，写入excel表
+      if (!empty($title)) {
+          foreach ($title as $k => $v) {
+              $title[$k]=iconv('UTF-8', 'GB2312',$v);
+          }
+          $title = implode("\t", $title);
+          echo $title."\n";//\n为换行//把标题写入表格中
+      }
+      if (!empty($data)){
+          foreach($data as $key=>$val){
+              foreach ($val as $ck =>$cv) {
+                  $data[$key][$ck]=iconv('UTF-8', 'GB2312', $cv);
+              }
+              $data[$key]=implode("\t", $data[$key]);
+          }
+          echo implode("\n",$data);//把数据写入表格中
+       }
+  }
+    /**
+     * excel表格导出 第三种  th 头方法
+     * @param string $fileName 文件名称
+     * @param array $headArr 表头名称
+     * @param array $data 要导出的数据
+     * @author static7  */
+    /*public function excelExportThree($fileName = '', $headArr = [], $data = [])
+    {
+        $fileName .= "_" . date("Y_m_d", Request::instance()->time()) . ".xls";
+        $objPHPExcel = new \PHPExcel();
+        $objPHPExcel->getProperties();
+        $key = ord("A"); // 设置表头
+        foreach ($headArr as $v) {
+            $colum = chr($key);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($colum . '1', $v);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($colum . '1', $v);
+            $key += 1;
+        }
+        $column = 2;
+        $objActSheet = $objPHPExcel->getActiveSheet();
+        foreach ($data as $key => $rows) { // 行写入
+            $span = ord("A");
+            foreach ($rows as $keyName => $value) { // 列写入
+                $objActSheet->setCellValue(chr($span) . $column, $value);
+                $span++;
+            }
+            $column++;
+        }
+        $fileName = iconv("utf-8", "gb2312", $fileName); // 重命名表
+        $objPHPExcel->setActiveSheetIndex(0); // 设置活动单指数到第一个表,所以Excel打开这是第一个表
+        header('Content-Type: application/vnd.ms-excel');
+        header("Content-Disposition: attachment;filename='$fileName'");
+        header('Cache-Control: max-age=0');
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save('php://output'); // 文件通过浏览器下载
+        exit();
+    }*/
+      /**
+       * 调用第三种方法
+       * @param
+       * @author staitc7  * @return mixed
+       */
+      /*public function excel() {
+         $name='测试导出';
+         $header=['表头A','表头B'];
+         $data=[
+             ['嘿嘿','heihei'],
+             ['哈哈','haha']
+         ];
+         excelExport($name,$header,$data);
+      }*/
+
+
+}
+
+//============
+
+/*
+Order.php  需要用 <a href=/index/order/excelData>导出订单</a>  摘自富足
+
+    #导出订单
+    public function excelData()
+    {
+        $data = db('orders_detail')->select();
+        $excel = new Excel();
+        $th = ['订单ID','订单编号','收货人','手机号','收货地址','套餐名称','订单价格','订单状态','商品标题','创建时间'];
+        foreach ($data as $key => $value) {
+            $tr[$key][] = $value['id'];
+            $tr[$key][] = $value['order_num'];
+            $tr[$key][] = $value['consignee'];
+            $tr[$key][] = $value['telephone'];
+            $tr[$key][] = $value['province'].$value['city'].$value['area'].$value['detail'];
+            $tr[$key][] = $value['price'];
+            switch ($value['status']) {
+                case '1':
+                 $tr[$key][] = '待付款';
+                    break;
+                case '2':
+                 $tr[$key][] = '待发货';
+                    break;
+                case '3':
+                 $tr[$key][] = '待收货';
+                    break;
+                case '4':
+                 $tr[$key][] = '已确认';
+                    break;
+            }
+            $tr[$key][] = $value['good_name'];
+            $tr[$key][] = $value['created_at'];
+        }
+        $excel->makeExport($tr,$th,'富足订单','套餐订单');
+    }
+
+
+
+//=================================  PHP     ====================================

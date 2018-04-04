@@ -238,7 +238,7 @@ function download(src) {
     <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>  
     <script type="text/javascript" src="js/jquery.cookie.js"></script>   
       
-    新增cookie：  
+   <!--  新增cookie：  
         $.cookie('cookieName', 'cookieValue');    
         注：如果没有设置cookie的有效期，则cookie默认在浏览器关闭前都有效，故被称为"会话cookie"。  
           
@@ -252,12 +252,12 @@ function download(src) {
         $.cookie('cookieName'); // 若cookie存在则返回'cookieValue'；若cookie不存在则返回null   
           
     删除cookie：把ncookie的值设为null即可  
-        $.cookie('the_cookie', null);   
+        $.cookie('the_cookie', null);    -->
 
 <!-- ============================== js     js转时间戳 ================================ -->
 
 
-        //js转时间戳
+      <!--   //js转时间戳
     function timestampToTime(timestamp) {
         var date = new Date(timestamp * 1000);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
         Y = date.getFullYear() + '-';
@@ -266,5 +266,16 @@ function download(src) {
         h = date.getHours() + ':';
         m = date.getMinutes() + ':';
         s = date.getSeconds();
-        return Y+M+D+h+m+s;
+        return Y+M+D+h+m+s; -->
+<!-- ============================== js     js判断在微信还在在浏览器 ================================ -->
     
+<!-- 
+  function isWeiXin() {
+    var ua = window.navigator.userAgent.toLowerCase();
+    console.log(ua);//mozilla/5.0 (iphone; cpu iphone os 9_1 like mac os x) applewebkit/601.1.46 (khtml, like gecko)version/9.0 mobile/13b143 safari/601.1
+       if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+          return true;
+      } else {
+          return false;
+      }
+  } -->
