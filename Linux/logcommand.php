@@ -882,6 +882,7 @@ hostname mail.tome178.com
 然后重启sendmail就可以发送邮件了
 
 ------------------------ linux  设置自启动 ------------------------
+
 在启动时关闭sendmail 服务 [其它服务也一样] 
 在启动时关闭sendmail- -对其他的服务可以采取同样的措施。 
 而对于那些不是从inetd启动的服务，则通过命令来关闭，例如需要关闭sendmail服务，则： 
@@ -2112,3 +2113,73 @@ Flags field:
   0x00024000  special threads (2.5) 
   0x001D0000  special states (2.5) 
   0x00100000  PF_USEDFPU (thru 2.4)
+
+
+------------------------- linux  alias命令 ---------------------------
+
+家目录 .bashrc   添加  alias ll='ls -l'
+
+
+
+------------------------- linux  星期和月份缩写 ---------------------------
+
+一月份＝JAN.   Jan.=January
+二月份＝FEB.   Feb.=February
+三月份＝MAR.   Mar.=March 
+四月份＝APR.   Apr.=April 
+五月份＝MAY    May=May
+六月份＝JUN.   Jun.=June
+七月份＝JUL.   Jul.=July
+八月份＝AUG.   Aug.=August 
+九月份＝SEP.   Sept.=September
+十月份＝OCT.   Oct.=October
+十一月份＝NOV. Nov.=November
+十二月份＝DEC. Dec.=December
+
+
+
+星期一： Mon.=Monday 
+星期二： Tues.=Tuesday 
+星期三： Wed.=Wednesday 
+星期四： Thur.=Thursday 
+星期五： Fri.=Friday 
+星期六： Sat.=Saturday 
+星期天： Sun.=Sunday
+
+------------------------- linux  shell 命令 ---------------------------
+
+
+-e filename 如果 filename存在，则为真
+-d filename 如果 filename为目录，则为真 
+-f filename 如果 filename为常规文件，则为真
+-L filename 如果 filename为符号链接，则为真
+-r filename 如果 filename可读，则为真 
+-w filename 如果 filename可写，则为真 
+-x filename 如果 filename可执行，则为真
+-s filename 如果文件长度不为0，则为真
+-h filename 如果文件是软链接，则为真
+filename1 -nt filename2 如果 filename1比 filename2新，则为真。
+filename1 -ot filename2 如果 filename1比 filename2旧，则为真。
+
+-eq 等于
+-ne 不等于
+-gt 大于
+-ge 大于等于
+-lt 小于
+-le 小于等于
+
+
+
+------------------------ linux 源码安装  ------------------------
+ 
+ 安装前需要提前安装 gcc 和 autoconfig
+sudo ./configure --prefix=/www/...  指定到文件夹下   使用 ./configure --help 查看具体参数设置
+示例如下
+(sudo ./configure --prefix=/usr/local/php7 \
+--enable-fpm \
+--with-config-file-path=/usr/local/php7/etc \  
+--with-iconv=/usr/local/lib/libiconv \)
+sudo make
+sudo make install
+
+
