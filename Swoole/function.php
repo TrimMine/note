@@ -19,7 +19,7 @@ http://git.oschina.net/swoole/swoole
 
 将下载到的源代码解压到任意目录，并且进入目录，分别执行以下命令进行编译
 
-phpize
+phpize  扩展安装包 生成 configure文件
 ./configure 
  如果不行 报错 configure: error: Cannot find php-config. Please use --with-php-config=PATH
 

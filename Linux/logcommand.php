@@ -30,8 +30,8 @@ awk '{cnt[$1]++;}END{for(i in cnt){printf("%s\t%s\n", cnt[i], i);}}' access.log.
 ------------------------- netstat ---------------------------
 
 远程连接 ECS 实例。
-运行以下命令查看 TCP 80 是否被监听。
-netstat -an | grep 80
+运行以下命令查看 TCP 80 是否被监听。 是否被使用
+netstat -anp | grep 80
 如果返回以下结果，说明 TCP 80 端口的 Web 服务启动。
 tcp        0      0 0.0.0.0:80                  0.0.0.0:*                   LISTEN
 
@@ -445,7 +445,7 @@ openssl x509 -inform DER -in allinpay-pds.cer  -out allinpay-pds.pem
 ------------------------ linux 安装swoole config------------------------
 
 configure: error: Cannot find php-config. Please use --with-php-config=PATH
-一般出现这个错误说明你执行 ./configure 时  --with-php-config 这个参数配置路径错误导致的。
+一般出现这个错误说明你执行 ./configure 时  --with-php-config 这个参数配置路径错误导致的。你可能是多个版本的php需要指定php路径
 查找:
 find / -name  php-config
 修改为：
@@ -2161,6 +2161,14 @@ Flags field:
 filename1 -nt filename2 如果 filename1比 filename2新，则为真。
 filename1 -ot filename2 如果 filename1比 filename2旧，则为真。
 
+
+shell 中利用 -n 来判定字符串非空。
+if [ str1 = str2 ]　　　　　  当两个串有相同内容、长度时为真 
+if [ str1 != str2 ]　　　　　 当串str1和str2不等时为真 
+if [ -n str1 ]　　　　　　 当串的长度大于0时为真(串非空) 
+if [ -z str1 ]　　　　　　　 当串的长度为0时为真(空串) 
+if [ str1 ]　　　　　　　　 当串str1为非空时为真
+
 -eq 等于
 -ne 不等于
 -gt 大于
@@ -2170,16 +2178,61 @@ filename1 -ot filename2 如果 filename1比 filename2旧，则为真。
 
 
 
------------------------- linux 源码安装  ------------------------
+------------------------ linux 源码安装 php ------------------------
  
  安装前需要提前安装 gcc 和 autoconfig
+
 sudo ./configure --prefix=/www/...  指定到文件夹下   使用 ./configure --help 查看具体参数设置
 示例如下
-(sudo ./configure --prefix=/usr/local/php7 \
---enable-fpm \
---with-config-file-path=/usr/local/php7/etc \  
---with-iconv=/usr/local/lib/libiconv \)
+(
+sudo ./configure --prefix=/usr/local/php7 --enable-fpm --with-config-file-path=/usr/local/php7/etc  --with-openssl --with-iconv=/usr/local/lib/libiconv 
+) 
 sudo make
 sudo make install
 
+安装完成可查看 ./bin/php-i | grep php.ini 找到生效的ini文件路径  如果编译时没有指定etc目录默认在 lib下
+如果没有改文件 需要负责源码包里的 php.ini-development 更名为 php.ini到 指定目录 (./bin/php-i | grep php.ini 指定的目录)
 
+加入 openssl 扩展到ini文件
+extension=openssl.so
+//比较全面的编译php配置
+
+sudo ./configure  --prefix=/home/laotianye/www/php/72 --with-config-file-path=/home/laotianye/www/php/72/etc   --with-iconv-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr/ --enable-xml --disable-rpath  --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization  --enable-mbregex   --enable-mbstring  --with-mcrypt   --enable-ftp --with-gd --enable-gd-native-ttf  --with-openssl -with-mhash --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap  --without-pear  --with-gettext  --with-curl   --with-apxs2=/usr/bin/apxs --with-mysqli --with-pdo-mysql --enable-mbstring
+
+
+--with-openssl 报错 
+configure: error: Cannot find OpenSSL's <evp.h>
+暂时去除 
+
+------------------------ linux 源码安装 swoole ------------------------
+
+安装git  
+git clone 源码 
+使用phpize生成configure文件
+make
+make install
+
+源码包里 examples/server 里面有例子
+./configure --with-php-config=/home/laotianye/www/72/bin/php-config 
+
+
+------------------------ linux find权限不足  ------------------------
+
+find: ‘/run/user/1000/doc’: 权限不够
+find: ‘/run/user/1000/gvfs’: 权限不够
+
+
+可以通过卸载的方式来解决这个问题:
+
+#umount gvfs
+
+------------------------ linux  deepin  ------------------------
+切换至root  
+sudo  su
+
+------------------------ linux  git安装  ------------------------
+centos
+yum install git-core
+
+debian ubantu 
+apt-get install git
