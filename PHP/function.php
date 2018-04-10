@@ -747,37 +747,68 @@ define(NAME,'1234');
 
 
 
+
 #==============================  #微信授权登陆   =================================
-class WechatController extends Controller{
+    protected static $appid = '';
+    protected static $secret = '';
+    protected static $redirect_uri = '';
 
-  protected static $appid = 'wx1067a0c94e9bb8a6';
-  protected static $secret = 'c74f9a75d87a48da21a020fcb15ce42d';
-  protected static $redirect_uri = 'http://cf.ewtouch.com/Home/Wechat/wechat_info.html';  
-
-  public function wechat_login()
-  {
-    $url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid='.self::$appid.'&redirect_uri='.self::$redirect_uri.'&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect';
-    header('Location:'.$url);
-  }
-
-  public function wechat_info()
-  {
-    #判断是否已经获取了用户信息 避免用户刷新或返回报错 用户每次进入都请求微信授权 如果近期授权则不用再次同意 直接获取用户信息 这是的code和session中的code不同 所以需要加上  $_SESSION['code'] == $_GET['code'] 防止出现两次跳转获取code
-    if (!empty($_SESSION['code']) && $_SESSION['code'] == $_GET['code']) {
-      unset($_SESSION['code']);
-      redirect('wechat_login');
+    public function __construct()
+    {
+        self::$appid = config('wx_config.app_id');
+        self::$secret = config('WECHAT_CONF.secret');
+        self::$redirect_uri = config('WECHAT_CONF.redirect_uri');
     }
-    $code = $_GET['code'];
-    $state = $_GET['state'];
-    $url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='.self::$appid.'&secret='.self::$secret.'&code='.$code.'&grant_type=authorization_code ';
-    $res = json_decode(file_get_contents($url),true);
-    $url = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$res['access_token'].'&openid='.$res['openid'].'&lang=zh_CN';
+    #授权登录 获取个人信息
+    public function wechat_login()
+    {
+        #是否是携带code  session('code') == input('param.code')避免一个code获取两次信息
+        if (input('param.code') == '' || session('code') == input('param.code')){
+            $url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . self::$appid . '&redirect_uri=' . self::$redirect_uri . '&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect';
+            header('Location:'. $url);exit;
+        //在每个重定向之后都必须加上 exit ,避免发生错误后，继续执行。
+        }
+        #获取code
+        $code = input('param.code');
+        #存到session 避免刷新
+        session('code', input('param.code'));
+        #state
+        $state = input('param.state');
+        #跳转地址
+        $url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . self::$appid . '&secret=' . self::$secret . '&code=' . $code . '&grant_type=authorization_code ';
+        #获取access_token和openid
+        $res = json_decode($this->https_request($url), true);
+        #获取用户信息
+        $url = 'https://api.weixin.qq.com/sns/userinfo?access_token=' .   $res['access_token'] . '&openid=' .$res['openid'] . '&lang=zh_CN';
+        #用户信息
+        $userinfo = json_decode($this->https_request($url), true);
+        #检查用户信息
+        session('wechat', $userinfo);
+        #重定向到
+        $this->redirect('/index/index/index');
+    }
 
-    $userinfo = json_decode(file_get_contents($url),true);
-    echo "<pre>";
-    var_dump($userinfo);
-    echo "</pre>";
-  }
+
+    function https_request($url)
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $data = curl_exec($curl);
+        if (curl_errno($curl)) {
+            return 'ERROR ' . curl_error($curl);
+        }
+        curl_close($curl);
+        return $data;
+    }
+
+#==============================  PHP header   =================================
+
+ Header("Location: http://www.php.net"); exit;   
+//在每个重定向之后都必须加上 exit,避免发生错误后，继续执行。
+
 #==============================  #TP redirect   =================================
   
   //重定向到New模块的Category操作  可携带参数
@@ -1131,7 +1162,7 @@ public function get_file($url)
     file_get_contents("php://input");
 
 
-#==============================  #PHP  更快的取到$_POST的值  =================================
+#==============================  #PHP  php判断客户端是否为手机$_POST的值  =================================
 //php判断客户端是否为手机  
  $agent = $_SERVER['HTTP_USER_AGENT'];  
  if(strpos($agent,"NetFront") || strpos($agent,"iPhone") || strpos($agent,"MIDP-2.0") || strpos($agent,"Opera Mini") || strpos($agent,"UCWEB") || strpos($agent,"Android") || strpos($agent,"Windows CE") || strpos($agent,"SymbianOS"))
@@ -1303,7 +1334,7 @@ urldecode()函数与urlencode()# 函数原理相反，用于解码已编码的 U
 
 
 #bcadd — 将两个高精度数字相加 
-#bccomp — 比较两个高精度数字，返回-1, 0, 1 
+#bccomp — 比较两个高精度数字，返回 bccomp(1,2) 结果为 -1   小于-1, 相等 0, 大于 1 
 #bcdiv — 将两个高精度数字相除 
 #bcmod — 求高精度数字余数 
 #bcmul — 将两个高精度数字相乘 
@@ -1865,7 +1896,7 @@ Apache提示You don't have permission to access / on this server问题解决
 #================  #php 对二维数组排序 =========
 //1.
 $sort_num[] = $return[$key]['total_results'];
-                //要排序的字段值(数组) //要排序的数组
+                //要排序的字段值(数组) //要排序的数组     如果数组里面元素的数量不同将会报错 array_multisort(): Array sizes are inconsistent 
 array_multisort($sort_num, SORT_DESC, $return); // SORT_DESC SORT_ASC
 return $return;
 //2.
@@ -2418,11 +2449,294 @@ divisible(6, 4);
 Return type hints对类型的处理，和参数使用的规则是相同的。默认采用coersive type，当开启strict type之后，不满足约定的类型将会导致\TypeError异常。
 
 
-//=================================  PHP    getcwd()  ====================================
+//=================================  PHP    __FILE__  ====================================
+
+__FILE__ 本文件的地址
+
+DIRECTORY_SEPARATOR / 符号 为了跨平台 windows和linux不一样
 
 
-echo getcwd();
+getcwd() ：显示是 在哪个文件里调用此文件 的目录
 
-/home/php
-获取当前的工作目录
+__DIR__ ：当前内容写在哪个文件就显示这个文件目录
 
+__FILE__ ： 当前内容写在哪个文件就显示这个文件目录+文件名
+
+
+
+getcwd（）和 __DIR__ 返回的是文件所在的绝对路径但是没有文件自身的名字在内。
+
+__FILE__则是返回的是文件所在的绝对路径但是有文件自身的名字在内
+
+
+
+__FILE__ 和 __LINE__
+
+这二个都为魔术变量。
+若有a页面和b页面，a包含b页面，
+其中b页面中有__LINE__变量，
+那么__LINE__的值为b页面__LINE__变量所在的行号。
+
+
+//a.php
+echo __FILE__;
+//b.php
+include("a.php");
+运行 b.php 结果还是 a.php。因为 __FILE__ 写在那里，而不是在 b.php 里
+
+
+
+几个 PHP 的“魔术常量”
+名称  说明
+1.__LINE__  文件中的当前行号。
+
+2.__FILE__  文件的完整路径和文件名。如果用在被包含文件中，则返回被包含的文件名。自 PHP 4.0.2 起，__FILE__ 总是包含一个绝对路径（如果是符号连接，则是解析后的绝对路径），而在此之前的版本有时会包含一个相对路径。
+
+3.__DIR__ 文件所在的目录。如果用在被包括文件中，则返回被包括的文件所在的目录。它等价于 dirname(__FILE__)。除非是根目录，否则目录中名不包括末尾的斜杠。（PHP 5.3.0中新增） =
+
+4.__FUNCTION__  函数名称（PHP 4.3.0 新加）。自 PHP 5 起本常量返回该函数被定义时的名字（区分大小写）。在 PHP 4 中该值总是小写字母的。
+
+5.__CLASS__ 类的名称（PHP 4.3.0 新加）。自 PHP 5 起本常量返回该类被定义时的名字（区分大小写）。在 PHP 4 中该值总是小写字母的。类名包括其被声明的作用区域（例如 Foo\Bar）。注意自 PHP 5.4 起 __CLASS__ 对 trait 也起作用。当用在 trait 方法中时，__CLASS__ 是调用 trait 方法的类的名字。
+
+6.__TRAIT__ Trait 的名字（PHP 5.4.0 新加）。自 PHP 5.4 起此常量返回 trait 被定义时的名字（区分大小写）。Trait 名包括其被声明的作用区域（例如 Foo\Bar）。
+
+7.__METHOD__  类的方法名（PHP 5.0.0 新加）。返回该方法被定义时的名字（区分大小写）。
+
+8.__NAMESPACE__ 当前命名空间的名称（区分大小写）。此常量是在编译时定义的（PHP 5.3.0 新增）
+
+
+//=================================  PHP    大愚支付  ====================================
+
+
+1.引入包
+2.修改命名空间
+3.回调为数组 字段不和官方字段相同
+4.最好事先模拟订单测试回调方法是否正常
+5.需判断返回状态是否成功
+6.需判断金额是否与订单一致
+7.tp5因为驼峰命名导致地址栏的事自动转换为 _和小写  这个时候和微信商户号支付授权目录会找不到该目录,避免这种写法
+8.回调结束如果不成功可输出 exit('success');微信 exit(xml)
+
+
+//=================================  PHP    商户号配置  ====================================
+ 
+1.产品中心 ->开发配置 -> 包括选项  商户号 授权目录 扫码支付回调
+2.账户中心 api配置  ->包括选项     证书下载  MD5秘钥设置(自己设置任意值)   此项所有操作都需要安装客户端操作证书
+//=================================  PHP    js判断是在微信还是php  ====================================
+
+
+function isWeiXin() {
+var ua = window.navigator.userAgent.toLowerCase();
+console.log(ua);//mozilla/5.0 (iphone; cpu iphone os 9_1 like mac os x) applewebkit/601.1.46 (khtml, like gecko)version/9.0 mobile/13b143 safari/601.1
+if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+return true;
+} else {
+return false;
+}
+}
+
+//=================================  PHP   导出表格  ====================================
+
+compsoer包  
+"phpoffice/phpexcel":"1.8.1"
+下载完成  只有Classes文件夹是有用的
+
+一.导出的三种方法  此处使用的是  makeExport 包是 index 和 makeExport 包含的包
+
+Excel.php 可写为控制器或者service
+
+namespace app\system\controller;
+
+use PHPExcel;
+use PHPExcel_IOFactory;
+class Excel extends Base{
+
+
+  /**
+   * excel保存表格
+   *   */
+   public function index(){
+      $path = dirname(__FILE__); //找到当前脚本所在路径
+      $PHPExcel = new PHPExcel(); //实例化PHPExcel类，类似于在桌面上新建一个Excel表格
+      $PHPSheet = $PHPExcel->getActiveSheet(); //获得当前活动sheet的操作对象
+      $PHPSheet->setTitle('demo'); //给当前活动sheet设置名称
+      $PHPSheet->setCellValue('A1','姓名')->setCellValue('B1','分数');//给当前活动sheet填充数据，数据填充是按顺序一行一行填充的，假如想给A1留空，可以直接setCellValue('A1',');
+      $PHPSheet->setCellValue('A2','张三')->setCellValue('B2','50');
+      $PHPWriter = PHPExcel_IOFactory::createWriter($PHPExcel,'Excel2007');//按照指定格式生成Excel文件，'Excel2007'表示生成2007版本的xlsx，
+      $PHPWriter->save($path.'/demo.xlsx'); //表示在$path路径下面生成demo.xlsx文件
+    }
+
+  /**
+    * excel表格导出 第一种 
+    * @param string $name 当前活动名称
+    * @param string $title 文件名称
+    * @param array  $th 表头名称
+    * @param array  $tr 要导出的数据
+    * @author  */
+    public function makeExport($tr,$th='',$title='订单列表',$name='普通订单'){
+      $PHPExcel = new PHPExcel();
+      #获得当前活动sheet的操作对象    
+          $PHPSheet = $PHPExcel->getActiveSheet();     
+          #给当前活动sheet设置名称 
+      $PHPSheet->setTitle($name);   
+      #判断数据大小
+      if (count($tr) < 500) {
+           $array =array_merge_recursive([$th],$tr); 
+               $PHPSheet -> fromArray($array);//数据较大时，不建议使用此方法，建议使用setCellValue()  
+      }else{
+         $PHPSheet->setCellValue('A1','订单ID')->setCellValue('B1','订单编号')->setCellValue('C1','用户名/收货人')->setCellValue('D1','收货地址')->setCellValue('E1','套餐名称')->setCellValue('F1','订单价格')->setCellValue('G1','订单状态')->setCellValue('H1','商品标题')->setCellValue('I1','商品价格')->setCellValue('J1','商品图片')->setCellValue('K1','商品数量');  
+      }
+       
+      #给当前活动sheet填充数据，数据填充是按顺序一行一行填充的，假如想给A1留空，可以直接setCellValue('A1',');
+      $PHPWriter = PHPExcel_IOFactory::createWriter($PHPExcel,'Excel2007');     
+      #按照指定格式生成Excel文件，'Excel2007'表示生成2007版本的xlsx，'Excel5'表示生成2003版本Excel文件
+      #告诉浏览器输出07Excel文件
+      header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');     
+      #header('Content-Type:application/vnd.ms-excel');     #告诉浏览器将要输出Excel03版本文件
+      #告诉浏览器输出浏览器名称
+          header('Content-Disposition: attachment;filename="'.$title.'.xlsx"');  
+          #禁止缓存   
+          header('Cache-Control: max-age=0');     
+          $PHPWriter->save("php://output");
+          
+  }
+
+   /**
+    * excel表格导出 第二种 
+    * @param string $fileName 文件名称
+    * @param array $headArr 表头名称
+    * @param array $data 要导出的数据
+    * @author static7  */
+  public function excelTwo($data){
+      $title=array('订单ID','收货人','地址','收货人手机','订单号','支付单号','金额','订单状态','支付类型','下单时间');//表格中的标题
+      header('Pragma: public');
+      header('Expires: 0');
+      header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+      header('Content-Type: application/force-download');
+      header('Content-Type: application/octet-stream');
+      header('Content-Type: application/download');;
+      header('Content-Disposition: attachment;filename='.'订单表_'.date('Y-m-d',time()).'.xls');
+      header('Content-Transfer-Encoding: binary ');
+      //导出xls 开始，写入excel表
+      if (!empty($title)) {
+          foreach ($title as $k => $v) {
+              $title[$k]=iconv('UTF-8', 'GB2312',$v);
+          }
+          $title = implode("\t", $title);
+          echo $title."\n";//\n为换行//把标题写入表格中
+      }
+      if (!empty($data)){
+          foreach($data as $key=>$val){
+              foreach ($val as $ck =>$cv) {
+                  $data[$key][$ck]=iconv('UTF-8', 'GB2312', $cv);
+              }
+              $data[$key]=implode("\t", $data[$key]);
+          }
+          echo implode("\n",$data);//把数据写入表格中
+       }
+  }
+    /**
+     * excel表格导出 第三种  th 头方法
+     * @param string $fileName 文件名称
+     * @param array $headArr 表头名称
+     * @param array $data 要导出的数据
+     * @author static7  */
+    /*public function excelExportThree($fileName = '', $headArr = [], $data = [])
+    {
+        $fileName .= "_" . date("Y_m_d", Request::instance()->time()) . ".xls";
+        $objPHPExcel = new \PHPExcel();
+        $objPHPExcel->getProperties();
+        $key = ord("A"); // 设置表头
+        foreach ($headArr as $v) {
+            $colum = chr($key);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($colum . '1', $v);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($colum . '1', $v);
+            $key += 1;
+        }
+        $column = 2;
+        $objActSheet = $objPHPExcel->getActiveSheet();
+        foreach ($data as $key => $rows) { // 行写入
+            $span = ord("A");
+            foreach ($rows as $keyName => $value) { // 列写入
+                $objActSheet->setCellValue(chr($span) . $column, $value);
+                $span++;
+            }
+            $column++;
+        }
+        $fileName = iconv("utf-8", "gb2312", $fileName); // 重命名表
+        $objPHPExcel->setActiveSheetIndex(0); // 设置活动单指数到第一个表,所以Excel打开这是第一个表
+        header('Content-Type: application/vnd.ms-excel');
+        header("Content-Disposition: attachment;filename='$fileName'");
+        header('Cache-Control: max-age=0');
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save('php://output'); // 文件通过浏览器下载
+        exit();
+    }*/
+      /**
+       * 调用第三种方法
+       * @param
+       * @author staitc7  * @return mixed
+       */
+      /*public function excel() {
+         $name='测试导出';
+         $header=['表头A','表头B'];
+         $data=[
+             ['嘿嘿','heihei'],
+             ['哈哈','haha']
+         ];
+         excelExport($name,$header,$data);
+      }*/
+
+
+}
+
+//============
+
+/*
+Order.php  需要用 <a href=/index/order/excelData>导出订单</a>  摘自富足
+
+    #导出订单
+    public function excelData()
+    {
+        $data = db('orders_detail')->select();
+        $excel = new Excel();
+        $th = ['订单ID','订单编号','收货人','手机号','收货地址','套餐名称','订单价格','订单状态','商品标题','创建时间'];
+        foreach ($data as $key => $value) {
+            $tr[$key][] = $value['id'];
+            $tr[$key][] = $value['order_num'];
+            $tr[$key][] = $value['consignee'];
+            $tr[$key][] = $value['telephone'];
+            $tr[$key][] = $value['province'].$value['city'].$value['area'].$value['detail'];
+            $tr[$key][] = $value['price'];
+            switch ($value['status']) {
+                case '1':
+                 $tr[$key][] = '待付款';
+                    break;
+                case '2':
+                 $tr[$key][] = '待发货';
+                    break;
+                case '3':
+                 $tr[$key][] = '待收货';
+                    break;
+                case '4':
+                 $tr[$key][] = '已确认';
+                    break;
+            }
+            $tr[$key][] = $value['good_name'];
+            $tr[$key][] = $value['created_at'];
+        }
+        $excel->makeExport($tr,$th,'富足订单','套餐订单');
+    }
+
+
+
+//=================================  PHP  魔术常量  ====================================
+名称  说明
+__LINE__  文件中的当前行号。
+__FILE__  文件的完整路径和文件名。如果用在被包含文件中，则返回被包含的文件名。自 PHP 4.0.2 起，__FILE__ 总是包含一个绝对路径（如果是符号连接，则是解析后的绝对路径），而在此之前的版本有时会包含一个相对路径。
+__DIR__ 文件所在的目录。如果用在被包括文件中，则返回被包括的文件所在的目录。它等价于 dirname(__FILE__)。除非是根目录，否则目录中名不包括末尾的斜杠。（PHP 5.3.0中新增） =
+__FUNCTION__  函数名称（PHP 4.3.0 新加）。自 PHP 5 起本常量返回该函数被定义时的名字（区分大小写）。在 PHP 4 中该值总是小写字母的。
+__CLASS__ 类的名称（PHP 4.3.0 新加）。自 PHP 5 起本常量返回该类被定义时的名字（区分大小写）。在 PHP 4 中该值总是小写字母的。类名包括其被声明的作用区域（例如 Foo\Bar）。注意自 PHP 5.4 起 __CLASS__ 对 trait 也起作用。当用在 trait 方法中时，__CLASS__ 是调用 trait 方法的类的名字。
+__TRAIT__ Trait 的名字（PHP 5.4.0 新加）。自 PHP 5.4 起此常量返回 trait 被定义时的名字（区分大小写）。Trait 名包括其被声明的作用区域（例如 Foo\Bar）。
+__METHOD__  类的方法名（PHP 5.0.0 新加）。返回该方法被定义时的名字（区分大小写）。
+__NAMESPACE__ 当前命名空间的名称（区分大小写）。此常量是在编译时定义的（PHP 5.3.0 新增）。
