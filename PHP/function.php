@@ -2456,11 +2456,11 @@ __FILE__ 本文件的地址
 DIRECTORY_SEPARATOR / 符号 为了跨平台 windows和linux不一样
 
 
-getcwd() ：显示是 在哪个文件里调用此文件 的目录
+getcwd() ：显示是 在哪个文件里调用此文件 的目录  备注:网站目录  但是框架显示显示的是public根目录
+ 
+__DIR__ ：当前内容写在哪个文件就显示这个文件目录   备注: 当前文件的目录
 
-__DIR__ ：当前内容写在哪个文件就显示这个文件目录
-
-__FILE__ ： 当前内容写在哪个文件就显示这个文件目录+文件名
+__FILE__ ： 当前内容写在哪个文件就显示这个文件目录+文件名  
 
 
 
@@ -2505,7 +2505,7 @@ include("a.php");
 8.__NAMESPACE__ 当前命名空间的名称（区分大小写）。此常量是在编译时定义的（PHP 5.3.0 新增）
 
 
-//=================================  PHP    大愚支付  ====================================
+//=================================  PHP    大愚支付 微信  ====================================
 
 
 1.引入包
@@ -2518,7 +2518,7 @@ include("a.php");
 8.回调结束如果不成功可输出 exit('success');微信 exit(xml)
 
 
-//=================================  PHP    商户号配置  ====================================
+//=================================  PHP   微信 商户号配置  ====================================
  
 1.产品中心 ->开发配置 -> 包括选项  商户号 授权目录 扫码支付回调
 2.账户中心 api配置  ->包括选项     证书下载  MD5秘钥设置(自己设置任意值)   此项所有操作都需要安装客户端操作证书
@@ -2725,7 +2725,48 @@ Order.php  需要用 <a href=/index/order/excelData>导出订单</a>  摘自富�
             $tr[$key][] = $value['good_name'];
             $tr[$key][] = $value['created_at'];
         }
-        $excel->makeExport($tr,$th,'富足订单','套餐订单');
+        $excel->makeExport($tr,$th,'XXX订单','套餐订单');
     }
 
+*/
+//=================================  PHP   导出表格  ====================================
 
+//composer 自动加载规则 autoload_psr4.php 
+
+$vendorDir = dirname(dirname(__FILE__));//vendor
+$baseDir = dirname($vendorDir); //网站目录
+
+ //加入规则 
+ //composer.json文件加入
+"autoload": {
+        "psr-4": {
+            "service\\":"service/",
+            "alitransfer\\":"vendor/alitransfer/lib" //相对于网站目录的路径
+            }
+    },
+//composer update 即可
+//会发现 autoload_psr4.php 中多了这几个
+//命名空间名称                  //文件夹绝对路径
+'service\\' => array($baseDir . '/service'),
+'alitransfer\\' => array($vendorDir . '/alitransfer/lib'),
+
+//autoload_static.php文件中多了这几行
+'service\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/service',
+        ),
+        'alitransfer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/alitransfer/lib',
+        ),
+//======================  PHP   创建一个对象  强制类型转换为对象  =======================
+
+$order = (object)array();
+$order = (object)null;
+$order = (object)'';
+$order->order_num = time();
+
+//=================================  PHP   支付宝批量转账 有密  ====================================
+
+//按照文档和demo配置好内容以后需要在支付宝账户管理下载操作证书 中间会回答密码问题, 并要求提供营业执照注册码
+//需要使用UC浏览器或者ie安装 主流浏览器不支持申请安装证书
