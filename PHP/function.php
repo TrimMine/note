@@ -804,6 +804,47 @@ define(NAME,'1234');
         return $data;
     }
 
+#==============================  PHP curl扩展   =================================
+ $timeout = 5;
+ //1.初始化curl并赋值
+ $curl = curl_init();
+
+ //2.设置请求参数
+ curl_setopt($curl, 参数名, 参数值);
+ curl_setopt($curl, CURLOPT_URL, $url);//请求的url地址 必设
+ //常用的参数
+ //设置头文件的信息作为数据流输出
+ curl_setopt($curl, CURLOPT_HEADER, 1);
+ //以文件流的方式返回,而不是直接输出
+ curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+ //设置请求方式为post 1为true 0为false 
+ curl_setopt($ch, CURLOPT_POST, 1);  
+ //设置post数据 也就是请求的参数
+ $post_data = array(
+     "username" => "coder",
+     "password" => "12345"
+     );
+ curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
+ //设置超时时间
+ curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout); 
+ //证书验证 https是否验证证书
+ curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+ curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+
+//执行命令 获取返回的文件流
+$data = curl_exec($curl);
+
+//关闭URL请求
+ curl_close($curl);
+ //显示返回数据
+ var_dump($data);
+
+
+
+//区别
+//1.curl比file_get_contents() 效率高
+//2.curl支持get或post 默认get file_get_contents 只支持get
+//3.curl参数多,全面
 #==============================  PHP header   =================================
 
  Header("Location: http://www.php.net"); exit;   
@@ -2243,7 +2284,10 @@ Array (
 
 
 //=================================  php  正则验证 ====================================
-
+$data = 获取到的数据;
+$arr = 将匹配到的数据放到$arr中;
+preg_match_all('<title>(.+)<\/title>/', $data, $arr);
+var_dump($arr);
 #验证姓名
    public static function CheckName($str){
       if (!preg_match('/^([\xe4-\xe9][\x80-\xbf]{2}){2,4}$/',$str)) {
@@ -2770,3 +2814,27 @@ $order->order_num = time();
 
 //按照文档和demo配置好内容以后需要在支付宝账户管理下载操作证书 中间会回答密码问题, 并要求提供营业执照注册码
 //需要使用UC浏览器或者ie安装 主流浏览器不支持申请安装证书
+
+//=================================  PHP  Mysql 统计 sum 金额   ====================================
+
+// double 类型是不精确的 
+// 如果需要精确的保留和计算 需要将字段设置为 decimal
+
+
+//=================================  PHP  破解phpStorm   ====================================
+
+hpstorm破解方法适用于各种版本
+
+注册时选择 License server 输入 
+
+点击Activate 就可以
+http://www.0-php.com:1017
+备用服务器:http://www.heatsam.com:1017 
+http://active.fy-style.cn/
+//=================================  PHP  判断是否有空格   ====================================
+
+if(strpos("Hello world!"," ")){
+  echo '有空格';
+}else{
+  echo '没有空格';
+}
