@@ -8,6 +8,7 @@
 7.feed  饲料
 8.bring 带来
 9.Compare 对比 比较
+10.whence  何处
 
 
 

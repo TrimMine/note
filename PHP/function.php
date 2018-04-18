@@ -2848,3 +2848,35 @@ if(strpos("Hello world!"," ")){
 }else{
   echo '没有空格';
 }
+
+//=================================  PHP  输出文件中所有行的内容 检测文件或者图片内容  ====================================
+$file = '/home/laotianye/Desktop/1.jpg';
+$file = fopen($file,'r');
+//输出文本中所有的行，直到文件结束为止。
+while(! feof($file))
+{
+    $info = fgets($file);
+    echo $info. "\n";
+    //检测文件中是否有 php脚本关键字
+    if (strpos($info,'php') || strpos($info,'eval')){
+        echo 'find php word'."\n";die;
+    }
+    
+}
+
+fclose($file);
+
+/*
+feof(file) 函数检测是否已到达文件末尾 (eof)。
+
+如果文件指针到了 EOF 或者出错时则返回 TRUE，否则返回一个错误（包括 socket 超时），其它情况则返回 FALSE。
+
+file 参数是一个文件指针。这个文件指针必须有效，并且必须指向一个由 fopen() 或 fsockopen() 成功打开（但还没有被 fclose() 关闭）的文件。
+
+feof() 函数对遍历长度未知的数据很有用。
+
+注意：如果服务器没有关闭由 fsockopen() 所打开的连接，feof() 会一直等待直到超时而返回 TRUE。默认的超时限制是 60 秒，可以使用 stream_set_timeout() 来改变这个值。
+如果传递的文件指针无效可能会陷入无限循环中，因为 EOF 不会返回 TRUE。
+
+
+*/
