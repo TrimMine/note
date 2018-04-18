@@ -2288,6 +2288,16 @@ $data = 获取到的数据;
 $arr = 将匹配到的数据放到$arr中;
 preg_match_all('<title>(.+)<\/title>/', $data, $arr);
 var_dump($arr);
+
+//QueryList使用jQuery选择器来做采集
+//不用使用正则匹配复杂的东西
+//可在抓取页面的时候使用
+
+
+
+
+
+//常用验证
 #验证姓名
    public static function CheckName($str){
       if (!preg_match('/^([\xe4-\xe9][\x80-\xbf]{2}){2,4}$/',$str)) {
