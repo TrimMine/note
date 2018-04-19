@@ -9,6 +9,8 @@
 8.bring 带来
 9.Compare 对比 比较
 10.whence  何处
+11.reactor 反应器
+12.compress 压缩
 
 
 
