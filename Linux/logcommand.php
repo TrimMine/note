@@ -2182,7 +2182,16 @@ sudo ./configure --prefix=/www/...  指定到文件夹下   使用 ./configure -
 sudo make
 sudo make install
 
+------------------------ linux 编译安装gd库  ------------------------
 
+$ cd /root/software/php-5.6.5  进入编译的安装下载的包 (php包)
+$ cd ext/gd //进入gd文件夹
+$ /usr/local/php/bin/phpize  使用现在的php版本phpize生成 configure 文件
+$ ./configure --with-php-config=你的php路径/php/bin/php-config --with-png-dir --with-freetype-dir --with-jpeg-dir --with-gd
+$ make
+$ make install
+
+加入php.ini  extension=gd 
 
 ------------------------ linux pgrep  ------------------------
 
