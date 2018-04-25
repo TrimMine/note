@@ -35,6 +35,8 @@ netstat -an | grep 80
 如果返回以下结果，说明 TCP 80 端口的 Web 服务启动。
 tcp        0      0 0.0.0.0:80                  0.0.0.0:*                   LISTEN
 
+也可以用 nmap 127.0.0.1 来查看对外开放的端口及服务
+yum install -y nmap
 -------------------------history---------------------------
 这两种方式虽然能看到执行的命令，但是不能看出执行的时间，我们进行以下操作，让history能显示执行的时间  
 编辑/etc/bashrc文件，添加以下四行： 
@@ -253,7 +255,9 @@ journalctl -xe  或 systemctl status network.service
 
 设置dns服务器用于域名解析和上网，但是对于某些特殊的需求我们需要让某个地址解析到特定的地址，可以通过编辑 /etc/hosts文件来实现。类型和windows下的主机头一样
 
-192.168.136.23  www.baidu.com
+/etc/hosts 修改完就能生效
+
+127.0.0.1  swoole.host
 
 ------------------------ linux du -------------------
 
@@ -464,7 +468,19 @@ find / -name  php-config
        4.查看端口是否开放：/sbin/iptables -L -n
 
        查看端口是否开放：sudo netstat -tnlp | grep 21 如果是linsten状态则是已开启
+    
+      开启全部 入方向
+      iptables -P INPUT ACCEPT   
+      开启全部 入方向
+      iptables -P OUTPUT ACCEPT  
+      开启部分端口段
+      -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 700:800 -j ACCEPT
 
+      一、 700:800 表示700到800之间的所有端口
+
+      二、 :800 表示800及以下所有端口
+
+      三、 700: 表示700以及以上所有端
 ------------------------ linux tail -F 查看动态内容显示行号------------------------
 
 命令:
@@ -1091,6 +1107,12 @@ unrar e file.rar //解压rar
 
 unzip file.zip //解压zip
 
+tar: bzip2：无法 exec: 没有那个文件或目录
+
+缺少bzip2包
+yum install -y bzip2
+
+
 tar
 
 -c: 建立压缩档案
@@ -1173,6 +1195,9 @@ unzip file.zip //解压zip
 8、*.rar 用 unrar e解压
 
 9、*.zip 用 unzip 解压
+
+
+
 
 ------------------------ linux  添加软链名称 ------------------------
         目标地址                    添加到命令 php72自定义名字
@@ -2206,3 +2231,290 @@ pgrep(选项)(参数)
 -u：指定进程的有效用户ID。
 
 pgrep -l  php
+
+------------------------ linux pgrep  ------------------------
+
+
+可以使用 ps aft | grep tcp.php 查看所有该文件产生的进程
+
+pkill php  杀死所有php 的进程
+
+
+------------------------ linux 查看python版本和shell版本  ------------------------
+
+查看 shell
+
+cat /etc/shells  查看系统安装了那些bash shell
+
+bash -version 查看系统shell版本
+
+cat /bin/*sh  查看所有的shell
+
+
+查看 python 
+
+python -V  查看Python 版本
+
+------------------------ linux wget  ------------------------
+
+
+
+wget命令用来从指定的URL下载文件。wget非常稳定，它在带宽很窄的情况下和不稳定网络中有很强的适应性，如果是由于网络的原因下载失败，wget会不断的尝试，直到整个文件下载完毕。如果是服务器打断下载过程，它会再次联到服务器上从停止的地方继续下载。这对从那些限定了链接时间的服务器上下载大文件非常有用。
+
+语法
+wget(选项)(参数)
+选项
+-a<日志文件>：在指定的日志文件中记录资料的执行过程；
+-A<后缀名>：指定要下载文件的后缀名，多个后缀名之间使用逗号进行分隔；
+-b：进行后台的方式运行wget；
+-B<连接地址>：设置参考的连接地址的基地地址；
+-c：继续执行上次终端的任务；
+-C<标志>：设置服务器数据块功能标志on为激活，off为关闭，默认值为on；
+-d：调试模式运行指令；
+-D<域名列表>：设置顺着的域名列表，域名之间用“，”分隔；
+-e<指令>：作为文件“.wgetrc”中的一部分执行指定的指令；
+-h：显示指令帮助信息；
+-i<文件>：从指定文件获取要下载的URL地址；
+-l<目录列表>：设置顺着的目录列表，多个目录用“，”分隔；
+-L：仅顺着关联的连接；
+-r：递归下载方式；
+-nc：文件存在时，下载文件不覆盖原有文件；
+-nv：下载时只显示更新和出错信息，不显示指令的详细执行过程；
+-q：不显示指令执行过程；
+-nh：不查询主机名称；
+-v：显示详细执行过程；
+-V：显示版本信息；
+--passive-ftp：使用被动模式PASV连接FTP服务器；
+--follow-ftp：从HTML文件中下载FTP连接文件。
+参数
+URL：下载指定的URL地址。
+
+实例
+使用wget下载单个文件
+
+wget http://www.linuxde.net/testfile.zip
+以下的例子是从网络下载一个文件并保存在当前目录，在下载的过程中会显示进度条，包含（下载完成百分比，已经下载的字节，当前下载速度，剩余下载时间）。
+
+下载并以不同的文件名保存
+
+wget -O wordpress.zip http://www.linuxde.net/download.aspx?id=1080
+wget默认会以最后一个符合/的后面的字符来命令，对于动态链接的下载通常文件名会不正确。
+
+错误：下面的例子会下载一个文件并以名称download.aspx?id=1080保存:
+
+wget http://www.linuxde.net/download?id=1
+即使下载的文件是zip格式，它仍然以download.php?id=1080命令。
+
+正确：为了解决这个问题，我们可以使用参数-O来指定一个文件名：
+
+wget -O wordpress.zip http://www.linuxde.net/download.aspx?id=1080
+wget限速下载
+
+wget --limit-rate=300k http://www.linuxde.net/testfile.zip
+当你执行wget的时候，它默认会占用全部可能的宽带下载。但是当你准备下载一个大文件，而你还需要下载其它文件时就有必要限速了。
+
+使用wget断点续传
+
+wget -c http://www.linuxde.net/testfile.zip
+使用wget -c重新启动下载中断的文件，对于我们下载大文件时突然由于网络等原因中断非常有帮助，我们可以继续接着下载而不是重新下载一个文件。需要继续中断的下载时可以使用-c参数。
+
+使用wget后台下载
+
+wget -b http://www.linuxde.net/testfile.zip
+
+Continuing in background, pid 1840.
+Output will be written to `wget-log'.
+对于下载非常大的文件的时候，我们可以使用参数-b进行后台下载，你可以使用以下命令来察看下载进度：
+
+tail -f wget-log
+伪装代理名称下载
+
+wget --user-agent="Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16" http://www.linuxde.net/testfile.zip
+有些网站能通过根据判断代理名称不是浏览器而拒绝你的下载请求。不过你可以通过--user-agent参数伪装。
+
+测试下载链接
+
+当你打算进行定时下载，你应该在预定时间测试下载链接是否有效。我们可以增加--spider参数进行检查。
+
+wget --spider URL
+如果下载链接正确，将会显示:
+
+Spider mode enabled. Check if remote file exists.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Remote file exists and could contain further links,
+but recursion is disabled -- not retrieving.
+这保证了下载能在预定的时间进行，但当你给错了一个链接，将会显示如下错误:
+
+wget --spider url
+Spider mode enabled. Check if remote file exists.
+HTTP request sent, awaiting response... 404 Not Found
+Remote file does not exist -- broken link!!!
+你可以在以下几种情况下使用--spider参数：
+
+定时下载之前进行检查
+间隔检测网站是否可用
+检查网站页面的死链接
+增加重试次数
+
+wget --tries=40 URL
+如果网络有问题或下载一个大文件也有可能失败。wget默认重试20次连接下载文件。如果需要，你可以使用--tries增加重试次数。
+
+下载多个文件
+
+wget -i filelist.txt
+首先，保存一份下载链接文件：
+
+cat > filelist.txt
+url1
+url2
+url3
+url4
+接着使用这个文件和参数-i下载。
+
+镜像网站
+
+wget --mirror -p --convert-links -P ./LOCAL URL
+下载整个网站到本地。
+
+--miror开户镜像下载。
+-p下载所有为了html页面显示正常的文件。
+--convert-links下载后，转换成本地的链接。
+-P ./LOCAL保存所有文件和目录到本地指定目录。
+过滤指定格式下载
+
+wget --reject=gif ur
+下载一个网站，但你不希望下载图片，可以使用这条命令。
+
+把下载信息存入日志文件
+
+wget -o download.log URL
+不希望下载信息直接显示在终端而是在一个日志文件，可以使用。
+
+限制总下载文件大小
+
+wget -Q5m -i filelist.txt
+当你想要下载的文件超过5M而退出下载，你可以使用。注意：这个参数对单个文件下载不起作用，只能递归下载时才有效。
+
+下载指定格式文件
+
+wget -r -A.pdf url
+可以在以下情况使用该功能：
+
+下载一个网站的所有图片。
+下载一个网站的所有视频。
+下载一个网站的所有PDF文件。
+FTP下载
+
+wget ftp-url
+wget --ftp-user=USERNAME --ftp-password=PASSWORD url
+可以使用wget来完成ftp链接的下载。
+
+使用wget匿名ftp下载：
+
+wget ftp-url
+使用wget用户名和密码认证的ftp下载：
+
+wget --ftp-user=USERNAME --ftp-password=PASSWORD url
+
+
+
+------------------------ linux  使用./configure 出错   ------------------------
+
+configure: error: no acceptable C compiler found in $PATH
+
+yum install gcc
+
+
+
+tar: bzip2：无法 exec: 没有那个文件或目录
+
+缺少bzip2包
+yum install -y bzip2
+
+------------------------ linux  安装 pure-ftpd   ------------------------
+
+
+./configure \
+--prefix=/www/server/pure-ftp/ \
+--without-inetd \
+--with-altlog \
+--with-puredb \
+--with-throttling \
+--with-peruserlimits  \
+--with-tls
+
+configure: error: OpenSSL headers not found
+
+yum install openssl-devel
+
+
+
+
+mkdir -p  /www/server/ftp/pure-ftpd/ 递归建立文件夹  
+
+
+------------------------ linux  Centos7找不到 netstat   ------------------------
+
+
+Centos7发布有一段时间了，最近使用中也发现一些问题，从Centos6换过来后感觉到不少细微的变化
+
+例如默认没有ifconfig和netstat两个命令了，ifconfig其实使用ip addr命令可以代替，
+
+在cenots6下的ss命令可以代替netstat，但是现在的ss和以前的完全是两样 ，还是得装上才行方便查看端口占用和tcp链接攻击等等。
+
+把net-tools包装上就好了。
+
+yum install net-tools
+
+另外centos7引入了systemctl对服务管理，这个的确还是没原来的service好使，php默认5.4, apache默认2.4，此外 Mariadb代替了mysql 
+
+netstat  comman not find
+安装 
+yum install net-tools
+
+
+
+
+Linux的netstat查看端口是否开放见解（0.0.0.0与127.0.0.1的区别）
+ 
+
+linux运维都需要对端口开放查看  netstat 就是对端口信息的查看
+
+# netstat -nltp
+
+p 查看端口挂的程序
+
+复制代码
+[root@iz2ze5is23zeo1ipvn65aiz ~]# netstat -nltp
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      3346/nginx: master  
+tcp        0      0 127.0.0.1:8081          0.0.0.0:*               LISTEN      2493/docker-proxy-c 
+tcp        0      0 127.0.0.1:8082          0.0.0.0:*               LISTEN      5529/docker-proxy-c 
+tcp        0      0 127.0.0.1:8083          0.0.0.0:*               LISTEN      17762/docker-proxy- 
+tcp        0      0 127.0.0.1:8084          0.0.0.0:*               LISTEN      2743/docker-proxy-c 
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      2155/sshd    
+复制代码
+看到 查询的有Local、Address、Foregin、Program name
+
+Local ：访问端口的方式，0.0.0.0 是对外开放端口，说明80端口外面可以访问；127.0.0.1 说明只能对本机访问，外面访问不了此端口；
+
+Address：端口
+
+Foregin Address：对外开放，一般都为0.0.0.0：* 
+
+Program name：此端口是那个程序在用，程序挂载此端口
+
+重点说明 0.0.0.0 是对外开放，通过服务域名、ip可以访问的端口
+
+               127.0.0.1 只能对本机 localhost访问，也是保护此端口安全性
+
+　　　　::: 这三个: 的前两个”::“，是“0:0:0:0:0:0:0:0”的缩写，相当于IPv6的“0.0.0.0”，就是本机的所有IPv6地址，第三个:是IP和端口的分隔符
+
+------------------------ linux  最小化安装 需要安装的软件   ------------------------
+
+
+1.如果你是基于最小化安装的linux系统，需要执行如下命令，安装必要的库，如果是安装过的可以跳过此步骤
+
+yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf kernel-devel libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel bzip2 bzip2-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel vim-minimal nano fonts-chinese gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils vim lrzsz net-tools

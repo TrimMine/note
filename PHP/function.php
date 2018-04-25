@@ -2992,3 +2992,26 @@ $pic = new imgcompress($filedir,0.1);
 $pic->compressImg('1.jpg');
 var_dump($pic);
 
+
+//=================================  PHP  函数回溯 生成过程  ====================================
+
+
+//该函数显示由 debug_print_backtrace() 函数代码生成的数据。
+
+
+//=================================  PHP  array_map  ====================================
+
+array_map() // 函数将用户自定义函数作用到数组中的每个值上，并返回用户自定义函数作用后的带有新值的数组。
+
+
+function myfunction($v)
+{
+  return($v*$v);
+}
+
+$a=array(1,2,3,4,5);
+print_r(array_map("myfunction",$a));
+
+//将数组内的每个值都会在此方法中运行一次 有返回则会赋值给对应值  
+//可以是多个数组 
+print_r(array_map("myfunction",$a1,$a2,$a3));
