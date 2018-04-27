@@ -474,6 +474,7 @@ find / -name  php-config
       开启全部 入方向
       iptables -P OUTPUT ACCEPT  
       开启部分端口段
+
       -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 700:800 -j ACCEPT
 
       一、 700:800 表示700到800之间的所有端口
@@ -481,6 +482,13 @@ find / -name  php-config
       二、 :800 表示800及以下所有端口
 
       三、 700: 表示700以及以上所有端
+
+      开启关闭 iptables
+      service iptables stop 
+      或者 
+      systemctl stop firewalld.service    服务名字叫做firewalld 不是iptables
+
+
 ------------------------ linux tail -F 查看动态内容显示行号------------------------
 
 命令:
@@ -2426,14 +2434,20 @@ configure: error: no acceptable C compiler found in $PATH
 yum install gcc
 
 
-
 tar: bzip2：无法 exec: 没有那个文件或目录
 
 缺少bzip2包
 yum install -y bzip2
 
 ------------------------ linux  安装 pure-ftpd   ------------------------
+下载地址 1.4版本以前  编译之后没有etc文件夹
+https://download.pureftpd.org/pure-ftpd/releases/obsolete/
 
+1.4版本以后  编译后有etc文件夹 但是没有configuration-file文件
+https://download.pureftpd.org/pure-ftpd/releases/
+
+两种都可以
+配置1.
 
 ./configure \
 --prefix=/www/server/pure-ftp/ \
@@ -2444,14 +2458,44 @@ yum install -y bzip2
 --with-peruserlimits  \
 --with-tls
 
-configure: error: OpenSSL headers not found
+部分解释
+./configure \
+--prefix=/usr/local/pureftpd \ //pureftpd安装目录
 
-yum install openssl-devel
+--with-everything \ //安装几乎所有的功能，包括altlog、cookies、throttling、ratios、ftpwho、upload script、virtual users（puredb）、quotas、virtual hosts、directory aliases、external authentication、Bonjour、privilege separation本次安装只使用这个选项。
+
+--with-cookie \ //当用户登录时显示指定的横幅
+
+--with-diraliases \ //支持目录别名，用快捷方式代cd命令
+
+--with-extauth \ //编译支持扩展验证的模块,大多数用户不使用这个选项
+
+--with-ftpwho \ //支持pure-ftpwho命令,启用这个功能需要更多的额外内存
+
+--with-language=english \ //修改服务器语言，默认是英文，如果你要做修改，请翻译‘src/messages_en.h’文件
+
+--with-ldap \   //LADP目录支持，需要安装openldap
+
+--with-minimal \ //FTP最小安装，最基本的功能
+
+--with-mysql \ //MySQL支持，如果MySQL安装在自定义目录上，你需要使用命令—with-mysql=/usr/local/mysq这类
+
+--with-nonroot \   //不需要root用户就可以启动服务
 
 
+
+
+若出现configure: error: OpenSSL headers not found  需 yum install openssl-devel
+
+若出现configure: error: liblber is needed for LDAP support，需安装openldap-devel
+
+若出现configure: error: Your MySQL client libraries aren't properly installed, 需要安装mysql-devel
+
+出现类似configure: error: Your MySQL client libraries aren't properly installed 的错误,请将mysql目录下的 include/mysql下的mysql.h文件以及lib/mysql下的全部文件,连接(直接复制过去或许也可)到 /usr/lib 目录下
 
 
 mkdir -p  /www/server/ftp/pure-ftpd/ 递归建立文件夹  
+
 
 
 ------------------------ linux  Centos7找不到 netstat   ------------------------

@@ -52,3 +52,12 @@
 53.dash 短跑
 54.editor 编辑器
 55.recovery  恢复
+56.obsolete  过时的
+57.support  支持
+58.cage 锁 笼子
+59.available 可获得
+60.dashboard  仪盘表 
+61.behavior   行为 动作
+62.attachment  附件
+63.pick  摘 取
+64.information 信息 数据 通知

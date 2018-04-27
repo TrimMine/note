@@ -865,8 +865,26 @@ $data = curl_exec($curl);
 
   #跨服器 跨域名请求 虽然设置了请求头 但是请求也要用 jsonp 类型 否则前端服务器请求回来会重新创建 sessionID   从而后端session值为空 一直被base拦截
 #共享session方法
-header('Access-Control-Allow-Origin:*'); #域名 或*hao
-header("Access-Control-Allow-Credentials:true"); 
+#
+$allow_origin = array(
+    'http://localhost:8080',
+    'http://meiami.ewtouch.com',
+    'http://webmeiami.ewtouch.com',
+    'http://192.168.10.102:8081',
+    'http://192.168.10.103:8080',
+);
+$origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
+
+if(in_array($origin, $allow_origin)){
+    header('Access-Control-Allow-Origin:'.$origin);
+}
+//header('Access-Control-Allow-Origin:*');
+header('Access-Control-Allow-Credentials:true');
+
+header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE');
+header('Access-Control-Max-Age: ' . 3600 * 24);
+
 #前端 ajax 请求加上这两句
             xhrFields: {
                       withCredentials: true
