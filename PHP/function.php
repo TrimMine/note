@@ -85,8 +85,8 @@
 
 		#=====================生成短信随机码=====================
 
-			 $str = "";
-	         $ji = '0123456789abcdefghijklmn';   #字符串可用下标的方式取值
+		    	 $str = "";
+	         $ji = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   #字符串可用下标的方式取值
 	         do {
 	             for($i=0;$i<6;$i++){
 	              $str .= $ji[rand(0,strlen($ji)-1)];
@@ -95,7 +95,7 @@
 	        echo $str;
 
 
-	      #=============================短信验证码====================
+	      #============================= 短信验证码 ====================
 	        public  function edit_phone_code(){
 			  	# 定义验证码
 			  	$code = '';
