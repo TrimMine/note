@@ -24,6 +24,55 @@
         self::MakeQrcode($nologo_code, $logo_code, $bgcode, $path, $url, $nickname, $head_img);
     }
 
+     /**
+     * 只有背景图和二维码
+     * @param $nologo_code 无头像二维码名字
+     * @param $bgcode      背景图片地址
+     * @param $path        保存路径
+     * @param $url         跳转url
+     */
+    public static function myQrcode($nologo_code, $bgcode, $path, $url)
+    {
+        #引入包
+        $object = new Qrcode();
+        #容错级别
+        $errorCorrectionLevel = 'G';
+        #生成图片大小H
+        $matrixPointSize = 6;
+        #生成一个无logo二维码图片
+        $object->png($url, $path . $nologo_code, $errorCorrectionLevel, $matrixPointSize, 2);
+        $dst_path = $bgcode;  #底图  背景图
+        $src_path = $path . $nologo_code; #二维码
+        #创建图片的实例
+        $dst = imagecreatefromstring(file_get_contents($dst_path));#背景
+        $src = imagecreatefromstring(file_get_contents($src_path));#二维码
+        #获取图片的宽高
+        list($src_w, $src_h) = getimagesize($src_path);
+        imagecopymerge($dst, $src, 266, 487, 0, 0, $src_w, $src_h, 100);#二维码
+        #生成图片  宽   高       类型
+        list($dst_w, $dst_h, $dst_type) = getimagesize($dst_path);
+        #判断一下图片的类型
+        switch ($dst_type) {
+            case 1:#GIF
+                header('Content-type: image/gif');
+                imagegif($dst, $path . $nologo_code);
+                break;
+            case 2:#JPG
+                header('Content-type: image/png');
+                imagejpeg($dst, $path . $nologo_code);
+                break;
+            case 3:#PNG
+                header('Content-type: image/jpeg');
+                imagejpeg($dst, $path . $nologo_code);
+                break;
+            default:
+                break;
+        }
+        #将图片释放
+        imagedestroy($dst);
+        imagedestroy($src);
+        return $path . $nologo_code;
+    }
 
     #生成二维码
     public static function MakeQrcode($nologo_code, $logo_code, $bgcode, $path, $url, $nickname, $head_img)
@@ -36,7 +85,7 @@
         $errorCorrectionLevel = 'M';
         #生成图片大小H
         $matrixPointSize = 4;
-        #生成一个无logo二维码图片
+        #生成一个无logo二维码图片 6个参数 第二个参数决定是否要显示图片 false为直接显示 填写则为保存路径
         $object->png($url, $path . $nologo_code, $errorCorrectionLevel, $matrixPointSize, 2);
         #logo图片路径 头像路径
         $logo = $head_img;
