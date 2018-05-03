@@ -2563,3 +2563,21 @@ Program name：此端口是那个程序在用，程序挂载此端口
 1.如果你是基于最小化安装的linux系统，需要执行如下命令，安装必要的库，如果是安装过的可以跳过此步骤
 
 yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf kernel-devel libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel bzip2 bzip2-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel vim-minimal nano fonts-chinese gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils vim lrzsz net-tools
+
+------------------------ linux 宝塔申请https   ------------------------
+
+
+1.申请的时候要带www的域名  TrustAsia DV SSL CA - G5  第一个证书  会默认申请不带www的证书
+
+申请此证书不许要目录和域名对应  
+
+2.申请免费 let's encrypt 证书 网站目录名必须和域名对应 且域名已经解析到该服务器 
+
+否则会报错 域名未解析
+
+如果还不行 则需要把主域名先绑定到该目录 开启https  然后申请证书
+
+3.网站已经建立过 此时可以新建站点 建立和域名对应的网站名目录  解析绑定之后申请证书 然后将证书文件负责到对应网站开启即可
+
+
+在未指定SSL默认站点时,未开启SSL的站点使用HTTPS会直接访问到已开启SSL的站点
