@@ -457,7 +457,9 @@ find / -name  php-config
 就可以解决问题
 上面的 /usr/local/php/ 是你的 php 安装路径
 ------------------------ linux 开放端口------------------------
-命令行方式：
+Centos7以前 可以用iptables命令 Centos以后用firewall
+
+iptables命令行方式：
 
        1. 开放端口命令： /sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 
@@ -485,9 +487,62 @@ find / -name  php-config
 
       开启关闭 iptables
       service iptables stop 
-      或者 
-      systemctl stop firewalld.service    服务名字叫做firewalld 不是iptables
 
+Centos7 firewall
+
+      systemctl stop firewalld.service    服务名字叫做firewalld 不是iptables 
+      或者
+      firewall-cmd --reload  重新加载 
+
+
+      1.直接添加服务
+
+      firewall-cmd --permanent --zone=public --add-service=http
+      firewall-cmd --reload
+
+      firewall-cmd --list-all  查看所有
+
+      iptables -L
+      
+
+      2.添加端口
+
+      firewall-cmd --permanent --zone=public --add-port=80/tcp
+
+      firewall-cmd --permanent --zone=public --add-port=80-90/tcp   //端口段
+      
+      firewall-cmd --reload
+  
+      当然，firewalld.service需要设为开机自启动。
+
+      3、如何自定义添加端口
+
+      用户可以通过修改配置文件的方式添加端口，也可以通过命令的方式添加端口，注意，修改的内容会在/etc/firewalld/ 目录下的配置文件中还体现。
+
+      1、命令的方式添加端口
+      firewall-cmd --permanent --add-port=9527/tcp 
+      参数介绍：
+
+      1、firewall-cmd：是Linux提供的操作firewall的一个工具；
+      2、--permanent：表示设置为持久；
+      3、--add-port：标识添加的端口；
+
+      另外，firewall中有Zone的概念，可以将具体的端口制定到具体的zone配置文件中。
+
+      例如：添加8010端口
+
+      firewall-cmd --zone=public --permanent --add-port=8010/tcp
+
+      --zone=public：指定的zone为public；
+      如果–zone=dmz 这样设置的话，会在dmz.xml文件中新增一条。
+    
+     4、修改配置文件的方式添加端口
+
+    <rule family="ipv4">
+    <source address="123.60.255.14"/> 指定ip  不填则为任意ip 所有人
+    <port protocol="tcp" port="10050-10051"/> 协议类型  指定端口
+    <accept/> 表示接受
+    </rule>
 
 ------------------------ linux tail -F 查看动态内容显示行号------------------------
 
