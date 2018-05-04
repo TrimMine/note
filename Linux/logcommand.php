@@ -459,7 +459,7 @@ find / -name  php-config
 ------------------------ linux 开放端口------------------------
 Centos7以前 可以用iptables命令 Centos以后用firewall
 
-iptables命令行方式：
+iptables命令行方式：---------------------------------------
 
        1. 开放端口命令： /sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 
@@ -488,12 +488,34 @@ iptables命令行方式：
       开启关闭 iptables
       service iptables stop 
 
-Centos7 firewall
+Centos7 firewall -------------------------------------
 
-      systemctl stop firewalld.service    服务名字叫做firewalld 不是iptables 
-      或者
-      firewall-cmd --reload  重新加载 
+      systemctl stop firewalld.service    服务名字叫做firewalld 不是 iptables (iptables只是centos7中只是命令没有服务)
+      
 
+      配置文件 /etc/firewalld/
+      
+      端口规则文件 /etc/firewalld/zones/ 
+
+      查看版本： firewall-cmd --version
+
+      查看帮助： firewall-cmd --help
+
+      显示状态： firewall-cmd --state  或  systemctl status firewalld.service
+
+      查看所有打开的端口： firewall-cmd--zone=public --list-ports
+
+      更新防火墙规则： firewall-cmd --reload
+
+      查看区域信息:  firewall-cmd--get-active-zones
+
+      查看指定接口所属区域： firewall-cmd--get-zone-of-interface=eth0
+
+      拒绝所有包：firewall-cmd --panic-on
+
+      取消拒绝状态： firewall-cmd --panic-off
+
+      查看是否拒绝： firewall-cmd --query-panic
 
       1.直接添加服务
 
@@ -503,7 +525,9 @@ Centos7 firewall
       firewall-cmd --list-all  查看所有
 
       iptables -L
-      
+       
+
+
 
       2.添加端口
 
@@ -514,6 +538,11 @@ Centos7 firewall
       firewall-cmd --reload
   
       当然，firewalld.service需要设为开机自启动。
+
+      删除端口
+      
+      firewall-cmd --zone=public --remove-port=80/tcp --permanent
+  
 
       3、如何自定义添加端口
 
@@ -534,21 +563,68 @@ Centos7 firewall
       firewall-cmd --zone=public --permanent --add-port=8010/tcp
 
       --zone=public：指定的zone为public；
+
       如果–zone=dmz 这样设置的话，会在dmz.xml文件中新增一条。
     
+      
      4、修改配置文件的方式添加端口
 
-    <rule family="ipv4">
-    <source address="123.60.255.14"/> 指定ip  不填则为任意ip 所有人
-    <port protocol="tcp" port="10050-10051"/> 协议类型  指定端口
-    <accept/> 表示接受
-    </rule>
+      <rule family="ipv4">
+      <source address="115.57.132.178"/> 指定ip  不填则为任意ip 所有人
+      <port protocol="tcp" port="10050-10051"/> 协议类型  指定端口
+      <accept/> 表示接受
+      </rule>
+  
+      对应命令行 
 
+      firewall-cmd --permanent --zone=public --add-rich-rule="rule family="ipv4"  source address="192.168.0.4/24" service name="http" accept"
+
+
+      5.查看当前开了哪些端口
+
+      其实一个服务对应一个端口，每个服务对应/usr/lib/firewalld/services下面一个xml文件。
+
+      firewall-cmd --list-services
+
+      查看还有哪些服务可以打开
+
+      firewall-cmd --get-services
+
+      查看所有打开的端口： 
+
+      firewall-cmd --zone=public --list-ports
+
+      更新防火墙规则： 
+
+      firewall-cmd --reload
+
+
+
+------------------------ linux 服务器拒绝允许名单  ------------------------
+
+允许名单:/etc/hosts.allow
+
+拒绝名单:/etc/hosts.deny
+
+
+编辑允许规则：
+
+[root@linuxprobe ~]# vim /etc/hosts.allow
+httpd:192.168.10.
+拒绝其他所有的主机：
+
+[root@linuxprobe ~]# vim /etc/hosts.deny
+httpd:*
 ------------------------ linux tail -F 查看动态内容显示行号------------------------
 
 命令:
 tail -F   FileName | nl
 
+
+
+cat /etc/* | grep 文件名
+
+ls  file  file  file  ....
 ------------------------ linux 查看服务状态  ------------------------
 
 查看：systemctl status sshd.service
@@ -1566,7 +1642,7 @@ du -h | sort -hr | head(或tail) -20  文件的大小排序 只显示20行
 > ls -alrc # 按创建时间排序
 > ls -alru # 按访问时间排序
 
-------------------------- linux  LINUX的文件按时间排序 ---------------------------
+------------------------- linux  某个文件里面是否包含字符串 ---------------------------
 
 
 1：搜索某个文件里面是否包含字符串，使用 
