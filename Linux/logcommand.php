@@ -2712,3 +2712,15 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 
 
 在未指定SSL默认站点时,未开启SSL的站点使用HTTPS会直接访问到已开启SSL的站点
+
+
+
+------------------------ linux nginx wss 端口转发   ------------------------
+
+  location /wss {
+      proxy_pass http://127.0.0.1:2345;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "Upgrade";
+      proxy_set_header X-Real-IP $remote_addr;
+  }
