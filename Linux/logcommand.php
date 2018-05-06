@@ -2724,3 +2724,350 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
       proxy_set_header Connection "Upgrade";
       proxy_set_header X-Real-IP $remote_addr;
   }
+
+
+
+
+------------------------ linux Linux服务器基本信息查看   ------------------------
+
+
+
+Linux服务器基本信息通常包括如下几方面:
+
+CPU信息
+内存使用信息
+硬盘使用情况
+服务器负载状况
+其它参数
+ 
+
+1.获取CPU的详细情况
+
+
+[root@VM_41_84_centos ~]# cat /proc/cpuinfo
+
+显示所有逻辑cpu信息 16核则有16个  0-15
+ 
+
+判断依据:
+
+具有相同core id的CPU是同一个core的超线程
+具有相同"physical id"的CPU是同一个CPU封装的线程或核心
+　
+　a.　显示物理CPU个数
+
+   　　　　cat /proc/cpuinfo |grep "physical id"|sort|uniq|wc -l
+
+　　b.   显示每个物理CPU的个数(核数)
+
+　　　　　cat /proc/cpuinfo |grep "cpu cores"|uniq
+
+　　c.    显示逻辑CPU个数
+
+    　　　　cat /proc/cpuinfo|grep "processor"|wc -l
+
+理论上不使用超线程技术的前提下有如下结论:
+
+　　物理CPU个数*核数=逻辑CPU个数
+
+配置服务器的应用时，以逻辑CPU个数为准
+
+ 
+
+2.获去服务器内存使用情况
+
+[root@VM_41_84_centos ~]# free -h             total       used       free     shared    buffers     cached
+Mem:          996M       928M        67M        44K       217M       357M
+-/+ buffers/cache:       353M       642M
+Swap:         1.5G       120M       1.3G
+ 
+
+total: 内存总量
+used: 已使用
+free: 未使用
+shared: 多进程共享的内存总量
+-buffers/cache: 已使用内存
++buffers/cache: 可用内存
+可用内存=free+buffers+cached(642=67+217+357)
+
+　　
+
+ 
+
+ 
+
+3.查看服务器硬盘使用情况
+
+查看硬盘以及分区信息: fdisk -l
+查看文件系统的磁盘空间占用情况: df -h
+ 
+
+[root@VM_41_84_centos ~]# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        20G   13G  6.2G  67% /
+/dev/vdb1        20G  936M   18G   5% /mydata
+ 
+
+3. 查看硬盘的I/O性能: iostat -d -x -k 10 2  (-d显示磁盘状态,-x显示跟io相关的扩张数据,-k以KB为单位，10表示每隔10秒刷新一次，2表示刷新2次，默认一直刷新)
+
+　　
+
+[root@VM_41_84_centos ~]# iostat -d -x -k 10 2
+Linux 2.6.32-642.15.1.el6.x86_64 (VM_41_84_centos)     05/03/17     _x86_64_    (1 CPU)
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+vda               0.93     6.76    0.71    1.67    13.49    33.60    39.43     0.05   21.55    6.68   27.88   2.20   0.53
+vdb               0.00     0.14    0.02    0.11     0.06     0.97    16.65     0.00    5.28    2.89    5.64   2.41   0.03
+dm-0              0.00     0.00    0.34    0.59     4.05     3.50    16.17     0.06   60.88    8.23   91.31   0.37   0.03
+dm-2              0.00     0.00    0.02    0.07     0.21     0.25    10.95     0.04  465.54    4.70  604.18   0.99   0.01
+dm-3              0.00     0.00    0.01    0.00     0.03     0.00    10.16     0.00    3.09    0.28   14.74   0.19   0.00
+dm-1              0.00     0.00    0.00    0.00     0.02     0.01    10.52     0.00    5.41    0.61   20.81   0.27   0.00
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+vda               0.00     0.10    0.00    0.20     0.00     1.20    12.00     0.00   11.00    0.00   11.00  11.00   0.22
+vdb               0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+dm-0              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+dm-2              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+dm-3              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+dm-1              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+复制代码
+参数说明:
+
+rrqm/s: 每秒这个设备相关的读取请求有多少被Merge了（当系统调用需要读取数据的时候，VFS将请求发到各个FS，如果FS发现不同的读取请求读取的是相同Block的数据，FS会将这个请求合并Merge）
+wrqm/s: 每秒进行merge的写操作数
+r/s: 每秒完成的读I/O设备的次数
+w/s: 每秒完成的写I/O设备的次数
+rkB/s: 每秒读取多少KB
+wkB/s: 每秒写多上KB
+avgrq-sz: 平均每次设备I/O操作的数据大小(扇区)
+avgqu-sz: 平均I/O队列长度
+await: 平均每次设备I/O操作的等待时间ms
+svctm: 平均每次设备I/O操作时间ms
+%util: 一秒钟有百分之多上时间用于I/O操作
+平时只要关注%util,await两个参数即可
+
+%util越接近100%,说明产生的I/O请求越多，越容易满负荷
+
+await 取决于svctm，最好低于5ms,如果大于5ms说明I/O压力大,可以考虑更换响应速度更快的硬盘.
+
+     
+
+ 
+
+4.查看服务器平均负载
+
+概念: 特定时间间隔内运行队列中的平均进程数可以反映系统繁忙程度
+
+[root@VM_41_84_centos /]# uptime
+ 00:09:20 up 5 days,  3:27,  1 user,  load average: 0.03, 0.04, 0.03
+ 
+
+　　
+
+[root@VM_41_84_centos /]# w
+ 00:10:34 up 5 days,  3:28,  1 user,  load average: 0.01, 0.03, 0.02
+USER     TTY      FROM              LOGIN@   IDLE   JCPU   PCPU WHAT
+root     pts/4    117.101.50.192   22:16    0.00s  1.36s  0.00s w
+复制代码
+[root@VM_41_84_centos /]# top
+top - 00:12:26 up 5 days,  3:30,  1 user,  load average: 0.00, 0.02, 0.01
+Tasks: 156 total,   1 running, 145 sleeping,  10 stopped,   0 zombie
+Cpu(s):  0.7%us,  0.6%sy,  0.0%ni, 98.3%id,  0.4%wa,  0.0%hi,  0.0%si,  0.0%st
+Mem:   1020128k total,   943636k used,    76492k free,   212716k buffers
+Swap:  1535992k total,   123648k used,  1412344k free,   163624k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 1464 root      20   0 37856 2928  796 S  2.0  0.3   7:18.85 secu-tcs-agent
+    1 root      20   0 19364  868  668 S  0.0  0.1   0:01.96 init
+    2 root      20   0     0    0    0 S  0.0  0.0   0:00.01 kthreadd
+    3 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 migration/0
+    4 root      20   0     0    0    0 S  0.0  0.0   0:05.88 ksoftirqd/0
+
+load average: 0.01, 0.03, 0.02表示过去1分钟，5分钟，15分钟进程队列中的平均进程数量
+当这三个数长期大于逻辑CPU个数时说明负载过大
+ 　　
+
+top - 11:35:21 up 572 days, 14:57,  4 users,  load average: 3.82, 10.01, 21.99
+Tasks: 141 total,   1 running, 138 sleeping,   2 stopped,   0 zombie
+Cpu0  : 96.7%us,  0.3%sy,  0.0%ni,  3.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Cpu1  : 96.0%us,  1.0%sy,  0.0%ni,  3.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Cpu2  :100.0%us,  0.0%sy,  0.0%ni,  0.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Cpu3  : 96.3%us,  0.7%sy,  0.0%ni,  3.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Mem:   8061216k total,  7888384k used,   172832k free,    32780k buffers
+Swap:  8191996k total,    30492k used,  8161504k free,   433564k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND                                                        
+ 4448 tomcat    20   0  9.9g 6.7g  13m S 386.6 87.5  89:37.39 jsvc    　　　　　　#我艹，四核CPU，所以这里超过了100%，即4个cpu累加                                                       
+12098 root      20   0 15032 1248  928 R  0.7  0.0   0:00.54 top                                                             
+    1 root      20   0 19356  944  772 S  0.0  0.0   0:05.19 init                                                            
+    2 root      20   0     0    0    0 S  0.0  0.0   0:00.32 kthreadd                                                        
+    3 root      RT   0     0    0    0 S  0.0  0.0  16:00.68 migration/0                                                     
+    4 root      20   0     0    0    0 S  0.0  0.0  11:02.28 ksoftirqd/0                                                     
+    5 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 stopper/0                                                       
+    6 root      RT   0     0    0    0 S  0.0  0.0   1:10.46 watchdog/0                                                      
+    7 root      RT   0     0    0    0 S  0.0  0.0  30:16.65 migration/1  
+复制代码
+ 
+
+ 
+
+vmstat监控Linux系统的整体性能　　
+
+复制代码
+[root@VM_41_84_centos /]# vmstat 1 4　　　　#每秒1次，共四次
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  0 123648  75128 213356 163824    5    3    18    38   41   27  1  1 98  0  0
+ 0  0 123648  75112 213356 163824    0    0     0     0  116  194  0  0 100  0  0
+ 0  0 123648  75112 213356 163824    0    0     0     0  116  191  0  1 99  0  0
+ 0  0 123648  75112 213356 163824    0    0     0     0  119  184  0  0 100  0  0
+复制代码
+ 看一个线上的，cpu部分已经处于饱和状态了。
+
+复制代码
+[root@ovz-core-tbf-01 ~]# vmstat 1 8
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 4  0  30492 176080  33252 433844    0    0     1     7    0    0  3  1 96  0  0    
+ 4  0  30492 176072  33252 433844    0    0     0     0 3879  270 93  0  7  0  0    
+ 4  0  30492 176072  33252 433844    0    0     0     0 4103  161 100  0  0  0  0    
+ 4  0  30492 176072  33252 433844    0    0     0     0 4081  137 100  0  0  0  0    
+ 4  0  30492 176072  33252 433844    0    0     0     0 3724  239 90  0 10  0  0    
+ 4  0  30492 176072  33260 433840    0    0     0    28 3895  252 94  0  6  0  0    
+ 7  0  30492 175776  33260 433844    0    0     0     0 4114  220 100  0  0  0  0    
+ 5  0  30492 175452  33260 433844    0    0     0     0 4121  181 100  1  0  0  0    
+复制代码
+ 
+
+参数介绍:
+
+　procs:
+
+r: 等待运行的进程数
+b: 处于非中断睡眠状态的进程数　　　　
+　memory:
+
+swpd: 虚拟内存使用情况(KB)
+free: 空闲内存(KB)
+　swap:
+
+si: 从磁盘交换到内存的交换页数量
+so: 从内存交换到磁盘的交换页数量
+    io:
+
+bi: 发送到设备的块数(块/s）
+bo: 从块设备接收到的块数(块/s)
+　system:
+
+in: 每秒中断数
+cs: 每秒的环境上下文切换数
+   cpu:（cpu总使用的百分比)
+
+us: cpu使用时间
+sy: cpu系统使用时间
+id: 闲置时间
+ 
+
+标准情况下r和b的值应为:r<5,b约为0.
+
+如果us+sy<70%,系统性能较好
+
+如果us+sy>85,系统性能糟糕.
+
+ 
+
+ 
+
+5.其他信息
+
+　查看系统32、64位
+
+复制代码
+[root@VM_41_84_centos /]# getconf LONG_BIT
+64
+[root@VM_41_84_centos /]# file /sbin/init   或 file /lib/systemd/systemd
+/sbin/init: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
+[root@VM_41_84_centos /]#
+ 
+
+　查看服务器发行版相关信息
+
+复制代码
+[root@VM_41_84_centos /]# lsb_release -a
+LSB Version:    :base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch:graphics-4.0-amd64:graphics-4.0-noarch:printing-4.0-amd64:printing-4.0-noarch
+Distributor ID:    CentOS
+Description:    CentOS release 6.8 (Final)
+Release:    6.8
+Codename:    Final
+[root@VM_41_84_centos /]#
+复制代码
+ 
+
+　查看系统已经载入的相关模块
+
+复制代码
+[root@VM_41_84_centos /]# lsmod
+Module                  Size  Used by
+nfnetlink_queue         8111  0
+nfnetlink_log           8718  0
+nfnetlink               4200  2 nfnetlink_queue,nfnetlink_log
+bluetooth              97895  0
+rfkill                 19255  1 bluetooth
+veth                    4794  0
+ext4                  379687  3
+jbd2                   93252  1 ext4
+xt_conntrack            2776  1
+ipt_MASQUERADE          2338  2
+iptable_nat             5923  1
+ipt_addrtype            2153  2
+nf_nat                 22676  2 ipt_MASQUERADE,iptable_nat
+bridge                 85674  0
+stp                     2218  1 bridge
+llc                     5418  2 bridge,stp
+dm_thin_pool           52743  4
+dm_bio_prison           7259  1 dm_thin_pool
+dm_persistent_data     57082  1 dm_thin_pool
+dm_bufio               20372  1 dm_persistent_data
+libcrc32c               1246  1 dm_persistent_data
+ipv6                  336282  1 bridge
+ipt_REJECT              2383  2
+nf_conntrack_ipv4       9186  10 iptable_nat,nf_nat
+nf_defrag_ipv4          1483  1 nf_conntrack_ipv4
+xt_state                1492  6
+nf_conntrack           79537  6 xt_conntrack,ipt_MASQUERADE,iptable_nat,nf_nat,nf_conntrack_ipv4,xt_state
+iptable_filter          2793  1
+ip_tables              17895  2 iptable_nat,iptable_filter
+virtio_balloon          4798  0
+virtio_net             22002  0
+i2c_piix4              11232  0
+i2c_core               29132  1 i2c_piix4
+ext3                  240420  2
+jbd                    80652  1 ext3
+mbcache                 8193  2 ext4,ext3
+virtio_blk              7132  4
+virtio_pci              7416  0
+virtio_ring             8891  4 virtio_balloon,virtio_net,virtio_blk,virtio_pci
+virtio                  5639  4 virtio_balloon,virtio_net,virtio_blk,virtio_pci
+pata_acpi               3701  0
+ata_generic             3837  0
+ata_piix               24409  0
+dm_mirror              14864  0
+dm_region_hash         12085  1 dm_mirror
+dm_log                  9930  2 dm_mirror,dm_region_hash
+dm_mod                102467  14 dm_thin_pool,dm_persistent_data,dm_bufio,dm_mirror,dm_log
+复制代码
+查看PCI设备信息
+
+ 
+
+[root@VM_41_84_centos /]# lspci
+00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)
+00:01.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II]
+00:01.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
+00:01.2 USB controller: Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)
+00:01.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 03)
+00:02.0 VGA compatible controller: Cirrus Logic GD 5446
+00:03.0 Ethernet controller: Red Hat, Inc Virtio network device
+00:04.0 SCSI storage controller: Red Hat, Inc Virtio block device
+00:05.0 SCSI storage controller: Red Hat, Inc Virtio block device
+00:06.0 Unclassified device [00ff]: Red Hat, Inc Virtio memory balloon
