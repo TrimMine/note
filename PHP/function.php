@@ -3033,3 +3033,45 @@ print_r(array_map("myfunction",$a));
 //将数组内的每个值都会在此方法中运行一次 有返回则会赋值给对应值  
 //可以是多个数组 
 print_r(array_map("myfunction",$a1,$a2,$a3));
+
+//=================================  PHP  TP5排除某些字段  ====================================
+
+
+//表示获取除了content user_id之外的所有字段，
+
+Db::table('think_user')->field('user_id,content',true)->select();
+//或者用
+Db::table('think_user')->field(['user_id','content'],true)->select();
+
+
+//可以给某个字段设置别名，例如：
+
+//Db::table('think_user')->field('id,nickname as name')->select();
+//
+
+//=================================  PHP  原生查询和修改  ====================================
+
+//query方法用于执行SQL查询操作，如果数据非法或者查询错误则返回false，否则返回查询结果数据集（同select方法）
+
+//使用示例： 查询
+
+Db::query("select * from think_user where status=1");
+
+
+//execute用于更新和写入数据的sql操作，如果数据非法或者查询错误则返回false ，否则返回影响的记录数。
+
+//使用示例：修改和写入
+
+Db::execute("update think_user set name='thinkphp' where status=1");
+
+//=================================  PHP  list  ====================================
+
+list()
+ //函数用于在一次操作中给一组变量赋值。
+//该函数只用于数字索引的数组，且假定数字索引从 0 开始。
+//如果跳过赋值 可留空 逗号隔开
+
+$my_array = array("Dog","Cat","Horse");
+
+list($a, $b, $c) = $my_array;
+echo "I have several animals, a $a, a $b and a $c.";
