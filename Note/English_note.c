@@ -61,3 +61,17 @@
 62.attachment  附件
 63.pick  摘 取
 64.information 信息 数据 通知
+65.violation  违反
+66.constraint 约定 约束
+67.Integrity  正直 诚实 完整
+68.property  属性
+69.clause 条款
+70.commonly 一般
+71.Policy 决策 策略
+72.Core 核心
+73.president 行长
+74.consul 领事
+75.deputy 代表
+76.assess 考核
+77.across 穿过
+78.adopt  通过

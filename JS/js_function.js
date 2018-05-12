@@ -284,3 +284,11 @@ function download(src) {
 
 // ============================== html     设置请求头utf-8 ===============================
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> </head>
+
+
+
+// ============================== js     require.js ===============================
+
+
+fastadmin  表格部分  https://forum.fastadmin.net/thread/323
+

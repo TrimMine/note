@@ -86,13 +86,24 @@
 		#=====================生成短信随机码=====================
 
 		    	 $str = "";
-	         $ji = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   #字符串可用下标的方式取值
+           $ji = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   #字符串可用下标的方式取值
 	         do {
 	             for($i=0;$i<6;$i++){
-	              $str .= $ji[rand(0,strlen($ji)-1)];
+	              
+                 $str .= $ji[rand(0,strlen($ji)-1)];
+
 	             }
+
 	        } while (false);
-	        echo $str;
+
+          
+           //或者
+           
+           $ji = '0123456789';  
+
+           $str = substr(str_shuffle($str), 0, 6);
+
+	         echo $str;
 
 
 	      #============================= 短信验证码 ====================
@@ -3043,11 +3054,16 @@ Db::table('think_user')->field('user_id,content',true)->select();
 //或者用
 Db::table('think_user')->field(['user_id','content'],true)->select();
 
+注意的是 字段排除功能不支持跨表和join操作。
+
+
 
 //可以给某个字段设置别名，例如：
 
 //Db::table('think_user')->field('id,nickname as name')->select();
 //
+//
+
 
 //=================================  PHP  原生查询和修改  ====================================
 
@@ -3075,3 +3091,93 @@ $my_array = array("Dog","Cat","Horse");
 
 list($a, $b, $c) = $my_array;
 echo "I have several animals, a $a, a $b and a $c.";
+
+//=================================  PHP  获取器  ====================================
+
+/*
+tp5的获取器功能很强大，一下子就喜欢上了，你可以在模块里任意定义表里不存在的字段，在前台调用很方便。话不多说直接上demo：
+
+　　1.命名规则   get + 属性名的驼峰命名+ Attr
+
+　　直接就能在model里定义：(本示例在UserModel里定义的（User.php文件）)
+
+　　eg1:
+
+　　protected function getSexAttr($value) {
+　　　　$text = [1 => '男', 2 => '女', 3 => '未知'];
+　　　　return $text[$value];
+　　}
+
+　　此情景下user表里是存在sex字段的，sex的值为1,2,3三种情况。这个获取器的作用在于，后台获取user表的list后，sex值仍为1,2,3。前台循环调用的时候就可以用{volist name="list" id="v" key="k"}{$v.sex}{/volist} 此时的{$v.sex}就对应成男，女，未知。
+
+　　2.针对前台需要用到sex值1,2,3同时也要用到文本值男，女，未知的时候，这个获取器就有局限性了，此时，小伙伴们很容易想到，定义两个获取器，一个存1,2,3另一个存男，女，未知。ok，这个方法是可行的，在这里简单介绍一下我想到的方法，定义一个获取器存二维数组。
+
+　　eg2:
+
+　　protected function getSexAttr($value) {
+　　　　$text = [1 => '男', 2 => '女', 3 => '未知'];
+　　　　return ['val' => $value, 'text' => $text[$value]];
+　　}
+
+　　这种情况下，前台就可以直接使用了{$v.sex.val}是1,2,3值的格式。{$v.sex.text}就是男，女，未知的格式。
+
+　　看到这里，相信小伙伴们已经蠢蠢欲动了吧，这还不止呢，接下来介绍一下，定义不存在的字段，映射其他表的字段。就可以应用到项目中了。
+
+　　3.关联其他表的字段构建user表里不存在的字段，其他表就以info表为例吧
+
+　　eg3:
+
+　　protected function getHosNameAttr($value, $data) {
+
+　　　　$name = model('Info')->where('info_id', $data['id'])->value('hos_name');
+　　　　return $name;
+　　}
+
+　　在user表里构造了hos_name字段，这个例子很简单，user表的主键id是info表的外键info_id，通过这个关系就可以将info里的字段映射到user表里，在后台只查询user表的数据就能用hos_name了，可以省去两表联合查询
+
+ 
+
+　　4.如果又需要用到值，又需要用到文本的情况，就可以用第二个例子的思路了。
+
+　　eg4：
+
+ 
+
+　　protected function getArchivesAttr($value, $data) {
+　　　　$archiveid = model('Info')->where('info_id', $data['id'])->value('archives_id');
+　　　　$archivename = model('Archives')->where('id', $archiveid)->value('name');
+　　　　return ['val' => $archiveid, 'text' => $archivename];
+　　}
+
+　　此示例，在user表里构建了archives字段，val存的是info表的archives_id字段，text是archives_id对应的在表archives里的name字段。省去了三表联合查询，这样在后台只需要查询user表就可以在前台调用archives字段了。
+
+*/
+
+
+//=================================  PHP  TP5 接收请求值 变量修饰符  ====================================
+//
+
+input('变量类型.变量名/修饰符');
+
+Request::instance()->变量类型('变量名/修饰符');
+
+$this->request->isPost('变量名/修饰符');
+
+
+
+input('get.id/d');
+input('post.name/s');
+input('post.ids/a');
+Request::instance()->get('id/d');
+
+$this->request->isPost('row/a');  //row数组名  如果你要获取的数据为数组，请一定注意要加上 /a 修饰符才能正确获取到。
+
+/*
+修饰符 作用
+s 强制转换为字符串类型
+d 强制转换为整型类型
+b 强制转换为布尔类型
+a 强制转换为数组类型
+f 强制转换为浮点类型
+*/
+
