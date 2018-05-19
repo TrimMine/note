@@ -75,3 +75,10 @@
 76.assess 考核
 77.across 穿过
 78.adopt  通过
+79.required 必须得 要求 需要
+80.ratio 比例
+81.merge 合并
+82.branch 分支
+83.platform  平台
+84.stars 星星
+85.format 格式
