@@ -3185,3 +3185,12 @@ f 强制转换为浮点类型
 
 //以dfcc 开头 3到6位字母或数字
 preg_match("/^dfcc[a-zA-Z0-9]{3,6}$/", $param)
+
+
+//=================================  PHP  正则匹配密码  ====================================
+
+
+//php5.4 以后，json_encode增加了JSON_UNESCAPED_UNICODE , JSON_PRETTY_PRINT 等几个常量参数。使显示中文与格式化更方便。
+
+//使用 JSON_UNESCAPED_UNICODE 或者  JSON_PRETTY_PRINT 使数据阅读更方便,会自动换行,但是会占用更多的空间
+echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);  

@@ -3271,7 +3271,7 @@ function read_all ($dir){
  
 
 
- <?php
+<?php
 $file_path = "test.txt";
 if(file_exists($file_path)){
 $fp = fopen($file_path,"r");
