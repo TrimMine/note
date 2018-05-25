@@ -3187,10 +3187,28 @@ f 强制转换为浮点类型
 preg_match("/^dfcc[a-zA-Z0-9]{3,6}$/", $param)
 
 
-//=================================  PHP  正则匹配密码  ====================================
+//=================================  PHP  json_encode 参数  ====================================
 
 
 //php5.4 以后，json_encode增加了JSON_UNESCAPED_UNICODE , JSON_PRETTY_PRINT 等几个常量参数。使显示中文与格式化更方便。
 
 //使用 JSON_UNESCAPED_UNICODE 或者  JSON_PRETTY_PRINT 使数据阅读更方便,会自动换行,但是会占用更多的空间
 echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);  
+
+//=================================  PHP  redis连接  ====================================
+
+//第一步:实例化redis对象
+$redis = new redis();  
+//第二步：php客户端设置的ip及端口
+$redis->connect("127.0.0.1","6379");
+//第三部：配置连接密码 检测redis服务器连接状态  
+//连接失败直接结束 并输出  
+$auth = $redis->auth('zhenai')  or die("redis 服务器连接失败");
+// var_dump($auth);连接成功 返回 true 反之 返回false
+//第四步  可用可不用
+echo $connect_status=$redis->ping();
+if($connect_status==="+PONG")
+{
+echo "redis 服务器连接成功";
+}
+//就是如此简单

@@ -71,14 +71,18 @@ find ./ -type d -ok ls {} \;
 
 find ./ -type d -exec ls {} +
 
-查找所有文件 包含 aaaa的  没有文件名
-find  ./* -type f  -exec cat {} + | grep aaaa
+      查找所有文件 包含 aaaa的  没有文件名
+      find  ./* -type f  -exec cat {} + | grep aaaa
 
-查找所有文件包含 s888的文件  含有文件名
-find ./* -type f   | xargs grep "s888." 
+      查找所有文件包含 s888的文件  含有文件名
+      find ./* -type f   | xargs grep "s888." 
+      find ./* -type f   | xargs grep "@eval($_POST" 
 
-从根目录开始查找所有扩展名为.log的文本文件，并找出包含”ERROR”的行
-find / -type f -name "*.log" | xargs grep "ERROR"  
+      从根目录开始查找所有扩展名为.log的文本文件，并找出包含”ERROR”的行
+      find / -type f -name "*.log" | xargs grep "ERROR"  
+      
+
+
 
 查找文件名匹配*.c的文件
 find ./ -name \*.c
@@ -215,25 +219,53 @@ u：与s相反，当设定为u时，数据内容其实还存在磁盘中，可�
 “sudo reboot now”登录后，执行“ping www.google.com”。
 
 
--------------------------- 给Linux配ip -------------------------
+-------------------------- Linux 配置静态ip -------------------------
+
+
 1、立即临时生效，重启后配置丢失
-ifconfig eth0 192.168.0.10 netmask 255.255.255.0
-ifconfig eth0 up
-2、重启后生效，重启电脑，IP不会丢失
-vim /etc/sysconfig/network-scripts/ifcfg-eth0
-参考配置文件
-DEVICE=eth0
-ONBOOT=yes
+
+ifconfig ens33 192.168.0.10 netmask 255.255.255.0
+ifconfig ens33 up
+
+
+2、重启后生效，重启电脑，IP不会丢失  /etc/sysconfig/network-scripts/ifcfg-ens33
+//虚拟机根据情况使用NET模式 
+
+DEVICE=ens33
 BOOTPROTO=static
-IPADDR=192.168.0.10
+TYPE=Ethernet
+BROADCAST=192.168.24.2
+IPADDR=192.168.24.130
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
 NETMASK=255.255.255.0
-GATEWAY=192.168.0.1
-HWADDR=00:0c:29:dd:a6:00
+GATEWAY=192.168.24.2  //点击NET记住里面的ip网关 填写到此处
+ONBOOT=yes
+DNS1=8.8.8.8
+DNS2=8.8.8.4
+
+
+//如果此处不设置dns无法ping通   name or service not known
+
+
+2.此处也要设置  DNS配置文件  /etc/resolv.conf 
+
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+
+
+3.hostname设置  /etc/sysconfig/network
+
+NETWORKING=yes
+HOSTNAME=localhost.localdomain
+GATWAY=192.168.24.2
+
 
 -------------------------- 网络配置文件  -------------------------
 
-DNS配置文件
-/etc/resolv.conf
+
+
+
 网络配置
 /etc/sysconfig/network-scripts/sifcfg-ens33
 
@@ -1219,8 +1251,16 @@ scp local_file remote_user@host:remote_folder
 复制local_folder 到远程remote_folder（需要加参数 -r 递归）
 
 scp –r local_folder remote_user@host:remote_folder
+scp -r local_folder remote_ip:remote_folder 
+没有指定用户名后续会输入 用户名和密码 指定后只会输入密码
 
 以上命令反过来写就是远程复制到本地
+
+例如
+   1. scp remote_user@host:remote_folder local_folder
+
+   2. scp root@120.55.85.13:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
+
 
 3.sz/rz
 
@@ -3221,7 +3261,7 @@ docker -v
 
 docker ps -a
 
------------------------- linux  删除文件中某行内容  ------------------------
+------------------------ linux  删除文件中某行内容 或替换的方法 ------------------------
 
 
 LinuxShell中删除文件中某一行的方法 (2014-08-21 18:24:13)转载▼
@@ -3239,11 +3279,19 @@ LinuxShell中删除文件中某一行的方法 (2014-08-21 18:24:13)转载▼
 　　sed -i '/'"$var"'/d' abc.txt
 　　至于grep -v aaa abc.txt这个方法，是无法将修改的结果写入abc.txt中去的
 
+   //替换指定内容的方法
 
+   sed -i "s/原字符串/新字符串/g" `grep 原字符串 -rl 所在目录`
 
+   sed -i "s/oldString/newString/g"  `grep oldString -rl /path`
 
+  补充说明：
 
-
+  sed -i "s/oldString/newString/g"  `grep oldString -rl /path`    
+  对多个文件的处理可能不支持，需要用 xargs, 搞定。
+  变种如下：
+  
+  grep oldString -rl /path | xargs sed -i "s/oldString/newString/g"
 
 
 ------------------------ linux  php遍历文件夹  ------------------------
@@ -3285,3 +3333,37 @@ echo $str = str_replace("\r\n","<br />",$str);
 //找到之后赋值替换 并写入
 $f='a.html'; 
 file_put_contents($f,str_replace('[我的电脑]','PHP学习',file_get_contents($f))); 
+
+
+
+
+
+
+
+
+------------------------ linux  查看cpu占用率  ------------------------
+
+
+
+1. ps命令
+ps -aux | sort -k4nr | head -10     查看  %MEM
+ps -aux | sort -k3nr | head -10     查看  %CPU
+
+1
+*命令详解： 
+1. head：-N可以指定显示的行数，默认显示10行。 
+2. ps：参数a指代all——所有的进程，u指代userid——执行该进程的用户id，x指代显示所有程序，不以终端机来区分。ps -aux的输出格式如下：
+
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0  19352  1308 ?        Ss   Jul29   0:00 /sbin/init
+root         2  0.0  0.0      0     0 ?        S    Jul29   0:00 [kthreadd]
+root         3  0.0  0.0      0     0 ?        S    Jul29   0:11 [migration/0]
+1
+2
+3
+4
+5
+3. sort -k4nr中（k代表从根据哪一个关键词排序，后面的数字4表示按照第四列排序；n指代numberic sort，根据其数值排序；r指代reverse，这里是指反向比较结果，输出时默认从小到大，反向后从大到小。）。本例中，可以看到%MEM在第4个位置，根据%MEM的数值进行由大到小的排序。-k3表示按照cpu占用率排序。
+
+2. top工具
+命令行输入top回车，然后按下大写M按照memory排序，按下大写P按照CPU排序。
