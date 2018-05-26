@@ -1299,8 +1299,25 @@ echo "mb_strcut-3:".mb_strcut($cn_str,0,3).'<br/><br/>'; //钓   按照字节来
 #==============================  #PHP substr strstr stristr strpos str_repalce str_repeat strlen =================================
 
   substr($v['created_at'],0,-8);#截取从最后一位 截取8位 返回剩余的内容 截取时间
-  substr($str,0,8);            #截取0-8位 返回截取的内容 
-  substr($str,8);              #截取0-8位 返回截取后剩余的内容 
+  substr($str,0,8);            #截取1-8位 返回截取的内容 
+  
+  #只有一个参数  当为正数的时候返回剩余部分        当为负数的时候从最后一位开始截取且返回截取的部分
+
+  echo substr("Hello world",7)."<br>";    //orld    # 截取1-7位 返回截取后剩余的内容 
+  echo substr("Hello world",-4)."<br>";   //orld
+  
+
+  //两个参数的时候  第二个参数为正数 返回截取部分  当为负数的时候从最后一位开始截取且返回截取的部分
+
+  echo substr("Hello world",0,10)."<br>";  //Hello worl 截取1-10位返回截取部分
+  echo substr("Hello world",0,-1)."<br>";  //Hello worl  从最后开始截取1位返回剩余部分
+
+  //两个参数都为负数 从最后数第10个数开始截取 截取最后两位 返回剩余部分
+  echo substr("Hello world",-10,-2)."<br>";  //ello wor
+  
+  echo substr("Hello world",-2-3)."<br>";    //world  相当于    echo substr("Hello world",-5)
+
+  
 
   str_replace('要替换的字串' ,'替换成为',$str); #递归替换内容 替换字符串中所有
   substr_replace($num,'****',3,4);  #手机号截取  从第三位替换 替换4位
