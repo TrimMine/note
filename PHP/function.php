@@ -3229,3 +3229,55 @@ if($connect_status==="+PONG")
 echo "redis 服务器连接成功";
 }
 //就是如此简单
+//
+//
+//=================================  PHP  函数调用  ====================================
+
+/*
+1.动态调用普通函数时，比如参数和调用方法名称不确定的时候很好用
+
+
+
+call_user_func_array()
+function sayEnglish($fName, $content) {  
+    echo 'I am ' . $content;  
+}  
+  
+function sayChinese($fName, $content, $country) {  
+    echo $content . $country;  
+    echo "<br>";  
+}  
+  
+function say() {  
+    $args = func_get_args();  
+    call_user_func_array($args[0], $args);  
+}  
+  
+say('sayChinese', '我是', '中国人');  
+say('sayEnglish', 'Chinese'); 
+
+函数名可以用参数的方式传递进去，因而调用不同函数。 配合func_get_args()函数接收参数到数组中，参数的个数也不一致。
+
+2.不需要判断函数类型，无论是普通函数，类的静态方法或者类的方法，均直接调用，你就不用去判断方法的类型
+class A {  
+     public static function sayChinese($fName, $content, $country) {  
+         echo '你好'  
+     }  
+ }  
+  
+ function say() {  
+     $args = func_get_args();  
+     call_user_func_array(array('A', 'sayChinese'), $args);  
+ }  
+
+ 
+  A：：sayChinese是类的静态方法  通过call_user_func_array，依然可以调用。
+
+*/
+
+//=================================  PHP  获取数组key  array_search ====================================
+
+
+$array = array(0 => 'blue', 1 => 'red', 2 => 'green', 3 => 'red');  
+   
+$key = array_search('green', $array); // $key = 2;  
