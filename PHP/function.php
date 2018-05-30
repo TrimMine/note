@@ -3281,3 +3281,11 @@ class A {
 $array = array(0 => 'blue', 1 => 'red', 2 => 'green', 3 => 'red');  
    
 $key = array_search('green', $array); // $key = 2;  
+
+
+//=================================  PHP fastadmin 生成 控制器,模型 和表单 ====================================
+
+
+php think crud -t test -c release/info  -m release
+
+php think menu -c release/info
