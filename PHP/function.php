@@ -727,6 +727,7 @@ json_decode(json_encode($str),true); #转换一下
 #谷歌
 #开启谷歌账号pop imap服务  
 #开启两部验证
+#返回登录和安全页面 刷新会出现设置应用安全码
 #生成应用专用码. https://myaccount.google.com/security.需要验证  
 #如还不成功 开启允许不安全的应用访问
 
