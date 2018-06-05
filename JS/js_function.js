@@ -292,3 +292,15 @@ function download(src) {
 
 fastadmin  表格部分  https://forum.fastadmin.net/thread/323
 
+// ============================== js     vue.js 伪静态 ===============================
+
+
+location ~* \.(eot|otf|ttf|woff)$ {
+    add_header Access-Control-Allow-Origin *;
+}
+location /{
+if (!-e $request_filename){
+
+      rewrite  ^/(.*)$  /index.html  last;
+}
+}

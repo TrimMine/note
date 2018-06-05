@@ -82,4 +82,6 @@
 83.platform  平台
 84.stars 星星
 85.format 格式
-86.filter
+86.filter  过滤
+87.provide 提供
+88.licence 证书 许可证

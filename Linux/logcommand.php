@@ -1,4 +1,6 @@
-<?php 	
+
+
+阿里云ECS CentOS 7 安装图形化桌面<?php 	
 /*
 解决方案
 
@@ -1258,9 +1260,9 @@ scp -r local_folder remote_ip:remote_folder
 
 例如
    1. scp remote_user@host:remote_folder local_folder
-
-   2. scp root@120.55.85.13:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
-
+   默认端口端口 -P 22 可不加
+   2. scp -P 7789 root@120.55.85.13:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
+  
 
 3.sz/rz
 
@@ -3367,3 +3369,48 @@ root         3  0.0  0.0      0     0 ?        S    Jul29   0:11 [migration/0]
 
 2. top工具
 命令行输入top回车，然后按下大写M按照memory排序，按下大写P按照CPU排序。
+
+
+------------------------ linux  >& 的用处  ------------------------
+
+
+三 "2>&1 file"和 "> file 2>&1"区别
+
+1）cat food 2>&1 >file ：错误输出到终端，标准输出被重定向到文件file。
+2）cat food >file 2>&1 ：标准输出被重定向到文件file，然后错误输出也重定向到和标准输出一样，所以也错误输出到文件file。(例如程序错误和sql语句错误等也会输出到文件)
+
+ >>  是追加写入  > 是覆盖写入
+
+
+
+一 输出知识
+
+1）默认地，标准的输入为键盘，但是也可以来自文件或管道（pipe |）。
+2）默认地，标准的输出为终端（terminal)，但是也可以重定向到文件，管道或后引号（backquotes `）。
+3) 默认地，标准的错误输出到终端，但是也可以重定向到文件。
+4）标准的输入，输出和错误输出分别表示为STDIN,STDOUT,STDERR，也可以用0,1,2来表示。
+5）其实除了以上常用的3中文件描述符，还有3~9也可以作为文件描述符。3~9你可以认为是执行某个地方的文件描述符，常被用来作为临时的中间描述符。
+
+
+------------------------ linux  阿里云ECS CentOS 7 安装图形化桌面  ------------------------
+
+# 先安装 MATE Desktop
+yum groups install "MATE Desktop"
+
+命令输入之后，会列出一大堆文字的，然后显示这个
+y/d/n
+，输入y，按回车下载安装；
+安装完成，显示 complete
+
+#安装好 MATE Desktop 后，再安装 X Window System。
+yum groups install "X Window System"
+
+1.设置默认通过桌面环境启动服务器：
+systemctl  set-default  graphical.target
+
+
+systemctl set-default multi-user.target  //设置成命令模式
+
+systemctl set-default graphical.target  //设置成图形模式
+
+安装完成后，通过 reboot 等指令重启服务器，或者在 ECS 服务器控制台重启服务器。 通过控制台远程连接
