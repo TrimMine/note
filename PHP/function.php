@@ -3287,6 +3287,6 @@ $key = array_search('green', $array); // $key = 2;
 //=================================  PHP fastadmin 生成 控制器,模型 和表单 ====================================
 
 
-php think crud -t test -c release/info  -m release
+php think crud -t recharge -c recharge/list  -m recharge
 
-php think menu -c release/info
+php think menu -c recharge/list

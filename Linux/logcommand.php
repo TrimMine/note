@@ -3414,3 +3414,58 @@ systemctl set-default multi-user.target  //设置成命令模式
 systemctl set-default graphical.target  //设置成图形模式
 
 安装完成后，通过 reboot 等指令重启服务器，或者在 ECS 服务器控制台重启服务器。 通过控制台远程连接
+
+------------------------ linux  centos 安装 rdesktop  ------------------------
+
+首先到rdesktop官网 http://www.rdesktop.org下载一个源码包。下载到本地后解压，使用如下命令进行安装:
+./configure;
+make;
+make install
+默认安装在/usr/local/下。
+
+在./configure时 如果有此类报错 没有生成MakeFile
+
+CredSSP support requires libgssglue, install the dependency
+or disable the feature using --disable-credssp.
+
+搜索未果，只得妥协
+tar -xvf rdesktop-1.8.3.tar.gz -C /usr/local/src
+cd /usr/local/src/rdesktop-1.8.3
+./configure --disable-credssp --disable-smartcard
+make -j4 && make install
+
+如果不忽略则可以安装该依赖包
+rdesktop依赖libgssglue
+wget http://www.citi.umich.edu/projects/nfsv4/linux/libgssglue/libgssglue-0.4.tar.gz
+tar -xvf libgssglue-0.4.tar.gz -C /usr/local/src
+cd /usr/local/src/libgssglue-.04
+./configure && make -j4 && make install
+
+作者：吃根香蕉压压惊
+链接：https://www.jianshu.com/p/5cc4c60195f9
+來源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+
+连接命令
+
+./rdesktop -u adam -p adam -f -r clipboard:PRIMARYCLIPBOARD -r disk:sunray=/home/yz161846 oss-ww
+
+-u 和 -p: 指定用户名和密码
+-f : 默认全屏， 需要用Ctrl-Alt-Enter组合键进行全屏模式切换。
+-r clipboard:PRIMARYCLIPBOARD : 这个一定要加上，要不然不能在主机Solaris和服务器Windows直接复制粘贴文字了。贴中文也没有问题。
+-r disk:sunray=/home/yz16184 : 指定主机Solaris上的一个目录映射到远程Windows上的硬盘，传送文件就不用再靠Samba或者FTP了。
+
+
+redesktop 使用简单，windows也不和装什么服务端，是要把远程桌面共享打开就行了，
+
+$ info rdesktop   //看一下帮助信息吧
+$rdesktop 192.168.1.1 //打开了一个8位色彩的，
+$rdesktop -a 16 192.168.1.1 //这个是16位色彩的了，看起来好多了
+$rdesktop -u administrator -p ****** -a 16 192.168.1.1 //都直接登陆了，呵,还差点什么呢
+还有就是 －f 全屏操作，－g 指定使用屏幕大小 －g 800*600+0+0 这个＋0啊就是，就是你
+这个窗口的在你linux上出现的位置，
+其它没什么了吧!加上-r sound:local可以把声音也搞过来了
+$rdesktop -u administrator -p ****** -a 16 -r sound:local 192.168.1.1
+其它吧,-r 的作用挺多的可以重定向许多东西，看一下帮助就会收获不少了。
