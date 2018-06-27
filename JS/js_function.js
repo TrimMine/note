@@ -1,8 +1,9 @@
-<!-- ===========================================input 上传文件样式========================================= -->
+/*
+// ===========================================input 上传文件样式========================================
 <input type="button" value="详情图" onclick="pathdes.click()" style="width:8%;border:1px solid #ccc;background:#fff">  <img src="{{$data['detail']}}" width="70">
 <input type="file"  name="detail" id="pathdes" value="{{$data['detail']}}" style="display:none" onchange="upfile.value=this.value">
 
-<!-- ===========================================input checkbox 反选========================================= -->
+// ===========================================input checkbox 反选========================================
  <script type="text/javascript">
 function CheckedRev(){ 
 	var arr = $(':checkbox'); 
@@ -10,7 +11,7 @@ function CheckedRev(){
 	arr[i].checked = ! arr[i].checked; 
 	} 
 } 
-// <!-- ===========================================input checkbox 全选========================================= -->
+// // ===========================================input checkbox 全选========================================
 
 $(function() { 
 	$("#CheckAll").click(function() { 
@@ -20,7 +21,7 @@ $(function() {
 	}) 
 	}) 
 }) 
-// <!-- ===========================================input checkbox 全选 全不选========================================= -->
+// // ===========================================input checkbox 全选 全不选========================================
 $(function(){
         $('#all_check').on('click',function(){
             console.log($(this).attr('checked'));
@@ -38,7 +39,7 @@ $(function(){
           }
         })
     })
-// <!-- ===========================================input checkbox 获取当前已被选中的标签========================================= -->
+// // ===========================================input checkbox 获取当前已被选中的标签========================================
  //    
        var arr = $('.check_');
        var ids = [];
@@ -51,7 +52,7 @@ $(function(){
             arr_.push(arr[i]);
          }
        }
-// <!-- ==================================鼠标 移入 移出 图片淡入淡出获取当前已被选中的标签============================== -->
+// // ==================================鼠标 移入 移出 图片淡入淡出获取当前已被选中的标签=============================
 
    $('.big_pic').on('mouseover',function(){
     // 获取当前图片
@@ -66,12 +67,12 @@ $(function(){
       $('.pic').fadeOut(600);
  });
 </script>
-<!-- ===============css 上传文件样式================= -->
+// ===============css 上传文件样式================
 /*<input type="file" style="width:0px;height:0px;border:0px;" name="pic" id="price" value="" placeholder="公告标题" >
 <input type="button" style="" onclick="$('input[type=\'file\']').click();" value="上传">
 </div>*/
-
-<!-- #=============== js正则匹配密码强度================= -->
+/*
+<!-- #=============== js正则匹配密码强度================
 <script type="text/javascript">
 $.checkPwd = function(v){
  v=$.trim(v);
@@ -93,7 +94,7 @@ $.checkPwd = function(v){
   return "正确";
 };
 </script>
-<!-- #=============== js bootstarp 模态框调用================= -->
+<!-- #=============== js bootstarp 模态框调用================
 
 <!-- 1.在按钮里加上 data-target="#名字"  在下方模态框加上 id=名字  -->
                            <!-- 按钮 -->
@@ -113,11 +114,11 @@ $.checkPwd = function(v){
         $('#export_modal').modal();
     })
     </script>
-<!-- ============================== 上传多个文件 多选================================ -->
+// ============================== 上传多个文件 多选===============================
 
 <input type="file" name="img" multiple="multiple" />
 
-<!-- ============================== 上传多个文件 显示即将上传的图片================================ -->
+// ============================== 上传多个文件 显示即将上传的图片===============================
 <!-- 上传图片 -->
  <input type="file" name="pic"  id="img" multiple="multiple"  style="display: none" class="form-control">
 <!-- 显示图片的地方 -->
@@ -143,13 +144,13 @@ $.checkPwd = function(v){
 </script>
 
 
-<!-- ============================== js input 消除非法字体================================ -->
+// ============================== js input 消除非法字体===============================
 
 <input id="amount"onkeyup="this.value=this.value.replace(/\D/g,'')"  
  onafterpaste="this.value=this.value.replace(/\D/g,'')"//消除非法字体
  name="amount" type="text" />
 
-<!-- ==============================  引入js css方式================================ -->
+// ==============================  引入js css方式===============================
 
 
  <script  src="/bootstrap/js/bootstrap.min.js"></script> 
@@ -161,17 +162,17 @@ $.checkPwd = function(v){
 </script>
 
 
-<!-- ============================== js confirm================================ -->
+// ============================== js confirm===============================
 <button type="button" class="btn btn-primary" onclick="if(!confirm('确定吗?')) return false; else  score({$member['uid']});">提交</button>
 
-<!-- ============================== js HAdmin后台 成功错误提示弹出================================ -->
+// ============================== js HAdmin后台 成功错误提示弹出===============================
 
 <!-- 错误成功提示信息 -->
 <div class="ibox-content">
     <div class="alert alert-success alert-dismissable" id="success" style="display:none" >
         <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
        
-<!-- ============================== js 动态绑定 on 和change 的写法================================ -->
+// ============================== js 动态绑定 on 和change 的写法===============================
  <!-- 
   $(".levelSelect").change(function(){
       //does some stuff;
@@ -186,14 +187,14 @@ $.checkPwd = function(v){
  }) 
  -->
 
-<!-- ============================== js find()================================ -->
+// ============================== js find()===============================
 
  <!-- find() 方法获得当前元素集合中每个元素的后代，通过选择器、jQuery 对象或元素来筛选。 -->
 
  <!-- 搜索所有段落中的后代 span 元素，并将其颜色设置为红色： -->
  <!-- $("p").find("span").css('color','red'); -->
 
-<!-- ============================== js find()================================ -->
+// ============================== js find()===============================
 <!-- 
 调试过程中，出现很奇怪的异常，该项不一定通过验证，且checkbox的状态一直是未选中的状态。但是再调试过程中查看checkbox的值，是有值的。
 
@@ -208,7 +209,7 @@ $('.myCheckbox').prop('checked', true);
 $('.myCheckbox').prop('checked', false); 
 </script>
 
-<!-- ============================== js download() 浏览器点击图片下载 而不是浏览================================ -->
+// ============================== js download() 浏览器点击图片下载 而不是浏览===============================
 <script>
 function download(src) {
         var $a = document.createElement('a');
@@ -220,7 +221,7 @@ function download(src) {
     };
 
 </script>
-<!-- ============================== js  css图片等比例放大  transform: scale(6.5); ================================ -->
+// ============================== js  css图片等比例放大  transform: scale(6.5); ===============================
 <style>   
       img{
            width: 50px;
@@ -232,7 +233,7 @@ function download(src) {
             transform: scale(6.5);
         }
         </style>
-<!-- ============================== js     jquery.cookie.js插件： ================================ -->
+// ============================== js     jquery.cookie.js插件： ===============================
 
       
     <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>  
@@ -254,7 +255,7 @@ function download(src) {
     删除cookie：把ncookie的值设为null即可  
         $.cookie('the_cookie', null);    -->
 
-<!-- ============================== js     js转时间戳 ================================ -->
+// ============================== js     js转时间戳 ===============================
 
 
       <!--   //js转时间戳
@@ -267,7 +268,7 @@ function download(src) {
         m = date.getMinutes() + ':';
         s = date.getSeconds();
         return Y+M+D+h+m+s; -->
-<!-- ============================== js     js判断在微信还在在浏览器 ================================ -->
+// ============================== js     js判断在微信还在在浏览器 ===============================
     
 <!-- 
   function isWeiXin() {
@@ -279,3 +280,27 @@ function download(src) {
           return false;
       }
   } -->
+
+
+// ============================== html     设置请求头utf-8 ===============================
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> </head>
+
+
+
+// ============================== js     require.js ===============================
+
+
+fastadmin  表格部分  https://forum.fastadmin.net/thread/323
+
+// ============================== js     vue.js 伪静态 ===============================
+
+
+location ~* \.(eot|otf|ttf|woff)$ {
+    add_header Access-Control-Allow-Origin *;
+}
+location /{
+if (!-e $request_filename){
+
+      rewrite  ^/(.*)$  /index.html  last;
+}
+}

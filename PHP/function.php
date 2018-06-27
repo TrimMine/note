@@ -85,17 +85,28 @@
 
 		#=====================生成短信随机码=====================
 
-			 $str = "";
-	         $ji = '0123456789abcdefghijklmn';   #字符串可用下标的方式取值
+		    	 $str = "";
+           $ji = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   #字符串可用下标的方式取值
 	         do {
 	             for($i=0;$i<6;$i++){
-	              $str .= $ji[rand(0,strlen($ji)-1)];
+	              
+                 $str .= $ji[rand(0,strlen($ji)-1)];
+
 	             }
+
 	        } while (false);
-	        echo $str;
+
+          
+           //或者
+           
+           $ji = '0123456789';  
+
+           $str = substr(str_shuffle($str), 0, 6);
+
+	         echo $str;
 
 
-	      #=============================短信验证码====================
+	      #============================= 短信验证码 ====================
 	        public  function edit_phone_code(){
 			  	# 定义验证码
 			  	$code = '';
@@ -682,6 +693,8 @@ class IndexController extends Controller{
     $number = 123213.066666;
     echo sprintf("%.2f", $number); //123213.07
 
+    number_format($num, 2)  //生成两位小数，不四舍五入
+
 #==============================    TP事务    =================================
 
 
@@ -716,6 +729,7 @@ json_decode(json_encode($str),true); #转换一下
 #谷歌
 #开启谷歌账号pop imap服务  
 #开启两部验证
+#返回登录和安全页面 刷新会出现设置应用安全码
 #生成应用专用码. https://myaccount.google.com/security.需要验证  
 #如还不成功 开启允许不安全的应用访问
 
@@ -804,6 +818,47 @@ define(NAME,'1234');
         return $data;
     }
 
+#==============================  PHP curl扩展   =================================
+ $timeout = 5;
+ //1.初始化curl并赋值
+ $curl = curl_init();
+
+ //2.设置请求参数
+ curl_setopt($curl, 参数名, 参数值);
+ curl_setopt($curl, CURLOPT_URL, $url);//请求的url地址 必设
+ //常用的参数
+ //设置头文件的信息作为数据流输出
+ curl_setopt($curl, CURLOPT_HEADER, 1);
+ //以文件流的方式返回,而不是直接输出
+ curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+ //设置请求方式为post 1为true 0为false 
+ curl_setopt($ch, CURLOPT_POST, 1);  
+ //设置post数据 也就是请求的参数
+ $post_data = array(
+     "username" => "coder",
+     "password" => "12345"
+     );
+ curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
+ //设置超时时间
+ curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout); 
+ //证书验证 https是否验证证书
+ curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+ curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+
+//执行命令 获取返回的文件流
+$data = curl_exec($curl);
+
+//关闭URL请求
+ curl_close($curl);
+ //显示返回数据
+ var_dump($data);
+
+
+
+//区别
+//1.curl比file_get_contents() 效率高
+//2.curl支持get或post 默认get file_get_contents 只支持get
+//3.curl参数多,全面
 #==============================  PHP header   =================================
 
  Header("Location: http://www.php.net"); exit;   
@@ -824,8 +879,26 @@ define(NAME,'1234');
 
   #跨服器 跨域名请求 虽然设置了请求头 但是请求也要用 jsonp 类型 否则前端服务器请求回来会重新创建 sessionID   从而后端session值为空 一直被base拦截
 #共享session方法
-header('Access-Control-Allow-Origin:*'); #域名 或*hao
-header("Access-Control-Allow-Credentials:true"); 
+#
+$allow_origin = array(
+    'http://localhost:8080',
+    'http://meiami.ewtouch.com',
+    'http://webmeiami.ewtouch.com',
+    'http://192.168.10.102:8081',
+    'http://192.168.10.103:8080',
+);
+$origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
+
+if(in_array($origin, $allow_origin)){
+    header('Access-Control-Allow-Origin:'.$origin);
+}
+//header('Access-Control-Allow-Origin:*');
+header('Access-Control-Allow-Credentials:true');
+
+header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE');
+header('Access-Control-Max-Age: ' . 3600 * 24);
+
 #前端 ajax 请求加上这两句
             xhrFields: {
                       withCredentials: true
@@ -1229,8 +1302,25 @@ echo "mb_strcut-3:".mb_strcut($cn_str,0,3).'<br/><br/>'; //钓   按照字节来
 #==============================  #PHP substr strstr stristr strpos str_repalce str_repeat strlen =================================
 
   substr($v['created_at'],0,-8);#截取从最后一位 截取8位 返回剩余的内容 截取时间
-  substr($str,0,8);            #截取0-8位 返回截取的内容 
-  substr($str,8);              #截取0-8位 返回截取后剩余的内容 
+  substr($str,0,8);            #截取1-8位 返回截取的内容 
+  
+  #只有一个参数  当为正数的时候返回剩余部分        当为负数的时候从最后一位开始截取且返回截取的部分
+
+  echo substr("Hello world",7)."<br>";    //orld    # 截取1-7位 返回截取后剩余的内容 
+  echo substr("Hello world",-4)."<br>";   //orld
+  
+
+  //两个参数的时候  第二个参数为正数 返回截取部分  当为负数的时候从最后一位开始截取且返回截取的部分
+
+  echo substr("Hello world",0,10)."<br>";  //Hello worl 截取1-10位返回截取部分
+  echo substr("Hello world",0,-1)."<br>";  //Hello worl  从最后开始截取1位返回剩余部分
+
+  //两个参数都为负数 从最后数第10个数开始截取 截取最后两位 返回剩余部分
+  echo substr("Hello world",-10,-2)."<br>";  //ello wor
+  
+  echo substr("Hello world",-2-3)."<br>";    //world  相当于    echo substr("Hello world",-5)
+
+  
 
   str_replace('要替换的字串' ,'替换成为',$str); #递归替换内容 替换字符串中所有
   substr_replace($num,'****',3,4);  #手机号截取  从第三位替换 替换4位
@@ -2243,7 +2333,20 @@ Array (
 
 
 //=================================  php  正则验证 ====================================
+$data = 获取到的数据;
+$arr = 将匹配到的数据放到$arr中;
+preg_match_all('<title>(.+)<\/title>/', $data, $arr);
+var_dump($arr);
 
+//QueryList使用jQuery选择器来做采集
+//不用使用正则匹配复杂的东西
+//可在抓取页面的时候使用
+
+
+
+
+
+//常用验证
 #验证姓名
    public static function CheckName($str){
       if (!preg_match('/^([\xe4-\xe9][\x80-\xbf]{2}){2,4}$/',$str)) {
@@ -2456,11 +2559,11 @@ __FILE__ 本文件的地址
 DIRECTORY_SEPARATOR / 符号 为了跨平台 windows和linux不一样
 
 
-getcwd() ：显示是 在哪个文件里调用此文件 的目录
+getcwd() ：显示是 在哪个文件里调用此文件 的目录  备注:网站目录  但是框架显示显示的是public根目录
+ 
+__DIR__ ：当前内容写在哪个文件就显示这个文件目录   备注: 当前文件的目录
 
-__DIR__ ：当前内容写在哪个文件就显示这个文件目录
-
-__FILE__ ： 当前内容写在哪个文件就显示这个文件目录+文件名
+__FILE__ ： 当前内容写在哪个文件就显示这个文件目录+文件名  
 
 
 
@@ -2505,7 +2608,7 @@ include("a.php");
 8.__NAMESPACE__ 当前命名空间的名称（区分大小写）。此常量是在编译时定义的（PHP 5.3.0 新增）
 
 
-//=================================  PHP    大愚支付  ====================================
+//=================================  PHP    大愚支付 微信  ====================================
 
 
 1.引入包
@@ -2518,7 +2621,7 @@ include("a.php");
 8.回调结束如果不成功可输出 exit('success');微信 exit(xml)
 
 
-//=================================  PHP    商户号配置  ====================================
+//=================================  PHP   微信 商户号配置  ====================================
  
 1.产品中心 ->开发配置 -> 包括选项  商户号 授权目录 扫码支付回调
 2.账户中心 api配置  ->包括选项     证书下载  MD5秘钥设置(自己设置任意值)   此项所有操作都需要安装客户端操作证书
@@ -2725,7 +2828,635 @@ Order.php  需要用 <a href=/index/order/excelData>导出订单</a>  摘自富�
             $tr[$key][] = $value['good_name'];
             $tr[$key][] = $value['created_at'];
         }
-        $excel->makeExport($tr,$th,'富足订单','套餐订单');
+        $excel->makeExport($tr,$th,'XXX订单','套餐订单');
+    }
+
+*/
+//=================================  PHP   导出表格  ====================================
+
+//composer 自动加载规则 autoload_psr4.php 
+
+$vendorDir = dirname(dirname(__FILE__));//vendor
+$baseDir = dirname($vendorDir); //网站目录
+
+ //加入规则 
+ //composer.json文件加入
+"autoload": {
+        "psr-4": {
+            "service\\":"service/",
+            "alitransfer\\":"vendor/alitransfer/lib" //相对于网站目录的路径
+            }
+    },
+//composer update 即可
+//会发现 autoload_psr4.php 中多了这几个
+//命名空间名称                  //文件夹绝对路径
+'service\\' => array($baseDir . '/service'),
+'alitransfer\\' => array($vendorDir . '/alitransfer/lib'),
+
+//autoload_static.php文件中多了这几行
+'service\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/service',
+        ),
+        'alitransfer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/alitransfer/lib',
+        ),
+//======================  PHP   创建一个对象  强制类型转换为对象  =======================
+
+$order = (object)array();
+$order = (object)null;
+$order = (object)'';
+$order->order_num = time();
+
+//=================================  PHP   支付宝批量转账 有密  ====================================
+
+//按照文档和demo配置好内容以后需要在支付宝账户管理下载操作证书 中间会回答密码问题, 并要求提供营业执照注册码
+//需要使用UC浏览器或者ie安装 主流浏览器不支持申请安装证书
+
+//=================================  PHP  Mysql 统计 sum 金额   ====================================
+
+// double 类型是不精确的 
+// 如果需要精确的保留和计算 需要将字段设置为 decimal
+
+
+//=================================  PHP  破解phpStorm   ====================================
+/*
+hpstorm破解方法适用于各种版本
+
+注册时选择 License server 输入 
+
+点击Activate 就可以
+http://www.0-php.com:1017
+备用服务器:http://www.heatsam.com:1017 
+http://active.fy-style.cn/
+*/
+//=================================  PHP  判断是否有空格   ====================================
+
+if(strpos("Hello world!"," ")){
+  echo '有空格';
+}else{
+  echo '没有空格';
+}
+
+//=================================  PHP  输出文件中所有行的内容 检测文件或者图片内容  ====================================
+$file = '/home/laotianye/Desktop/1.jpg';
+$file = fopen($file,'r');
+//输出文本中所有的行，直到文件结束为止。
+while(! feof($file))
+{
+    $info = fgets($file);
+    echo $info. "\n";
+    //检测文件中是否有 php脚本关键字
+    if (strpos($info,'php') || strpos($info,'eval')){
+        echo 'find php word'."\n";die;
+    }
+    
+}
+
+fclose($file);
+
+/*
+feof(file) 函数检测是否已到达文件末尾 (eof)。
+
+如果文件指针到了 EOF 或者出错时则返回 TRUE，否则返回一个错误（包括 socket 超时），其它情况则返回 FALSE。
+
+file 参数是一个文件指针。这个文件指针必须有效，并且必须指向一个由 fopen() 或 fsockopen() 成功打开（但还没有被 fclose() 关闭）的文件。
+
+feof() 函数对遍历长度未知的数据很有用。
+
+注意：如果服务器没有关闭由 fsockopen() 所打开的连接，feof() 会一直等待直到超时而返回 TRUE。默认的超时限制是 60 秒，可以使用 stream_set_timeout() 来改变这个值。
+如果传递的文件指针无效可能会陷入无限循环中，因为 EOF 不会返回 TRUE。
+
+
+*/
+
+//=================================  PHP  压缩图片的类  ====================================
+
+
+
+class imgcompress{
+
+    private $src;
+    private $image;
+    private $imageinfo;
+    private $percent = 0.5;
+
+    /**
+     * 图片压缩
+     * @param $src 源图
+     * @param float $percent  压缩比例
+     */
+    public function __construct($src, $percent=1)
+    {
+        $this->src = $src;
+        $this->percent = $percent;
     }
 
 
+    /** 高清压缩图片
+     * @param string $saveName  提供图片名（可不带扩展名，用源图扩展名）用于保存。或不提供文件名直接显示
+     */
+    public function compressImg($saveName='')
+    {
+        $this->_openImage();
+        if(!empty($saveName)) $this->_saveImage($saveName);  //保存
+        else $this->_showImage();
+    }
+
+    /**
+     * 内部：打开图片
+     */
+    private function _openImage()
+    {
+        list($width, $height, $type, $attr) = getimagesize($this->src);
+        $this->imageinfo = array(
+            'width'=>$width,
+            'height'=>$height,
+            'type'=>image_type_to_extension($type,false),
+            'attr'=>$attr
+        );
+        $fun = "imagecreatefrom".$this->imageinfo['type'];
+        $this->image = $fun($this->src);
+        $this->_thumpImage();
+    }
+    /**
+     * 内部：操作图片
+     */
+    private function _thumpImage()
+    {
+        $new_width = $this->imageinfo['width'] * $this->percent;
+        $new_height = $this->imageinfo['height'] * $this->percent;
+        $image_thump = imagecreatetruecolor($new_width,$new_height);
+        //将原图复制带图片载体上面，并且按照一定比例压缩,极大的保持了清晰度
+        imagecopyresampled($image_thump,$this->image,0,0,0,0,$new_width,$new_height,$this->imageinfo['width'],$this->imageinfo['height']);
+        imagedestroy($this->image);
+        $this->image = $image_thump;
+    }
+    /**
+     * 输出图片:保存图片则用saveImage()
+     */
+    private function _showImage()
+    {
+        header('Content-Type: image/'.$this->imageinfo['type']);
+        $funcs = "image".$this->imageinfo['type'];
+        $funcs($this->image);
+    }
+    /**
+     * 保存图片到硬盘：
+     * @param  string $dstImgName  1、可指定字符串不带后缀的名称，使用源图扩展名 。2、直接指定目标图片名带扩展名。
+     */
+    private function _saveImage($dstImgName)
+    {
+        if(empty($dstImgName)) return false;
+        $allowImgs = ['.jpg', '.jpeg', '.png', '.bmp', '.wbmp','.gif'];   //如果目标图片名有后缀就用目标图片扩展名 后缀，如果没有，则用源图的扩展名
+        $dstExt =  strrchr($dstImgName ,".");
+        $sourseExt = strrchr($this->src ,".");
+        if(!empty($dstExt)) $dstExt =strtolower($dstExt);
+        if(!empty($sourseExt)) $sourseExt =strtolower($sourseExt);
+
+        //有指定目标名扩展名
+        if(!empty($dstExt) && in_array($dstExt,$allowImgs)){
+            $dstName = $dstImgName;
+        }elseif(!empty($sourseExt) && in_array($sourseExt,$allowImgs)){
+            $dstName = $dstImgName.$sourseExt;
+        }else{
+            $dstName = $dstImgName.$this->imageinfo['type'];
+        }
+        $funcs = "image".$this->imageinfo['type'];
+        $funcs($this->image,$dstName);
+    }
+
+    /**
+     * 销毁图片
+     */
+    public function __destruct(){
+        imagedestroy($this->image);
+    }
+
+}
+
+$filedir = '/home/laotianye/Desktop/hyd.png';
+$pic = new imgcompress($filedir,0.1);
+$pic->compressImg('1.jpg');
+var_dump($pic);
+
+
+//=================================  PHP  函数回溯 生成过程  ====================================
+
+
+//该函数显示由 debug_print_backtrace() 函数代码生成的数据。
+
+
+//=================================  PHP  array_map  ====================================
+
+array_map() // 函数将用户自定义函数作用到数组中的每个值上，并返回用户自定义函数作用后的带有新值的数组。
+
+
+function myfunction($v)
+{
+  return($v*$v);
+}
+
+$a=array(1,2,3,4,5);
+print_r(array_map("myfunction",$a));
+
+//将数组内的每个值都会在此方法中运行一次 有返回则会赋值给对应值  
+//可以是多个数组 
+print_r(array_map("myfunction",$a1,$a2,$a3));
+
+//=================================  PHP  TP5排除某些字段  ====================================
+
+
+//表示获取除了content user_id之外的所有字段，
+
+Db::table('think_user')->field('user_id,content',true)->select();
+//或者用
+Db::table('think_user')->field(['user_id','content'],true)->select();
+
+注意的是 字段排除功能不支持跨表和join操作。
+
+
+
+//可以给某个字段设置别名，例如：
+
+//Db::table('think_user')->field('id,nickname as name')->select();
+//
+//
+
+
+//=================================  PHP  原生查询和修改  ====================================
+
+//query方法用于执行SQL查询操作，如果数据非法或者查询错误则返回false，否则返回查询结果数据集（同select方法）
+
+//使用示例： 查询
+
+Db::query("select * from think_user where status=1");
+
+
+//execute用于更新和写入数据的sql操作，如果数据非法或者查询错误则返回false ，否则返回影响的记录数。
+
+//使用示例：修改和写入
+
+Db::execute("update think_user set name='thinkphp' where status=1");
+
+//=================================  PHP  list  ====================================
+
+list()
+ //函数用于在一次操作中给一组变量赋值。
+//该函数只用于数字索引的数组，且假定数字索引从 0 开始。
+//如果跳过赋值 可留空 逗号隔开
+
+$my_array = array("Dog","Cat","Horse");
+
+list($a, $b, $c) = $my_array;
+echo "I have several animals, a $a, a $b and a $c.";
+
+//=================================  PHP  获取器  ====================================
+
+/*
+tp5的获取器功能很强大，一下子就喜欢上了，你可以在模块里任意定义表里不存在的字段，在前台调用很方便。话不多说直接上demo：
+
+　　1.命名规则   get + 属性名的驼峰命名+ Attr
+
+　　直接就能在model里定义：(本示例在UserModel里定义的（User.php文件）)
+
+　　eg1:
+
+　　protected function getSexAttr($value) {
+　　　　$text = [1 => '男', 2 => '女', 3 => '未知'];
+　　　　return $text[$value];
+　　}
+
+　　此情景下user表里是存在sex字段的，sex的值为1,2,3三种情况。这个获取器的作用在于，后台获取user表的list后，sex值仍为1,2,3。前台循环调用的时候就可以用{volist name="list" id="v" key="k"}{$v.sex}{/volist} 此时的{$v.sex}就对应成男，女，未知。
+
+　　2.针对前台需要用到sex值1,2,3同时也要用到文本值男，女，未知的时候，这个获取器就有局限性了，此时，小伙伴们很容易想到，定义两个获取器，一个存1,2,3另一个存男，女，未知。ok，这个方法是可行的，在这里简单介绍一下我想到的方法，定义一个获取器存二维数组。
+
+　　eg2:
+
+　　protected function getSexAttr($value) {
+　　　　$text = [1 => '男', 2 => '女', 3 => '未知'];
+　　　　return ['val' => $value, 'text' => $text[$value]];
+　　}
+
+　　这种情况下，前台就可以直接使用了{$v.sex.val}是1,2,3值的格式。{$v.sex.text}就是男，女，未知的格式。
+
+　　看到这里，相信小伙伴们已经蠢蠢欲动了吧，这还不止呢，接下来介绍一下，定义不存在的字段，映射其他表的字段。就可以应用到项目中了。
+
+　　3.关联其他表的字段构建user表里不存在的字段，其他表就以info表为例吧
+
+　　eg3:
+
+　　protected function getHosNameAttr($value, $data) {
+
+　　　　$name = model('Info')->where('info_id', $data['id'])->value('hos_name');
+　　　　return $name;
+　　}
+
+　　在user表里构造了hos_name字段，这个例子很简单，user表的主键id是info表的外键info_id，通过这个关系就可以将info里的字段映射到user表里，在后台只查询user表的数据就能用hos_name了，可以省去两表联合查询
+
+ 
+
+　　4.如果又需要用到值，又需要用到文本的情况，就可以用第二个例子的思路了。
+
+　　eg4：
+
+ 
+
+　　protected function getArchivesAttr($value, $data) {
+　　　　$archiveid = model('Info')->where('info_id', $data['id'])->value('archives_id');
+　　　　$archivename = model('Archives')->where('id', $archiveid)->value('name');
+　　　　return ['val' => $archiveid, 'text' => $archivename];
+　　}
+
+　　此示例，在user表里构建了archives字段，val存的是info表的archives_id字段，text是archives_id对应的在表archives里的name字段。省去了三表联合查询，这样在后台只需要查询user表就可以在前台调用archives字段了。
+
+*/
+
+
+//=================================  PHP  TP5 接收请求值 变量修饰符  ====================================
+//
+
+input('变量类型.变量名/修饰符');
+
+Request::instance()->变量类型('变量名/修饰符');
+
+$this->request->isPost('变量名/修饰符');
+
+
+
+input('get.id/d');
+input('post.name/s');
+input('post.ids/a');
+Request::instance()->get('id/d');
+
+$this->request->isPost('row/a');  //row数组名  如果你要获取的数据为数组，请一定注意要加上 /a 修饰符才能正确获取到。
+
+/*
+修饰符 作用
+s 强制转换为字符串类型
+d 强制转换为整型类型
+b 强制转换为布尔类型
+a 强制转换为数组类型
+f 强制转换为浮点类型
+*/
+
+//=================================  PHP  正则匹配密码  ====================================
+
+//以dfcc 开头 3到6位字母或数字
+preg_match("/^dfcc[a-zA-Z0-9]{3,6}$/", $param)
+
+
+//=================================  PHP  json_encode 参数  ====================================
+
+
+//php5.4 以后，json_encode增加了JSON_UNESCAPED_UNICODE , JSON_PRETTY_PRINT 等几个常量参数。使显示中文与格式化更方便。
+
+//使用 JSON_UNESCAPED_UNICODE 或者  JSON_PRETTY_PRINT 使数据阅读更方便,会自动换行,但是会占用更多的空间
+echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);  
+
+//=================================  PHP  redis连接  ====================================
+
+//第一步:实例化redis对象
+$redis = new redis();  
+//第二步：php客户端设置的ip及端口
+$redis->connect("127.0.0.1","6379");
+//第三部：配置连接密码 检测redis服务器连接状态  
+//连接失败直接结束 并输出  
+$auth = $redis->auth('zhenai')  or die("redis 服务器连接失败");
+// var_dump($auth);连接成功 返回 true 反之 返回false
+//第四步  可用可不用
+echo $connect_status=$redis->ping();
+if($connect_status==="+PONG")
+{
+echo "redis 服务器连接成功";
+}
+//就是如此简单
+//
+//
+//=================================  PHP  函数调用  ====================================
+
+/*
+1.动态调用普通函数时，比如参数和调用方法名称不确定的时候很好用
+
+
+
+call_user_func_array()
+function sayEnglish($fName, $content) {  
+    echo 'I am ' . $content;  
+}  
+  
+function sayChinese($fName, $content, $country) {  
+    echo $content . $country;  
+    echo "<br>";  
+}  
+  
+function say() {  
+    $args = func_get_args();  
+    call_user_func_array($args[0], $args);  
+}  
+  
+say('sayChinese', '我是', '中国人');  
+say('sayEnglish', 'Chinese'); 
+
+函数名可以用参数的方式传递进去，因而调用不同函数。 配合func_get_args()函数接收参数到数组中，参数的个数也不一致。
+
+2.不需要判断函数类型，无论是普通函数，类的静态方法或者类的方法，均直接调用，你就不用去判断方法的类型
+class A {  
+     public static function sayChinese($fName, $content, $country) {  
+         echo '你好'  
+     }  
+ }  
+  
+ function say() {  
+     $args = func_get_args();  
+     call_user_func_array(array('A', 'sayChinese'), $args);  
+ }  
+
+ 
+  A：：sayChinese是类的静态方法  通过call_user_func_array，依然可以调用。
+
+*/
+
+//=================================  PHP  获取数组key  array_search ====================================
+
+
+$array = array(0 => 'blue', 1 => 'red', 2 => 'green', 3 => 'red');  
+   
+$key = array_search('green', $array); // $key = 2;  
+
+
+//=================================  PHP fastadmin 生成 控制器,模型 和表单 ====================================
+
+
+php think crud -t recharge -c recharge/list  -m recharge
+
+php think menu -c recharge/list
+
+//=================================  PHP ini_set session 设置 ====================================
+
+
+ini_set('session.save_handler', 'redis');
+ini_set('session.save_path', 'tcp://r-j6cc3a2bf76ad1e4.redis.rds.aliyuncs.com:6379?auth=Yizhuanlian2018');
+
+
+TP5 redis session设置
+   'session' => [
+       'id' => '',
+       // SESSION_ID的提交变量,解决flash上传跨域
+       'var_session_id' => '',
+       // SESSION 前缀
+       'prefix' => 'think',
+       // 驱动方式 支持redis memcache memcached
+       'type' => 'redis',
+       // 是否自动开启 SESSION
+       'auto_start' => true,
+       'host' => 'r-j6cc3a2bf76ad1e4.redis.rds.aliyuncs.com',
+       'port' => 6379,
+       'password'=>'Yizhuanlian2018'
+
+
+
+
+//=================================  PHP 上传文件 ====================================
+
+//设置跨域名
+define('WEB_DOMAIN_FORE', 'http://192.168.10.112:8080');
+$arr = [
+    WEB_DOMAIN_FORE,
+];
+$domain = $_SERVER['HTTP_ORIGIN'];
+if ($domain && in_array($domain, $arr)) {
+    header('Access-Control-Allow-Origin:' . $domain);
+    header('Access-Control-Allow-Credentials:true');
+    header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+}
+//设置字符集
+header("Content-Type:text/html;charset:utf8");//设置文件编码
+$img = $_FILES['uploadImg'];//获取到表单过来的文件变量，uploadImg为表单id
+if(!$_FILES){
+  echo  json_encode('先上传文件!',true);
+}
+//检测变量是否获取到
+if (isset($img)) {
+//上传成功$img中的属性error为0，当error>0时则上传失败有一下几种情况
+    if ($img['error'] > 0) {
+        $error = '上传失败';
+        switch ('error') {
+            case 1:
+                $error .= '大小超过了服务器设置的限制！';
+                break;
+            case 2:
+                $error .= '文件大小超过了表单设置的限制！';
+                break;
+            case 3:
+                $error .= '文件只有部分被上传';
+                break;
+            case 4:
+                $error .= '没有文件被上传';
+                break;
+            case 6:
+                $error .= '上传文件的临时目录不存在！';
+                break;
+            case 7:
+                $error .= '写入失败';
+                break;
+            default:
+                $error .= '未知错误';
+                break;
+        }
+        exit($error);//在php页面输出错误
+    } else {
+        $type = strrchr($img['name'], '.');//截取文件后缀名
+        $path = "./Uploads/" . $img['name'];//设置路径：当前目录下的uploads文件夹并且图片名称为$img['name'];
+        if (strtolower($type) == '.png' || strtolower($type) == '.jpg' || strtolower($type) == '.bmp' || strtolower($type) == '.gif')//判断上传的文件是否为图片格式
+        {
+            move_uploaded_file($img['tmp_name'], $path);//将图片文件移到该目录下
+        }
+    }
+    echo json_encode($path);
+}
+
+
+
+//=================================  PHP 计算中文长度 mb_strlen ====================================
+
+
+echo strlen("你好ABC") . "";
+# 输出 9
+echo mb_strlen("你好ABC", 'UTF-8') . "";
+# 输出 5
+echo mb_strwidth("你好ABC") . "";
+
+#输出 7
+从上面的测试，我们可以看出：
+
+strlen 把中文字符算成 3 个字节
+
+mb_strlen 不管中文还是英文，都算 1 个字节
+
+mb_strwidth 则把中文算成 2 个字节
+
+所以长度统计的时候用mb_strlen这个函数
+
+
+
+//====================  PHP array_filter 用回调函数过滤数组中的单元 ============================
+
+
+
+依次将 array 数组中的每个值传递到 callback 函数。如果 callback 函数返回 TRUE，则 input 数组的当前值会被包含在返回的结果数组中。数组的键名保留不变。
+
+function odd($var)
+{
+    return $var & 1;
+}
+$array1 = array("a"=>1, "b"=>2, "c"=>3, "d"=>4, "e"=>5);
+print_r(array_filter($array1, "odd"));
+
+Array
+(
+    [a] => 1
+    [c] => 3
+    [e] => 5
+)
+
+
+//====================  PHP mysql数据库字段为数字时不能修改 ============================
+
+
+使用原生语句 在sql 语句中 将字段名加入 `1` 这样形式 
+
+数据库字段冲突时 也可以用 `mysql` 这样写
+
+//====================  PHP 获取ip 格式化ip ============================
+
+
+gethostbyaddr()  //获取主机名 参数 ip地址 成功返回主机名 否则返回当前输入的参数ip
+getprotobyname(); //获取协议端口  参数->协议名
+gethostname());//获取主机名 无参数
+gethostbyname('www.jijijichain.com'); //获取ip通过域名
+gethostbynamel('www.jijijichain.com');//取ip通过域名以数组形式返回
+ip2long($ip)//用于将一个数字格式的IPv4地址转换成字符串格式(192.168.0.1)
+
+
+//====================  PHP 获取ip 格式化ip ============================
+
+/*
+eq  = $map['id'] = array('eq',100); 等效于：$map['id'] = 100;
+neq !=  $map['id'] = array('neq',100);  id != 100
+gt  > $map['id'] = array('gt',100); id > 100
+egt >=  $map['id'] = array('egt',100);  id >= 100
+lt  < $map['id'] = array('lt',100); id < 100
+elt <=  $map['id'] = array('elt',100);  id <= 100
+like  like  $map<'username'> = array('like','Admin%');  username like 'Admin%'
+between between and $map['id'] = array('between','1,8');  id BETWEEN 1 AND 8
+not between not between and $map['id'] = array('not between','1,8');  id NOT BETWEEN 1 AND 8
+in  in  $map['id'] = array('in','1,5,8'); id in(1,5,8)
+not in  not in  $map['id'] = array('not in','1,5,8'); id not in(1,5,8)
+and（默认） and $map['id'] = array(array('gt',1),array('lt',10)); (id > 1) AND (id < 10)
+or  or  $map['id'] = array(array('gt',3),array('lt',10), 'or'); (id > 3) OR (id < 10)
+xor（异或） xor 两个输入中只有一个是true时，结果为true，否则为false，例子略。 1 xor 1 = 0
+exp 综合表达式 $map['id'] = array('exp','in(1,3,8)');  $map['id'] = array('in','1,3,8');
+
+*/

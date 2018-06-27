@@ -1,4 +1,6 @@
-<?php 	
+
+
+阿里云ECS CentOS 7 安装图形化桌面<?php 	
 /*
 解决方案
 
@@ -30,11 +32,13 @@ awk '{cnt[$1]++;}END{for(i in cnt){printf("%s\t%s\n", cnt[i], i);}}' access.log.
 ------------------------- netstat ---------------------------
 
 远程连接 ECS 实例。
-运行以下命令查看 TCP 80 是否被监听。 是否被使用
-netstat -anp | grep 80
+运行以下命令查看 TCP 80 是否被监听。
+netstat -an | grep 80
 如果返回以下结果，说明 TCP 80 端口的 Web 服务启动。
 tcp        0      0 0.0.0.0:80                  0.0.0.0:*                   LISTEN
 
+也可以用 nmap 127.0.0.1 来查看对外开放的端口及服务
+yum install -y nmap
 -------------------------history---------------------------
 这两种方式虽然能看到执行的命令，但是不能看出执行的时间，我们进行以下操作，让history能显示执行的时间  
 编辑/etc/bashrc文件，添加以下四行： 
@@ -66,7 +70,21 @@ find ./ -type d -print -exec ls {} \;
 find ./ -type d -ok ls {} \;
 
 查找目录并列出目录下的文件(将找到的目录添加到ls命令后一次执行，参数过长时会分多次执行)
+
 find ./ -type d -exec ls {} +
+
+      查找所有文件 包含 aaaa的  没有文件名
+      find  ./* -type f  -exec cat {} + | grep aaaa
+
+      查找所有文件包含 s888的文件  含有文件名
+      find ./* -type f   | xargs grep "s888." 
+      find ./* -type f   | xargs grep "@eval($_POST" 
+
+      从根目录开始查找所有扩展名为.log的文本文件，并找出包含”ERROR”的行
+      find / -type f -name "*.log" | xargs grep "ERROR"  
+      
+
+
 
 查找文件名匹配*.c的文件
 find ./ -name \*.c
@@ -203,25 +221,53 @@ u：与s相反，当设定为u时，数据内容其实还存在磁盘中，可�
 “sudo reboot now”登录后，执行“ping www.google.com”。
 
 
--------------------------- 给Linux配ip -------------------------
+-------------------------- Linux 配置静态ip -------------------------
+
+
 1、立即临时生效，重启后配置丢失
-ifconfig eth0 192.168.0.10 netmask 255.255.255.0
-ifconfig eth0 up
-2、重启后生效，重启电脑，IP不会丢失
-vim /etc/sysconfig/network-scripts/ifcfg-eth0
-参考配置文件
-DEVICE=eth0
-ONBOOT=yes
+
+ifconfig ens33 192.168.0.10 netmask 255.255.255.0
+ifconfig ens33 up
+
+
+2、重启后生效，重启电脑，IP不会丢失  /etc/sysconfig/network-scripts/ifcfg-ens33
+//虚拟机根据情况使用NET模式 
+
+DEVICE=ens33
 BOOTPROTO=static
-IPADDR=192.168.0.10
+TYPE=Ethernet
+BROADCAST=192.168.24.2
+IPADDR=192.168.24.130
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
 NETMASK=255.255.255.0
-GATEWAY=192.168.0.1
-HWADDR=00:0c:29:dd:a6:00
+GATEWAY=192.168.24.2  //点击NET记住里面的ip网关 填写到此处
+ONBOOT=yes
+DNS1=8.8.8.8
+DNS2=8.8.8.4
+
+
+//如果此处不设置dns无法ping通   name or service not known
+
+
+2.此处也要设置  DNS配置文件  /etc/resolv.conf 
+
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+
+
+3.hostname设置  /etc/sysconfig/network
+
+NETWORKING=yes
+HOSTNAME=localhost.localdomain
+GATWAY=192.168.24.2
+
 
 -------------------------- 网络配置文件  -------------------------
 
-DNS配置文件
-/etc/resolv.conf
+
+
+
 网络配置
 /etc/sysconfig/network-scripts/sifcfg-ens33
 
@@ -253,7 +299,9 @@ journalctl -xe  或 systemctl status network.service
 
 设置dns服务器用于域名解析和上网，但是对于某些特殊的需求我们需要让某个地址解析到特定的地址，可以通过编辑 /etc/hosts文件来实现。类型和windows下的主机头一样
 
-192.168.136.23  www.baidu.com
+/etc/hosts 修改完就能生效
+
+127.0.0.1  swoole.host
 
 ------------------------ linux du -------------------
 
@@ -445,7 +493,7 @@ openssl x509 -inform DER -in allinpay-pds.cer  -out allinpay-pds.pem
 ------------------------ linux 安装swoole config------------------------
 
 configure: error: Cannot find php-config. Please use --with-php-config=PATH
-一般出现这个错误说明你执行 ./configure 时  --with-php-config 这个参数配置路径错误导致的。你可能是多个版本的php需要指定php路径
+一般出现这个错误说明你执行 ./configure 时  --with-php-config 这个参数配置路径错误导致的。
 查找:
 find / -name  php-config
 修改为：
@@ -453,7 +501,9 @@ find / -name  php-config
 就可以解决问题
 上面的 /usr/local/php/ 是你的 php 安装路径
 ------------------------ linux 开放端口------------------------
-命令行方式：
+Centos7以前 可以用iptables命令 Centos以后用firewall
+
+iptables命令行方式：---------------------------------------
 
        1. 开放端口命令： /sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 
@@ -464,12 +514,161 @@ find / -name  php-config
        4.查看端口是否开放：/sbin/iptables -L -n
 
        查看端口是否开放：sudo netstat -tnlp | grep 21 如果是linsten状态则是已开启
+    
+      开启全部 入方向
+      iptables -P INPUT ACCEPT   
+      开启全部 入方向
+      iptables -P OUTPUT ACCEPT  
+      开启部分端口段
 
+      -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 700:800 -j ACCEPT
+
+      一、 700:800 表示700到800之间的所有端口
+
+      二、 :800 表示800及以下所有端口
+
+      三、 700: 表示700以及以上所有端
+
+      开启关闭 iptables
+      service iptables stop 
+
+Centos7 firewall -------------------------------------
+
+      systemctl stop firewalld.service    服务名字叫做firewalld 不是 iptables (iptables只是centos7中只是命令没有服务)
+      
+
+      配置文件 /etc/firewalld/
+      
+      端口规则文件 /etc/firewalld/zones/ 
+
+      查看版本： firewall-cmd --version
+
+      查看帮助： firewall-cmd --help
+
+      显示状态： firewall-cmd --state  或  systemctl status firewalld.service
+
+      查看所有打开的端口： firewall-cmd--zone=public --list-ports
+
+      更新防火墙规则： firewall-cmd --reload
+
+      查看区域信息:  firewall-cmd--get-active-zones
+
+      查看指定接口所属区域： firewall-cmd--get-zone-of-interface=eth0
+
+      拒绝所有包：firewall-cmd --panic-on
+
+      取消拒绝状态： firewall-cmd --panic-off
+
+      查看是否拒绝： firewall-cmd --query-panic
+
+      1.直接添加服务
+
+      firewall-cmd --permanent --zone=public --add-service=http
+      firewall-cmd --reload
+
+      firewall-cmd --list-all  查看所有
+
+      iptables -L
+       
+
+
+
+      2.添加端口
+
+      firewall-cmd --permanent --zone=public --add-port=80/tcp
+
+      firewall-cmd --permanent --zone=public --add-port=80-90/tcp   //端口段
+      
+      firewall-cmd --reload
+  
+      当然，firewalld.service需要设为开机自启动。
+
+      删除端口
+      
+      firewall-cmd --zone=public --remove-port=80/tcp --permanent
+  
+
+      3、如何自定义添加端口
+
+      用户可以通过修改配置文件的方式添加端口，也可以通过命令的方式添加端口，注意，修改的内容会在/etc/firewalld/ 目录下的配置文件中还体现。
+
+      1、命令的方式添加端口
+      firewall-cmd --permanent --add-port=9527/tcp 
+      参数介绍：
+
+      1、firewall-cmd：是Linux提供的操作firewall的一个工具；
+      2、--permanent：表示设置为持久；
+      3、--add-port：标识添加的端口；
+
+      另外，firewall中有Zone的概念，可以将具体的端口制定到具体的zone配置文件中。
+
+      例如：添加8010端口
+
+      firewall-cmd --zone=public --permanent --add-port=8010/tcp
+
+      --zone=public：指定的zone为public；
+
+      如果–zone=dmz 这样设置的话，会在dmz.xml文件中新增一条。
+    
+      
+     4、修改配置文件的方式添加端口
+
+      <rule family="ipv4">
+      <source address="115.57.132.178"/> 指定ip  不填则为任意ip 所有人
+      <port protocol="tcp" port="10050-10051"/> 协议类型  指定端口
+      <accept/> 表示接受
+      </rule>
+  
+      对应命令行 
+
+      firewall-cmd --permanent --zone=public --add-rich-rule="rule family="ipv4"  source address="192.168.0.4/24" service name="http" accept"
+
+
+      5.查看当前开了哪些端口
+
+      其实一个服务对应一个端口，每个服务对应/usr/lib/firewalld/services下面一个xml文件。
+
+      firewall-cmd --list-services
+
+      查看还有哪些服务可以打开
+
+      firewall-cmd --get-services
+
+      查看所有打开的端口： 
+
+      firewall-cmd --zone=public --list-ports
+
+      更新防火墙规则： 
+
+      firewall-cmd --reload
+
+
+
+------------------------ linux 服务器拒绝允许名单  ------------------------
+
+允许名单:/etc/hosts.allow
+
+拒绝名单:/etc/hosts.deny
+
+
+编辑允许规则：
+
+[root@linuxprobe ~]# vim /etc/hosts.allow
+httpd:192.168.10.
+拒绝其他所有的主机：
+
+[root@linuxprobe ~]# vim /etc/hosts.deny
+httpd:*
 ------------------------ linux tail -F 查看动态内容显示行号------------------------
 
 命令:
 tail -F   FileName | nl
 
+
+
+cat /etc/* | grep 文件名
+
+ls  file  file  file  ....
 ------------------------ linux 查看服务状态  ------------------------
 
 查看：systemctl status sshd.service
@@ -1054,8 +1253,16 @@ scp local_file remote_user@host:remote_folder
 复制local_folder 到远程remote_folder（需要加参数 -r 递归）
 
 scp –r local_folder remote_user@host:remote_folder
+scp -r local_folder remote_ip:remote_folder 
+没有指定用户名后续会输入 用户名和密码 指定后只会输入密码
 
 以上命令反过来写就是远程复制到本地
+
+例如
+   1. scp remote_user@host:remote_folder local_folder
+   默认端口端口 -P 22 可不加
+   2. scp -P 7789 root@120.55.85.13:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
+  
 
 3.sz/rz
 
@@ -1090,6 +1297,12 @@ tar -xZvf file.tar.Z   //解压tar.Z
 unrar e file.rar //解压rar
 
 unzip file.zip //解压zip
+
+tar: bzip2：无法 exec: 没有那个文件或目录
+
+缺少bzip2包
+yum install -y bzip2
+
 
 tar
 
@@ -1173,6 +1386,9 @@ unzip file.zip //解压zip
 8、*.rar 用 unrar e解压
 
 9、*.zip 用 unzip 解压
+
+
+
 
 ------------------------ linux  添加软链名称 ------------------------
         目标地址                    添加到命令 php72自定义名字
@@ -1478,7 +1694,7 @@ du -h | sort -hr | head(或tail) -20  文件的大小排序 只显示20行
 > ls -alrc # 按创建时间排序
 > ls -alru # 按访问时间排序
 
-------------------------- linux  LINUX的文件按时间排序 ---------------------------
+------------------------- linux  某个文件里面是否包含字符串 ---------------------------
 
 
 1：搜索某个文件里面是否包含字符串，使用 
@@ -1545,6 +1761,7 @@ dd if/dev/vda1 of=/被删目录/文件名 bs=offset(号码) count=1 skip=block(�
 
 
 ------------------------- linux  端口占用查看  ---------------------------
+需要切换到root用户  专享主机等或godaddy.com买的主机需要 su 切换到root才能看到占用的进程
 
 lsof -i :80  查看80端口占用的程序
 
@@ -2161,14 +2378,6 @@ Flags field:
 filename1 -nt filename2 如果 filename1比 filename2新，则为真。
 filename1 -ot filename2 如果 filename1比 filename2旧，则为真。
 
-
-shell 中利用 -n 来判定字符串非空。
-if [ str1 = str2 ]　　　　　  当两个串有相同内容、长度时为真 
-if [ str1 != str2 ]　　　　　 当串str1和str2不等时为真 
-if [ -n str1 ]　　　　　　 当串的长度大于0时为真(串非空) 
-if [ -z str1 ]　　　　　　　 当串的长度为0时为真(空串) 
-if [ str1 ]　　　　　　　　 当串str1为非空时为真
-
 -eq 等于
 -ne 不等于
 -gt 大于
@@ -2178,61 +2387,1128 @@ if [ str1 ]　　　　　　　　 当串str1为非空时为真
 
 
 
------------------------- linux 源码安装 php ------------------------
+------------------------ linux 源码安装  ------------------------
  
  安装前需要提前安装 gcc 和 autoconfig
-
 sudo ./configure --prefix=/www/...  指定到文件夹下   使用 ./configure --help 查看具体参数设置
 示例如下
-(
-sudo ./configure --prefix=/usr/local/php7 --enable-fpm --with-config-file-path=/usr/local/php7/etc  --with-openssl --with-iconv=/usr/local/lib/libiconv 
-) 
+(sudo ./configure --prefix=/usr/local/php7 \
+--enable-fpm \
+--with-config-file-path=/usr/local/php7/etc \  
+--with-iconv=/usr/local/lib/libiconv \)
 sudo make
 sudo make install
 
-安装完成可查看 ./bin/php-i | grep php.ini 找到生效的ini文件路径  如果编译时没有指定etc目录默认在 lib下
-如果没有改文件 需要负责源码包里的 php.ini-development 更名为 php.ini到 指定目录 (./bin/php-i | grep php.ini 指定的目录)
+------------------------ linux 编译安装gd库  ------------------------
 
-加入 openssl 扩展到ini文件
-extension=openssl.so
-//比较全面的编译php配置
+$ cd /root/software/php-5.6.5  进入编译的安装下载的包 (php包)
+$ cd ext/gd //进入gd文件夹
+$ /usr/local/php/bin/phpize  使用现在的php版本phpize生成 configure 文件
+$ ./configure --with-php-config=你的php路径/php/bin/php-config --with-png-dir --with-freetype-dir --with-jpeg-dir --with-gd
+$ make
+$ make install
 
-sudo ./configure  --prefix=/home/laotianye/www/php/72 --with-config-file-path=/home/laotianye/www/php/72/etc   --with-iconv-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr/ --enable-xml --disable-rpath  --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization  --enable-mbregex   --enable-mbstring  --with-mcrypt   --enable-ftp --with-gd --enable-gd-native-ttf  --with-openssl -with-mhash --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap  --without-pear  --with-gettext  --with-curl   --with-apxs2=/usr/bin/apxs --with-mysqli --with-pdo-mysql --enable-mbstring
+加入php.ini  extension=gd 
+
+------------------------ linux pgrep  ------------------------
+
+pgrep(选项)(参数)
+
+-o：仅显示找到的最小（起始）进程号；
+-n：仅显示找到的最大（结束）进程号；
+-l：显示进程名称；
+-P：指定父进程号；
+-g：指定进程组；
+-t：指定开启进程的终端；
+-u：指定进程的有效用户ID。
+
+pgrep -l  php
+
+------------------------ linux pgrep  ------------------------
 
 
---with-openssl 报错 
-configure: error: Cannot find OpenSSL's <evp.h>
-暂时去除 
+可以使用 ps aft | grep tcp.php 查看所有该文件产生的进程
 
------------------------- linux 源码安装 swoole ------------------------
+pkill php  杀死所有php 的进程
 
-安装git  
-git clone 源码 
-使用phpize生成configure文件
-make
+
+------------------------ linux 查看python版本和shell版本  ------------------------
+
+查看 shell
+
+cat /etc/shells  查看系统安装了那些bash shell
+
+bash -version 查看系统shell版本
+
+cat /bin/*sh  查看所有的shell
+
+
+查看 python 
+
+python -V  查看Python 版本
+
+------------------------ linux wget  ------------------------
+
+
+
+wget命令用来从指定的URL下载文件。wget非常稳定，它在带宽很窄的情况下和不稳定网络中有很强的适应性，如果是由于网络的原因下载失败，wget会不断的尝试，直到整个文件下载完毕。如果是服务器打断下载过程，它会再次联到服务器上从停止的地方继续下载。这对从那些限定了链接时间的服务器上下载大文件非常有用。
+
+语法
+wget(选项)(参数)
+选项
+-a<日志文件>：在指定的日志文件中记录资料的执行过程；
+-A<后缀名>：指定要下载文件的后缀名，多个后缀名之间使用逗号进行分隔；
+-b：进行后台的方式运行wget；
+-B<连接地址>：设置参考的连接地址的基地地址；
+-c：继续执行上次终端的任务；
+-C<标志>：设置服务器数据块功能标志on为激活，off为关闭，默认值为on；
+-d：调试模式运行指令；
+-D<域名列表>：设置顺着的域名列表，域名之间用“，”分隔；
+-e<指令>：作为文件“.wgetrc”中的一部分执行指定的指令；
+-h：显示指令帮助信息；
+-i<文件>：从指定文件获取要下载的URL地址；
+-l<目录列表>：设置顺着的目录列表，多个目录用“，”分隔；
+-L：仅顺着关联的连接；
+-r：递归下载方式；
+-nc：文件存在时，下载文件不覆盖原有文件；
+-nv：下载时只显示更新和出错信息，不显示指令的详细执行过程；
+-q：不显示指令执行过程；
+-nh：不查询主机名称；
+-v：显示详细执行过程；
+-V：显示版本信息；
+--passive-ftp：使用被动模式PASV连接FTP服务器；
+--follow-ftp：从HTML文件中下载FTP连接文件。
+参数
+URL：下载指定的URL地址。
+
+实例
+使用wget下载单个文件
+
+wget http://www.linuxde.net/testfile.zip
+以下的例子是从网络下载一个文件并保存在当前目录，在下载的过程中会显示进度条，包含（下载完成百分比，已经下载的字节，当前下载速度，剩余下载时间）。
+
+下载并以不同的文件名保存
+
+wget -O wordpress.zip http://www.linuxde.net/download.aspx?id=1080
+wget默认会以最后一个符合/的后面的字符来命令，对于动态链接的下载通常文件名会不正确。
+
+错误：下面的例子会下载一个文件并以名称download.aspx?id=1080保存:
+
+wget http://www.linuxde.net/download?id=1
+即使下载的文件是zip格式，它仍然以download.php?id=1080命令。
+
+正确：为了解决这个问题，我们可以使用参数-O来指定一个文件名：
+
+wget -O wordpress.zip http://www.linuxde.net/download.aspx?id=1080
+wget限速下载
+
+wget --limit-rate=300k http://www.linuxde.net/testfile.zip
+当你执行wget的时候，它默认会占用全部可能的宽带下载。但是当你准备下载一个大文件，而你还需要下载其它文件时就有必要限速了。
+
+使用wget断点续传
+
+wget -c http://www.linuxde.net/testfile.zip
+使用wget -c重新启动下载中断的文件，对于我们下载大文件时突然由于网络等原因中断非常有帮助，我们可以继续接着下载而不是重新下载一个文件。需要继续中断的下载时可以使用-c参数。
+
+使用wget后台下载
+
+wget -b http://www.linuxde.net/testfile.zip
+
+Continuing in background, pid 1840.
+Output will be written to `wget-log'.
+对于下载非常大的文件的时候，我们可以使用参数-b进行后台下载，你可以使用以下命令来察看下载进度：
+
+tail -f wget-log
+伪装代理名称下载
+
+wget --user-agent="Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16" http://www.linuxde.net/testfile.zip
+有些网站能通过根据判断代理名称不是浏览器而拒绝你的下载请求。不过你可以通过--user-agent参数伪装。
+
+测试下载链接
+
+当你打算进行定时下载，你应该在预定时间测试下载链接是否有效。我们可以增加--spider参数进行检查。
+
+wget --spider URL
+如果下载链接正确，将会显示:
+
+Spider mode enabled. Check if remote file exists.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Remote file exists and could contain further links,
+but recursion is disabled -- not retrieving.
+这保证了下载能在预定的时间进行，但当你给错了一个链接，将会显示如下错误:
+
+wget --spider url
+Spider mode enabled. Check if remote file exists.
+HTTP request sent, awaiting response... 404 Not Found
+Remote file does not exist -- broken link!!!
+你可以在以下几种情况下使用--spider参数：
+
+定时下载之前进行检查
+间隔检测网站是否可用
+检查网站页面的死链接
+增加重试次数
+
+wget --tries=40 URL
+如果网络有问题或下载一个大文件也有可能失败。wget默认重试20次连接下载文件。如果需要，你可以使用--tries增加重试次数。
+
+下载多个文件
+
+wget -i filelist.txt
+首先，保存一份下载链接文件：
+
+cat > filelist.txt
+url1
+url2
+url3
+url4
+接着使用这个文件和参数-i下载。
+
+镜像网站
+
+wget --mirror -p --convert-links -P ./LOCAL URL
+下载整个网站到本地。
+
+--miror开户镜像下载。
+-p下载所有为了html页面显示正常的文件。
+--convert-links下载后，转换成本地的链接。
+-P ./LOCAL保存所有文件和目录到本地指定目录。
+过滤指定格式下载
+
+wget --reject=gif ur
+下载一个网站，但你不希望下载图片，可以使用这条命令。
+
+把下载信息存入日志文件
+
+wget -o download.log URL
+不希望下载信息直接显示在终端而是在一个日志文件，可以使用。
+
+限制总下载文件大小
+
+wget -Q5m -i filelist.txt
+当你想要下载的文件超过5M而退出下载，你可以使用。注意：这个参数对单个文件下载不起作用，只能递归下载时才有效。
+
+下载指定格式文件
+
+wget -r -A.pdf url
+可以在以下情况使用该功能：
+
+下载一个网站的所有图片。
+下载一个网站的所有视频。
+下载一个网站的所有PDF文件。
+FTP下载
+
+wget ftp-url
+wget --ftp-user=USERNAME --ftp-password=PASSWORD url
+可以使用wget来完成ftp链接的下载。
+
+使用wget匿名ftp下载：
+
+wget ftp-url
+使用wget用户名和密码认证的ftp下载：
+
+wget --ftp-user=USERNAME --ftp-password=PASSWORD url
+
+
+
+------------------------ linux  使用./configure 出错   ------------------------
+
+configure: error: no acceptable C compiler found in $PATH
+
+yum install gcc
+
+
+tar: bzip2：无法 exec: 没有那个文件或目录
+
+缺少bzip2包
+yum install -y bzip2
+
+------------------------ linux  安装 pure-ftpd   ------------------------
+下载地址 1.4版本以前  编译之后没有etc文件夹
+https://download.pureftpd.org/pure-ftpd/releases/obsolete/
+
+1.4版本以后  编译后有etc文件夹 但是没有configuration-file文件
+https://download.pureftpd.org/pure-ftpd/releases/
+
+两种都可以
+配置1.
+
+./configure \
+--prefix=/www/server/pure-ftp/ \
+--without-inetd \
+--with-altlog \
+--with-puredb \
+--with-throttling \
+--with-peruserlimits  \
+--with-tls
+
+部分解释
+./configure \
+--prefix=/usr/local/pureftpd \ //pureftpd安装目录
+
+--with-everything \ //安装几乎所有的功能，包括altlog、cookies、throttling、ratios、ftpwho、upload script、virtual users（puredb）、quotas、virtual hosts、directory aliases、external authentication、Bonjour、privilege separation本次安装只使用这个选项。
+
+--with-cookie \ //当用户登录时显示指定的横幅
+
+--with-diraliases \ //支持目录别名，用快捷方式代cd命令
+
+--with-extauth \ //编译支持扩展验证的模块,大多数用户不使用这个选项
+
+--with-ftpwho \ //支持pure-ftpwho命令,启用这个功能需要更多的额外内存
+
+--with-language=english \ //修改服务器语言，默认是英文，如果你要做修改，请翻译‘src/messages_en.h’文件
+
+--with-ldap \   //LADP目录支持，需要安装openldap
+
+--with-minimal \ //FTP最小安装，最基本的功能
+
+--with-mysql \ //MySQL支持，如果MySQL安装在自定义目录上，你需要使用命令—with-mysql=/usr/local/mysq这类
+
+--with-nonroot \   //不需要root用户就可以启动服务
+
+
+
+
+若出现configure: error: OpenSSL headers not found  需 yum install openssl-devel
+
+若出现configure: error: liblber is needed for LDAP support，需安装openldap-devel
+
+若出现configure: error: Your MySQL client libraries aren't properly installed, 需要安装mysql-devel
+
+出现类似configure: error: Your MySQL client libraries aren't properly installed 的错误,请将mysql目录下的 include/mysql下的mysql.h文件以及lib/mysql下的全部文件,连接(直接复制过去或许也可)到 /usr/lib 目录下
+
+
+mkdir -p  /www/server/ftp/pure-ftpd/ 递归建立文件夹  
+
+
+
+------------------------ linux  Centos7找不到 netstat   ------------------------
+
+
+Centos7发布有一段时间了，最近使用中也发现一些问题，从Centos6换过来后感觉到不少细微的变化
+
+例如默认没有ifconfig和netstat两个命令了，ifconfig其实使用ip addr命令可以代替，
+
+在cenots6下的ss命令可以代替netstat，但是现在的ss和以前的完全是两样 ，还是得装上才行方便查看端口占用和tcp链接攻击等等。
+
+把net-tools包装上就好了。
+
+yum install net-tools
+
+另外centos7引入了systemctl对服务管理，这个的确还是没原来的service好使，php默认5.4, apache默认2.4，此外 Mariadb代替了mysql 
+
+netstat  comman not find
+安装 
+yum install net-tools
+
+
+
+
+Linux的netstat查看端口是否开放见解（0.0.0.0与127.0.0.1的区别）
+ 
+
+linux运维都需要对端口开放查看  netstat 就是对端口信息的查看
+
+# netstat -nltp
+
+p 查看端口挂的程序
+
+复制代码
+[root@iz2ze5is23zeo1ipvn65aiz ~]# netstat -nltp
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      3346/nginx: master  
+tcp        0      0 127.0.0.1:8081          0.0.0.0:*               LISTEN      2493/docker-proxy-c 
+tcp        0      0 127.0.0.1:8082          0.0.0.0:*               LISTEN      5529/docker-proxy-c 
+tcp        0      0 127.0.0.1:8083          0.0.0.0:*               LISTEN      17762/docker-proxy- 
+tcp        0      0 127.0.0.1:8084          0.0.0.0:*               LISTEN      2743/docker-proxy-c 
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      2155/sshd    
+复制代码
+看到 查询的有Local、Address、Foregin、Program name
+
+Local ：访问端口的方式，0.0.0.0 是对外开放端口，说明80端口外面可以访问；127.0.0.1 说明只能对本机访问，外面访问不了此端口；
+
+Address：端口
+
+Foregin Address：对外开放，一般都为0.0.0.0：* 
+
+Program name：此端口是那个程序在用，程序挂载此端口
+
+重点说明 0.0.0.0 是对外开放，通过服务域名、ip可以访问的端口
+
+               127.0.0.1 只能对本机 localhost访问，也是保护此端口安全性
+
+　　　　::: 这三个: 的前两个”::“，是“0:0:0:0:0:0:0:0”的缩写，相当于IPv6的“0.0.0.0”，就是本机的所有IPv6地址，第三个:是IP和端口的分隔符
+
+------------------------ linux  最小化安装 需要安装的软件   ------------------------
+
+
+1.如果你是基于最小化安装的linux系统，需要执行如下命令，安装必要的库，如果是安装过的可以跳过此步骤
+
+yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bison file libtool libtool-libs autoconf kernel-devel libjpeg libjpeg-devel libpng libpng-devel libpng10 libpng10-devel gd gd-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glib2 glib2-devel bzip2 bzip2-devel libevent libevent-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel vim-minimal nano fonts-chinese gettext gettext-devel ncurses-devel gmp-devel pspell-devel unzip libcap diffutils vim lrzsz net-tools
+
+------------------------ linux 宝塔申请https   ------------------------
+
+
+1.申请的时候要带www的域名  TrustAsia DV SSL CA - G5  第一个证书  会默认申请不带www的证书
+
+申请此证书不许要目录和域名对应  
+
+2.申请免费 let's encrypt 证书 网站目录名必须和域名对应 且域名已经解析到该服务器 
+
+否则会报错 域名未解析
+
+如果还不行 则需要把主域名先绑定到该目录 开启https  然后申请证书
+
+3.网站已经建立过 此时可以新建站点 建立和域名对应的网站名目录  解析绑定之后申请证书 然后将证书文件负责到对应网站开启即可
+
+
+在未指定SSL默认站点时,未开启SSL的站点使用HTTPS会直接访问到已开启SSL的站点
+
+
+
+------------------------ linux nginx wss 端口转发   ------------------------
+
+  location /wss {
+      proxy_pass http://127.0.0.1:2345;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "Upgrade";
+      proxy_set_header X-Real-IP $remote_addr;
+  }
+
+
+
+
+------------------------ linux Linux服务器基本信息查看   ------------------------
+
+
+
+Linux服务器基本信息通常包括如下几方面:
+
+CPU信息
+内存使用信息
+硬盘使用情况
+服务器负载状况
+其它参数
+ 
+
+1.获取CPU的详细情况
+
+
+[root@VM_41_84_centos ~]# cat /proc/cpuinfo
+
+显示所有逻辑cpu信息 16核则有16个  0-15
+ 
+
+判断依据:
+
+具有相同core id的CPU是同一个core的超线程
+具有相同"physical id"的CPU是同一个CPU封装的线程或核心
+　
+　a.　显示物理CPU个数
+
+   　　　　cat /proc/cpuinfo |grep "physical id"|sort|uniq|wc -l
+
+　　b.   显示每个物理CPU的个数(核数)
+
+　　　　　cat /proc/cpuinfo |grep "cpu cores"|uniq
+
+　　c.    显示逻辑CPU个数
+
+    　　　　cat /proc/cpuinfo|grep "processor"|wc -l
+
+理论上不使用超线程技术的前提下有如下结论:
+
+　　物理CPU个数*核数=逻辑CPU个数
+
+配置服务器的应用时，以逻辑CPU个数为准
+
+ 
+
+2.获去服务器内存使用情况
+
+[root@VM_41_84_centos ~]# free -h             total       used       free     shared    buffers     cached
+Mem:          996M       928M        67M        44K       217M       357M
+-/+ buffers/cache:       353M       642M
+Swap:         1.5G       120M       1.3G
+ 
+
+total: 内存总量
+used: 已使用
+free: 未使用
+shared: 多进程共享的内存总量
+-buffers/cache: 已使用内存
++buffers/cache: 可用内存
+可用内存=free+buffers+cached(642=67+217+357)
+
+　　
+
+ 
+
+ 
+
+3.查看服务器硬盘使用情况
+
+查看硬盘以及分区信息: fdisk -l
+查看文件系统的磁盘空间占用情况: df -h
+ 
+
+[root@VM_41_84_centos ~]# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        20G   13G  6.2G  67% /
+/dev/vdb1        20G  936M   18G   5% /mydata
+ 
+
+3. 查看硬盘的I/O性能: iostat -d -x -k 10 2  (-d显示磁盘状态,-x显示跟io相关的扩张数据,-k以KB为单位，10表示每隔10秒刷新一次，2表示刷新2次，默认一直刷新)
+
+　　
+
+[root@VM_41_84_centos ~]# iostat -d -x -k 10 2
+Linux 2.6.32-642.15.1.el6.x86_64 (VM_41_84_centos)     05/03/17     _x86_64_    (1 CPU)
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+vda               0.93     6.76    0.71    1.67    13.49    33.60    39.43     0.05   21.55    6.68   27.88   2.20   0.53
+vdb               0.00     0.14    0.02    0.11     0.06     0.97    16.65     0.00    5.28    2.89    5.64   2.41   0.03
+dm-0              0.00     0.00    0.34    0.59     4.05     3.50    16.17     0.06   60.88    8.23   91.31   0.37   0.03
+dm-2              0.00     0.00    0.02    0.07     0.21     0.25    10.95     0.04  465.54    4.70  604.18   0.99   0.01
+dm-3              0.00     0.00    0.01    0.00     0.03     0.00    10.16     0.00    3.09    0.28   14.74   0.19   0.00
+dm-1              0.00     0.00    0.00    0.00     0.02     0.01    10.52     0.00    5.41    0.61   20.81   0.27   0.00
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+vda               0.00     0.10    0.00    0.20     0.00     1.20    12.00     0.00   11.00    0.00   11.00  11.00   0.22
+vdb               0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+dm-0              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+dm-2              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+dm-3              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+dm-1              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+复制代码
+参数说明:
+
+rrqm/s: 每秒这个设备相关的读取请求有多少被Merge了（当系统调用需要读取数据的时候，VFS将请求发到各个FS，如果FS发现不同的读取请求读取的是相同Block的数据，FS会将这个请求合并Merge）
+wrqm/s: 每秒进行merge的写操作数
+r/s: 每秒完成的读I/O设备的次数
+w/s: 每秒完成的写I/O设备的次数
+rkB/s: 每秒读取多少KB
+wkB/s: 每秒写多上KB
+avgrq-sz: 平均每次设备I/O操作的数据大小(扇区)
+avgqu-sz: 平均I/O队列长度
+await: 平均每次设备I/O操作的等待时间ms
+svctm: 平均每次设备I/O操作时间ms
+%util: 一秒钟有百分之多上时间用于I/O操作
+平时只要关注%util,await两个参数即可
+
+%util越接近100%,说明产生的I/O请求越多，越容易满负荷
+
+await 取决于svctm，最好低于5ms,如果大于5ms说明I/O压力大,可以考虑更换响应速度更快的硬盘.
+
+     
+
+ 
+
+4.查看服务器平均负载
+
+概念: 特定时间间隔内运行队列中的平均进程数可以反映系统繁忙程度
+
+[root@VM_41_84_centos /]# uptime
+ 00:09:20 up 5 days,  3:27,  1 user,  load average: 0.03, 0.04, 0.03
+ 
+
+　　
+
+[root@VM_41_84_centos /]# w
+ 00:10:34 up 5 days,  3:28,  1 user,  load average: 0.01, 0.03, 0.02
+USER     TTY      FROM              LOGIN@   IDLE   JCPU   PCPU WHAT
+root     pts/4    117.101.50.192   22:16    0.00s  1.36s  0.00s w
+复制代码
+[root@VM_41_84_centos /]# top
+top - 00:12:26 up 5 days,  3:30,  1 user,  load average: 0.00, 0.02, 0.01
+Tasks: 156 total,   1 running, 145 sleeping,  10 stopped,   0 zombie
+Cpu(s):  0.7%us,  0.6%sy,  0.0%ni, 98.3%id,  0.4%wa,  0.0%hi,  0.0%si,  0.0%st
+Mem:   1020128k total,   943636k used,    76492k free,   212716k buffers
+Swap:  1535992k total,   123648k used,  1412344k free,   163624k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 1464 root      20   0 37856 2928  796 S  2.0  0.3   7:18.85 secu-tcs-agent
+    1 root      20   0 19364  868  668 S  0.0  0.1   0:01.96 init
+    2 root      20   0     0    0    0 S  0.0  0.0   0:00.01 kthreadd
+    3 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 migration/0
+    4 root      20   0     0    0    0 S  0.0  0.0   0:05.88 ksoftirqd/0
+
+load average: 0.01, 0.03, 0.02表示过去1分钟，5分钟，15分钟进程队列中的平均进程数量
+当这三个数长期大于逻辑CPU个数时说明负载过大
+ 　　
+
+top - 11:35:21 up 572 days, 14:57,  4 users,  load average: 3.82, 10.01, 21.99
+Tasks: 141 total,   1 running, 138 sleeping,   2 stopped,   0 zombie
+Cpu0  : 96.7%us,  0.3%sy,  0.0%ni,  3.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Cpu1  : 96.0%us,  1.0%sy,  0.0%ni,  3.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Cpu2  :100.0%us,  0.0%sy,  0.0%ni,  0.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Cpu3  : 96.3%us,  0.7%sy,  0.0%ni,  3.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Mem:   8061216k total,  7888384k used,   172832k free,    32780k buffers
+Swap:  8191996k total,    30492k used,  8161504k free,   433564k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND                                                        
+ 4448 tomcat    20   0  9.9g 6.7g  13m S 386.6 87.5  89:37.39 jsvc    　　　　　　#我艹，四核CPU，所以这里超过了100%，即4个cpu累加                                                       
+12098 root      20   0 15032 1248  928 R  0.7  0.0   0:00.54 top                                                             
+    1 root      20   0 19356  944  772 S  0.0  0.0   0:05.19 init                                                            
+    2 root      20   0     0    0    0 S  0.0  0.0   0:00.32 kthreadd                                                        
+    3 root      RT   0     0    0    0 S  0.0  0.0  16:00.68 migration/0                                                     
+    4 root      20   0     0    0    0 S  0.0  0.0  11:02.28 ksoftirqd/0                                                     
+    5 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 stopper/0                                                       
+    6 root      RT   0     0    0    0 S  0.0  0.0   1:10.46 watchdog/0                                                      
+    7 root      RT   0     0    0    0 S  0.0  0.0  30:16.65 migration/1  
+复制代码
+ 
+
+ 
+
+vmstat监控Linux系统的整体性能　　
+
+复制代码
+[root@VM_41_84_centos /]# vmstat 1 4　　　　#每秒1次，共四次
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  0 123648  75128 213356 163824    5    3    18    38   41   27  1  1 98  0  0
+ 0  0 123648  75112 213356 163824    0    0     0     0  116  194  0  0 100  0  0
+ 0  0 123648  75112 213356 163824    0    0     0     0  116  191  0  1 99  0  0
+ 0  0 123648  75112 213356 163824    0    0     0     0  119  184  0  0 100  0  0
+复制代码
+ 看一个线上的，cpu部分已经处于饱和状态了。
+
+复制代码
+[root@ovz-core-tbf-01 ~]# vmstat 1 8
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 4  0  30492 176080  33252 433844    0    0     1     7    0    0  3  1 96  0  0    
+ 4  0  30492 176072  33252 433844    0    0     0     0 3879  270 93  0  7  0  0    
+ 4  0  30492 176072  33252 433844    0    0     0     0 4103  161 100  0  0  0  0    
+ 4  0  30492 176072  33252 433844    0    0     0     0 4081  137 100  0  0  0  0    
+ 4  0  30492 176072  33252 433844    0    0     0     0 3724  239 90  0 10  0  0    
+ 4  0  30492 176072  33260 433840    0    0     0    28 3895  252 94  0  6  0  0    
+ 7  0  30492 175776  33260 433844    0    0     0     0 4114  220 100  0  0  0  0    
+ 5  0  30492 175452  33260 433844    0    0     0     0 4121  181 100  1  0  0  0    
+复制代码
+ 
+
+参数介绍:
+
+　procs:
+
+r: 等待运行的进程数
+b: 处于非中断睡眠状态的进程数　　　　
+　memory:
+
+swpd: 虚拟内存使用情况(KB)
+free: 空闲内存(KB)
+　swap:
+
+si: 从磁盘交换到内存的交换页数量
+so: 从内存交换到磁盘的交换页数量
+    io:
+
+bi: 发送到设备的块数(块/s）
+bo: 从块设备接收到的块数(块/s)
+　system:
+
+in: 每秒中断数
+cs: 每秒的环境上下文切换数
+   cpu:（cpu总使用的百分比)
+
+us: cpu使用时间
+sy: cpu系统使用时间
+id: 闲置时间
+ 
+
+标准情况下r和b的值应为:r<5,b约为0.
+
+如果us+sy<70%,系统性能较好
+
+如果us+sy>85,系统性能糟糕.
+
+ 
+
+ 
+
+5.其他信息
+
+　查看系统32、64位
+
+复制代码
+[root@VM_41_84_centos /]# getconf LONG_BIT
+64
+[root@VM_41_84_centos /]# file /sbin/init   或 file /lib/systemd/systemd
+/sbin/init: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
+[root@VM_41_84_centos /]#
+ 
+
+　查看服务器发行版相关信息
+
+复制代码
+[root@VM_41_84_centos /]# lsb_release -a
+LSB Version:    :base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch:graphics-4.0-amd64:graphics-4.0-noarch:printing-4.0-amd64:printing-4.0-noarch
+Distributor ID:    CentOS
+Description:    CentOS release 6.8 (Final)
+Release:    6.8
+Codename:    Final
+[root@VM_41_84_centos /]#
+复制代码
+ 
+
+　查看系统已经载入的相关模块
+
+复制代码
+[root@VM_41_84_centos /]# lsmod
+Module                  Size  Used by
+nfnetlink_queue         8111  0
+nfnetlink_log           8718  0
+nfnetlink               4200  2 nfnetlink_queue,nfnetlink_log
+bluetooth              97895  0
+rfkill                 19255  1 bluetooth
+veth                    4794  0
+ext4                  379687  3
+jbd2                   93252  1 ext4
+xt_conntrack            2776  1
+ipt_MASQUERADE          2338  2
+iptable_nat             5923  1
+ipt_addrtype            2153  2
+nf_nat                 22676  2 ipt_MASQUERADE,iptable_nat
+bridge                 85674  0
+stp                     2218  1 bridge
+llc                     5418  2 bridge,stp
+dm_thin_pool           52743  4
+dm_bio_prison           7259  1 dm_thin_pool
+dm_persistent_data     57082  1 dm_thin_pool
+dm_bufio               20372  1 dm_persistent_data
+libcrc32c               1246  1 dm_persistent_data
+ipv6                  336282  1 bridge
+ipt_REJECT              2383  2
+nf_conntrack_ipv4       9186  10 iptable_nat,nf_nat
+nf_defrag_ipv4          1483  1 nf_conntrack_ipv4
+xt_state                1492  6
+nf_conntrack           79537  6 xt_conntrack,ipt_MASQUERADE,iptable_nat,nf_nat,nf_conntrack_ipv4,xt_state
+iptable_filter          2793  1
+ip_tables              17895  2 iptable_nat,iptable_filter
+virtio_balloon          4798  0
+virtio_net             22002  0
+i2c_piix4              11232  0
+i2c_core               29132  1 i2c_piix4
+ext3                  240420  2
+jbd                    80652  1 ext3
+mbcache                 8193  2 ext4,ext3
+virtio_blk              7132  4
+virtio_pci              7416  0
+virtio_ring             8891  4 virtio_balloon,virtio_net,virtio_blk,virtio_pci
+virtio                  5639  4 virtio_balloon,virtio_net,virtio_blk,virtio_pci
+pata_acpi               3701  0
+ata_generic             3837  0
+ata_piix               24409  0
+dm_mirror              14864  0
+dm_region_hash         12085  1 dm_mirror
+dm_log                  9930  2 dm_mirror,dm_region_hash
+dm_mod                102467  14 dm_thin_pool,dm_persistent_data,dm_bufio,dm_mirror,dm_log
+复制代码
+查看PCI设备信息
+
+ 
+
+[root@VM_41_84_centos /]# lspci
+00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)
+00:01.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II]
+00:01.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
+00:01.2 USB controller: Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)
+00:01.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 03)
+00:02.0 VGA compatible controller: Cirrus Logic GD 5446
+00:03.0 Ethernet controller: Red Hat, Inc Virtio network device
+00:04.0 SCSI storage controller: Red Hat, Inc Virtio block device
+00:05.0 SCSI storage controller: Red Hat, Inc Virtio block device
+00:06.0 Unclassified device [00ff]: Red Hat, Inc Virtio memory balloon
+
+
+
+
+
+------------------------ linux 查看文件时间   ------------------------
+
+2、ls查看文件时间
+
+相应的通过ls 查看时也有三个时间：
+
+• modification time（mtime，修改时间）：当该文件的“内容数据”更改时，就会更新这个时间。内容数据指的是文件的内容，而不是文件的属性。 
+• status time（ctime，状态时间）：当该文件的”状态（status）”改变时，就会更新这个时间，举例来说，更改了权限与属性，就会更新这个时间。 
+• access time（atime，存取时间）：当“取用文件内容”时，就会更新这个读取时间。举例来说，使用cat去读取 ~/.bashrc，就会更新atime了。
+
+
+--full 查看完整时间
+
+
+ls -l --full --time=ctime ./hfx.html
+
+
+
+
+
+
+
+linux下查看和修改文件时间
+一、查看文件时间及相关命令
+
+1、stat查看文件时间
+
+[root@web10 ~]# stat install.log
+  File: “install.log”
+  Size: 33386           Blocks: 80         IO Block: 4096   一般文件
+Device: fd00h/64768d    Inode: 7692962     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2012-07-13 16:02:34.000000000 +0800
+Modify: 2011-11-29 16:03:06.000000000 +0800
+Change: 2011-11-29 16:03:08.000000000 +0800
+说明：Access访问时间。Modify修改时间。Change状态改变时间。可以stat *查看这个目录所有文件的状态。
+
+而我们想要查看某文件的三个时间中的具体某个时间，并以年月日时分秒的格式保存。我们可以使用下面的命令：
+
+[root@web10 ~]# stat install.log|grep -i Modify | awk -F. '{print $1}' | awk '{print $2$3}'| awk -F- '{print $1$2$3}' | awk -F: '{print $1$2$3}'
+20111129160306
+2、ls查看文件时间
+
+相应的通过ls 查看时也有三个时间：
+
+• modification time（mtime，修改时间）：当该文件的“内容数据”更改时，就会更新这个时间。内容数据指的是文件的内容，而不是文件的属性。 
+• status time（ctime，状态时间）：当该文件的”状态（status）”改变时，就会更新这个时间，举例来说，更改了权限与属性，就会更新这个时间。 
+• access time（atime，存取时间）：当“取用文件内容”时，就会更新这个读取时间。举例来说，使用cat去读取 ~/.bashrc，就会更新atime了。
+
+[root@web10 ~]# ls -l --time=ctime install.log
+-rw-r--r-- 1 root root 33386 2011-11-29 install.log
+[root@web10 ~]# ls -l --time=atime install.log
+-rw-r--r-- 1 root root 33386 07-13 16:02 install.log
+注意：ls参数里没有--mtime这个参数，因为我们默认通过ls -l查看到的时间就是mtime 。
+
+二、修改文件时间
+
+创建文件我们可以通过touch来创建。同样，我们也可以使用touch来修改文件时间。touch的相关参数如下：
+
+-a : 仅修改access time。
+-c : 仅修改时间，而不建立文件。
+-d : 后面可以接日期，也可以使用 --date="日期或时间"
+-m : 仅修改mtime。
+-t : 后面可以接时间，格式为 [YYMMDDhhmm]
+注：如果touch后面接一个已经存在的文件，则该文件的3个时间（atime/ctime/mtime）都会更新为当前时间。若该文件不存在，则会主动建立一个新的空文件。
+
+[root@web10 ~]# touch install.log
+[root@web10 ~]# stat install.log
+  File: “install.log”
+  Size: 33386           Blocks: 80         IO Block: 4096   一般文件
+Device: fd00h/64768d    Inode: 7692962     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2012-07-13 16:21:50.000000000 +0800
+Modify: 2012-07-13 16:21:50.000000000 +0800
+Change: 2012-07-13 16:21:50.000000000 +0800
+同样，使用ls ，查看到的结果也一样。
+
+[root@web10 ~]# ls -l --time=ctime install.log
+-rw-r--r-- 1 root root 33386 07-13 16:21 install.log
+[root@web10 ~]# ls -l --time=atime install.log
+-rw-r--r-- 1 root root 33386 07-13 16:21 install.log
+[root@web10 ~]# ls -l install.log
+-rw-r--r-- 1 root root 33386 07-13 16:21 install.log
+下面再看一个和touch不相关的例子：
+
+[root@web10 ~]# cp /etc/profile .;ll --time=atime profile ;ll --time=ctime profile
+cp：是否覆盖“./profile”? y
+-rw-r--r-- 1 root root 1344 07-13 16:24 profile
+-rw-r--r-- 1 root root 1344 07-13 16:25 profile
+因为我之前运行过这个命令一次，所以会出现覆盖，不过这个覆盖出的好，刚才让我们看到了atime和ctime的时间的差别。
+
+我们再回到touch利用touch修改文件时间：
+
+1. 同时修改文件的修改时间和访问时间
+touch -d "2010-05-31 08:10:30" install.log
+2. 只修改文件的修改时间
+touch -m -d "2010-05-31 08:10:30" install.log
+3. 只修改文件的访问时间
+touch -a -d "2010-05-31 08:10:30" install.log
+下面再给一个rootkit木马常用的伎俩。就是把后一个文件的时间修改成和前一个相同。
+
+touch -acmr /bin/ls /etc/sh.conf
+另外touch还支持像date命令一样参数修改文件时间：
+
+[root@web10 ~]# touch -d "2 days ago" install.log ; ll install.log
+-rw-r--r-- 1 root root 33386 07-11 16:35 install.log
+最后总结下常用的文件操作与时间的关系：
+
+1、访问时间，读一次这个文件的内容，这个时间就会更新。比如对这个文件使用more命令。ls、stat命令都不会修改文件的访问时间。
+
+2、修改时间，对文件内容修改一次，这个时间就会更新。比如：vim后保存文件。ls -l列出的时间就是这个时间。
+
+3、状态改变时间。通过chmod命令更改一次文件属性，这个时间就会更新。查看文件的详细的状态、准确的修改时间等，可以通过stat命令 文件名。
+
+
+
+
+------------------------ linux  docker安装命令  ------------------------
+
+
+
+
+
+curl -sSL https://get.daocloud.io/docker | sh
+
+
+yum install docker
+
+
+service docker start 
+
+docker -v
+
+docker ps -a
+
+------------------------ linux  删除文件中某行内容 或替换的方法 ------------------------
+
+
+LinuxShell中删除文件中某一行的方法 (2014-08-21 18:24:13)转载▼
+分类： linux命令大全
+如果有一个abc.txt文件，内容是:
+　　aaa
+　　bbb
+　　ccc
+　　ddd
+　　eee
+　　fff
+　　如果要删除aaa，那么脚本可以这样写：
+　　sed -i '/aaa/d' abc.txt
+　　如果删除的是一个变量的值，假如变量是var，应该写成：
+　　sed -i '/'"$var"'/d' abc.txt
+　　至于grep -v aaa abc.txt这个方法，是无法将修改的结果写入abc.txt中去的
+
+   //替换指定内容的方法
+
+   sed -i "s/原字符串/新字符串/g" `grep 原字符串 -rl 所在目录`
+
+   sed -i "s/oldString/newString/g"  `grep oldString -rl /path`
+
+  补充说明：
+
+  sed -i "s/oldString/newString/g"  `grep oldString -rl /path`    
+  对多个文件的处理可能不支持，需要用 xargs, 搞定。
+  变种如下：
+  
+  grep oldString -rl /path | xargs sed -i "s/oldString/newString/g"
+
+
+------------------------ linux  php遍历文件夹  ------------------------
+
+function read_all ($dir){
+   if(!is_dir($dir)) return false;
+     
+   $handle = opendir($dir);
+   if($handle){
+         while(($fl = readdir($handle)) !== false){
+             $temp = $dir.DIRECTORY_SEPARATOR.$fl;
+             //如果不加  $fl!='.' && $fl != '..'  则会造成把$dir的父级目录也读取出来
+             if(is_dir($temp) && $fl!='.' && $fl != '..'){
+                 echo '目录：'.$temp.'<br>';
+                 read_all($temp);
+             }else{
+                 if($fl!='.' && $fl != '..'){
+ 
+                     echo '文件：'.$temp.'<br>';
+                 }
+             }
+         }
+    }
+ }
+ 
+
+
+<?php
+$file_path = "test.txt";
+if(file_exists($file_path)){
+$fp = fopen($file_path,"r");
+$str = fread($fp,filesize($file_path));//指定读取大小，这里把整个文件内容读取出来
+echo $str = str_replace("\r\n","<br />",$str);
+}
+?>
+ read_all('D:\wamp\www\test');
+
+
+//找到之后赋值替换 并写入
+$f='a.html'; 
+file_put_contents($f,str_replace('[我的电脑]','PHP学习',file_get_contents($f))); 
+
+
+
+
+
+
+
+
+------------------------ linux  查看cpu占用率  ------------------------
+
+
+
+1. ps命令
+ps -aux | sort -k4nr | head -10     查看  %MEM
+ps -aux | sort -k3nr | head -10     查看  %CPU
+
+1
+*命令详解： 
+1. head：-N可以指定显示的行数，默认显示10行。 
+2. ps：参数a指代all——所有的进程，u指代userid——执行该进程的用户id，x指代显示所有程序，不以终端机来区分。ps -aux的输出格式如下：
+
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0  19352  1308 ?        Ss   Jul29   0:00 /sbin/init
+root         2  0.0  0.0      0     0 ?        S    Jul29   0:00 [kthreadd]
+root         3  0.0  0.0      0     0 ?        S    Jul29   0:11 [migration/0]
+1
+2
+3
+4
+5
+3. sort -k4nr中（k代表从根据哪一个关键词排序，后面的数字4表示按照第四列排序；n指代numberic sort，根据其数值排序；r指代reverse，这里是指反向比较结果，输出时默认从小到大，反向后从大到小。）。本例中，可以看到%MEM在第4个位置，根据%MEM的数值进行由大到小的排序。-k3表示按照cpu占用率排序。
+
+2. top工具
+命令行输入top回车，然后按下大写M按照memory排序，按下大写P按照CPU排序。
+
+
+------------------------ linux  >& 的用处  ------------------------
+
+
+三 "2>&1 file"和 "> file 2>&1"区别
+
+1）cat food 2>&1 >file ：错误输出到终端，标准输出被重定向到文件file。
+2）cat food >file 2>&1 ：标准输出被重定向到文件file，然后错误输出也重定向到和标准输出一样，所以也错误输出到文件file。(例如程序错误和sql语句错误等也会输出到文件)
+
+ >>  是追加写入  > 是覆盖写入
+
+
+
+一 输出知识
+
+1）默认地，标准的输入为键盘，但是也可以来自文件或管道（pipe |）。
+2）默认地，标准的输出为终端（terminal)，但是也可以重定向到文件，管道或后引号（backquotes `）。
+3) 默认地，标准的错误输出到终端，但是也可以重定向到文件。
+4）标准的输入，输出和错误输出分别表示为STDIN,STDOUT,STDERR，也可以用0,1,2来表示。
+5）其实除了以上常用的3中文件描述符，还有3~9也可以作为文件描述符。3~9你可以认为是执行某个地方的文件描述符，常被用来作为临时的中间描述符。
+
+
+------------------------ linux  阿里云ECS CentOS 7 安装图形化桌面  ------------------------
+
+# 先安装 MATE Desktop
+yum groups install "MATE Desktop"
+
+命令输入之后，会列出一大堆文字的，然后显示这个
+y/d/n
+，输入y，按回车下载安装；
+安装完成，显示 complete
+
+#安装好 MATE Desktop 后，再安装 X Window System。
+yum groups install "X Window System"
+
+1.设置默认通过桌面环境启动服务器：
+systemctl  set-default  graphical.target
+
+
+systemctl set-default multi-user.target  //设置成命令模式
+
+systemctl set-default graphical.target  //设置成图形模式
+
+安装完成后，通过 reboot 等指令重启服务器，或者在 ECS 服务器控制台重启服务器。 通过控制台远程连接
+
+------------------------ linux  centos 安装 rdesktop  ------------------------
+
+首先到rdesktop官网 http://www.rdesktop.org下载一个源码包。下载到本地后解压，使用如下命令进行安装:
+./configure;
+make;
 make install
+默认安装在/usr/local/下。
 
-源码包里 examples/server 里面有例子
-./configure --with-php-config=/home/laotianye/www/72/bin/php-config 
+在./configure时 如果有此类报错 没有生成MakeFile
+
+CredSSP support requires libgssglue, install the dependency
+or disable the feature using --disable-credssp.
+
+搜索未果，只得妥协
+tar -xvf rdesktop-1.8.3.tar.gz -C /usr/local/src
+cd /usr/local/src/rdesktop-1.8.3
+./configure --disable-credssp --disable-smartcard
+make -j4 && make install
+
+如果不忽略则可以安装该依赖包
+rdesktop依赖libgssglue
+wget http://www.citi.umich.edu/projects/nfsv4/linux/libgssglue/libgssglue-0.4.tar.gz
+tar -xvf libgssglue-0.4.tar.gz -C /usr/local/src
+cd /usr/local/src/libgssglue-.04
+./configure && make -j4 && make install
+
+作者：吃根香蕉压压惊
+链接：https://www.jianshu.com/p/5cc4c60195f9
+來源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 
------------------------- linux find权限不足  ------------------------
 
-find: ‘/run/user/1000/doc’: 权限不够
-find: ‘/run/user/1000/gvfs’: 权限不够
+连接命令
+
+./rdesktop -u adam -p adam -f -r clipboard:PRIMARYCLIPBOARD -r disk:sunray=/home/yz161846 oss-ww
+
+-u 和 -p: 指定用户名和密码
+-f : 默认全屏， 需要用Ctrl-Alt-Enter组合键进行全屏模式切换。
+-r clipboard:PRIMARYCLIPBOARD : 这个一定要加上，要不然不能在主机Solaris和服务器Windows直接复制粘贴文字了。贴中文也没有问题。
+-r disk:sunray=/home/yz16184 : 指定主机Solaris上的一个目录映射到远程Windows上的硬盘，传送文件就不用再靠Samba或者FTP了。
 
 
-可以通过卸载的方式来解决这个问题:
+redesktop 使用简单，windows也不和装什么服务端，是要把远程桌面共享打开就行了，
 
-#umount gvfs
+$ info rdesktop   //看一下帮助信息吧
+$rdesktop 192.168.1.1 //打开了一个8位色彩的，
+$rdesktop -a 16 192.168.1.1 //这个是16位色彩的了，看起来好多了
+$rdesktop -u administrator -p ****** -a 16 192.168.1.1 //都直接登陆了，呵,还差点什么呢
+还有就是 －f 全屏操作，－g 指定使用屏幕大小 －g 800*600+0+0 这个＋0啊就是，就是你
+这个窗口的在你linux上出现的位置，
+其它没什么了吧!加上-r sound:local可以把声音也搞过来了
+$rdesktop -u administrator -p ****** -a 16 -r sound:local 192.168.1.1
+其它吧,-r 的作用挺多的可以重定向许多东西，看一下帮助就会收获不少了。
 
------------------------- linux  deepin  ------------------------
-切换至root  
-sudo  su
 
------------------------- linux  git安装  ------------------------
-centos
-yum install git-core
 
-debian ubantu 
-apt-get install git
+
+
+------------------------ linux  安装,搜索 包 yum provides ------------------------
+
+
+
+查看Linux发行版
+
+lsb_release
+找不到lsb_release 这个命令 可以用 
+
+cat /etc/redhat-release
+
+cat /etc/issue
+
+cat /pro
+
+先说查看linux 内核方法
+
+cat /proc/version
+uname -a
+
+然后由安装这个lsb_release命令，新学到了一个方法，就是上面黄底标红的文字yum provides */。
+
+/*意思就是通过目标命令名称，查找这个命令所属的安装包，比如本文我就是执行的 yum provides */lsb_release
+
+/*以后如果不知道某个命令从哪儿安装，可以考虑使用这个命令来查找。
+
+
+yum provides */lsb_release
+/*
+------------------------ linux  查看外网ip ------------------------
+
+curl icanhazip.com
+curl ifconfig.me
+curl curlmyip.com
+curl ip.appspot.com
+curl ipinfo.io/ip
+curl ipecho.net/plain
+curl www.trackip.net/i

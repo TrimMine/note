@@ -1,0 +1,179 @@
+﻿/*========================  mysql 通过binlog日志恢复数据内容  ======================*/
+备注 ：如何打开binlog功能： 
+1. 查看binlog日志是否开启 如果开启直接放弃此方法 强烈要求打开binlog日志 打开后重启mysqld服务使配置生效
+	(1) grep log-bin my.cnf 
+			log-bin=mysql-bin  //没有注释掉就说明是打开的  
+	(2)	mysql > show variables like 'log_%'; 
+		log_bin                                ON 
+		对应value只为ON代表开启
+2.flush logs；开启新的日志 防止后续操作不可逆 在新的日志中操作
+3.先将有关数据库操作暂停 
+4.查看binlog日志文件列表 
+	show master logs;
+  备注：最好找到bin-log日志文件位置 查看更新时间 知道对应bin-log日志文件
+5.查看某个binlog日志内容，
+	(1).使用mysqlbinlog自带查看命令法：
+	      注: binlog是二进制文件，普通文件查看器cat more vi等都无法打开，必须使用自带的 mysqlbinlog 命令查看
+	          binlog日志与数据库文件在同目录中(我的环境配置安装是选择在/usr/local/mysql/data中)
+	      在MySQL5.5以下版本使用mysqlbinlog命令时如果报错，就加上 “--no-defaults”选项
+	    
+	      # /usr/local/mysql/bin/mysqlbinlog  /usr/local/mysql/data/mysql-bin.000013
+	      
+	        //宝塔mysqlbinlog命令地址 使用ln 创建软链
+	      	ln -s /www/server/mysql/bin/mysqlbinlog /usr/bin/
+
+	      	文件内容过多最好输出到文件查看  *************
+	      	mysqlbinlog /wwww/server/data/mysql-bin.000006 > binlog.txt 输出很快 方便查看
+		如果输出到文件后，文件很大无法打开 可用 head -10000 binlog.txt >binlog1.txt 或者 tail -10000 binlog.txt >binlog1.txt  分批次查看
+
+	      	/*!*/;
+			# at 184407120  	
+			#180610 23:38:56 server id 1  end_log_pos 184407196 CRC32 0xc9fbfdc6 	Query	thread_id=73898	exec_time=0	error_code=0
+			SET TIMESTAMP=1528645136/*!*/;
+			BEGIN
+            
+             注:  at 184407120     上次结束pos点 
+             end_log_pos 184407196 此次结束pos点
+			 server id 1   数据库主机的服务号；
+             thread_id=73898    线程号
+
+      //我使用此方法 加了from 参数后一直报错
+     (2).上面这种办法读取出binlog日志的全文内容较多，不容易分辨查看pos点信息，这里介绍一种更为方便的查询命令：
+
+      mysql> show binlog events [IN 'log_name'] [FROM pos] [LIMIT [offset,] row_count];
+
+      A.查询第一个(最早)的binlog日志：
+        mysql> show binlog events\G; 
+    
+      B.指定查询 mysql-bin.000021 这个文件：
+        mysql> show binlog events in 'mysql-bin.000021'\G;
+
+      C.指定查询 mysql-bin.000021 这个文件，从pos点:8224开始查起：
+        mysql> show binlog events in 'mysql-bin.000021' from 8224\G;
+
+      D.指定查询 mysql-bin.000021 这个文件，从pos点:8224开始查起，查询10条
+        mysql> show binlog events in 'mysql-bin.000021' from 8224 limit 10\G;
+
+      E.指定查询 mysql-bin.000021 这个文件，从pos点:8224开始查起，偏移2行，查询10条
+        mysql> show binlog events in 'mysql-bin.000021' from 8224 limit 2,10\G;
+6.通过上面查看日志文件 找到错误的节点或时间
+	通过分析，造成数据库破坏的pos点区间是介于 147073127--184407006 之间，只要恢复到147073127前就可。
+	也可以通过时间区间来恢复
+
+	这两种方式都可以 但是要注意恢复数据不能冲突 如果全部从新恢复可以不用考虑冲突
+	我是找到上次的备份时间，再找到上次的备份时间操作pos点 恢复到数据库破坏前一个pos点
+    如果不这么做可能会遇到已经插入的数据重复插入造成主键冲突导致恢复暂停 如果没有插入过数据可以不考虑
+
+7.从binlog日志恢复数据
+      
+      恢复语法格式：
+      # mysqlbinlog /www/server/data/mysql-bin.0000xx | mysql -u用户名 -p密码 数据库名
+
+        常用选项：
+          --start-position=953                   起始pos点
+          --stop-position=1437                   结束pos点
+          --start-datetime="2013-11-29 13:18:54" 起始时间点
+          --stop-datetime="2013-11-29 13:21:53"  结束时间点
+          --database=zyyshop                     指定只恢复zyyshop数据库(一台主机上往往有多个数据库,如果不指定会同时恢复其他数据库,只限本地log日志)
+            
+        不常用选项：    
+          -u --user=name              Connect to the remote server as username.连接到远程主机的用户名
+          -p --password[=name]        Password to connect to remote server.连接到远程主机的密码
+          -h --host=name              Get the binlog from server.从远程主机上获取binlog日志
+          --read-from-remote-server   Read binary logs from a MySQL server.从某个MySQL服务器上读取binlog日志
+
+如果不指定start 将会从改binlog头部执行到 stop的pos点 相反同理
+//执行成功  (如果-p密码参数错误将后续密码操作删除执行 然后根据提示输入密码)
+我此次执行的命令  没有指定库如果有多个库很危险
+1.mysqlbinlog  --start-position=147073127 --stop-position=184407006   /www/server/data/mysql-bin.000006 | mysql -u root -p
+
+标准的命令
+mysqlbinlog -no-defaults  --start-position=147073127 --stop-position=184407006  --database=api_dfcchain /www/server/data/mysql-bin.000006 | mysql -u root -pdafeng2018  -v api_dfcchain
+
+//按时间恢复
+2.mysqlbinlog -no-defaults --start-datetime="2013-11-29 13:18:54" --stop-datetime="2013-11-29 13:21:53" --database=zyyshop /usr/local/mysql/data/mysql-bin.000021 | mysql -uroot -p123456 -v zyyshop
+
+参考自 ：https://blog.csdn.net/l192168134/article/details/76187227
+恢复，就是让MySQL将保存在binlog日志中指定段落区间的sql语句逐个重新执行一次而已
+
+
+第二种 
+可将binlog日志转换为sql语句线下执行语句 查看是否正确  没有实验 也没有加入--stop 或 --start参数 做实验
+mysqlbinlog –base64-output=DECODE-ROWS -v /usr/local/mysql/data/binlog.123456 > /tmp/mysql.sql
+
+ –base64-output=DECODE-ROWS -v 查看修改后的binlog 
+参考自 https://blog.csdn.net/flower_vip/article/details/79032999
+
+
+第三种
+// 执行失败 提示--rewrite参数错误   
+mysqlbinlog --rewrite-db='api_dfcchain->hl_user' --start-position=147072180 --stop-position=184407006 mysql-bin.000006 |mysql -S /tmp/mysql.sock hl_user
+
+参考自 https://www.jb51.net/article/65767.htm
+
+
+其他详细参考文档
+https://blog.csdn.net/xiaoshunzi111/article/details/52817034
+
+//常用命令
+1.查看所有binlog日志列表
+      mysql> show master logs;
+
+    2.查看master状态，即最后(最新)一个binlog日志的编号名称，及其最后一个操作事件pos结束点(Position)值
+      mysql> show master status;
+
+    3.刷新log日志，自此刻开始产生一个新编号的binlog日志文件
+      mysql> flush logs;
+      注：每当mysqld服务重启时，会自动执行此命令，刷新binlog日志；在mysqldump备份数据时加 -F 选项也会刷新binlog日志；
+
+    4.重置(清空)所有binlog日志
+      mysql> reset master;
+
+
+
+
+
+
+
+
+mysqlbinlog mysql-bin-000006 输出的文件内容 此次为解决 TRUNCATE TABLE `hl_user` 不小心清空了 user
+
+# at 184406975
+#180610 23:06:53 server id 1  end_log_pos 184407006 CRC32 0x10b8dfe6 	Xid = 2220100
+COMMIT/*!*/;
+# at 184407006
+#180610 23:07:05 server id 1  end_log_pos 184407120 CRC32 0xc0d0c906 	Query	thread_id=73690	exec_time=1	error_code=0
+SET TIMESTAMP=1528643225/*!*/;
+
+
+TRUNCATE TABLE `hl_user`
+
+
+/*!*/;
+# at 184407120
+#180610 23:38:56 server id 1  end_log_pos 184407196 CRC32 0xc9fbfdc6 	Query	thread_id=73898	exec_time=0	error_code=0
+SET TIMESTAMP=1528645136/*!*/;
+BEGIN
+/*!*/;
+# at 184407196
+#180610 23:38:56 server id 1  end_log_pos 184407338 CRC32 0x353b5252 	Query	thread_id=73898	exec_time=0	error_code=0
+SET TIMESTAMP=1528645136/*!*/;
+update mysql.user set Password=password('dafeng2018') where User='root'
+/*!*/;
+# at 184407338
+#180610 23:38:56 server id 1  end_log_pos 184407415 CRC32 0x6b5044a8 	Query	thread_id=73898	exec_time=0	error_code=0
+SET TIMESTAMP=1528645136/*!*/;
+COMMIT
+/*!*/;
+# at 184407415
+#180610 23:38:56 server id 1  end_log_pos 184407494 CRC32 0x4ab0a797 	Query	thread_id=73899	exec_time=0	error_code=0
+SET TIMESTAMP=1528645136/*!*/;
+flush privileges
+/*!*/;
+# at 184407494
+#180610 23:42:48 server id 1  end_log_pos 184407541 CRC32 0x4c2d08ac 	Rotate to mysql-bin.000007  pos: 4
+DELIMITER ;
+# End of log file
+ROLLBACK /* added by mysqlbinlog */;
+/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/;
+/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/;

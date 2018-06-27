@@ -391,3 +391,31 @@ http://wenku.baidu.com/link?url=MtPZrab7kbciXsBAjia4w0JUE3aFCtOj9fu_2zXVE5JW6k8U
 http://blog.sina.com.cn/s/blog_70b9a0e90101cmdz.html
 http://www.2cto.com/database/201208/14499
 
+
+----------------------------mysql 清除mysqlbin 文件  ----------------------------
+
+不建议使用rm命令删除，这样有可能会不安全 最好用mysql 命令
+
+mysql> reset master;
+
+mysql> reset slave;
+
+其实关键的命令就是reset master;这个命令会清空mysql-bin文件。
+
+
+另外如果你的mysql服务器不需要做主从复制的话，建议通过修改my.cnf文件，来设置不生成这些文件，只要删除my.cnf中的下面一行就可以了。
+
+
+log-bin=mysql-bin   
+
+宝塔的配置文件在 /etc/my.cnf  whereis my.cnf 查找
+
+如果你需要复制，最好控制一下这些日志文件保留的天数，可以通过下面的配置设定日志文件保留的天数：
+ 
+
+expire_logs_days = 3  
+
+表示保留3天的日志，这样老日志会自动被清理掉
+
+
+转自 https://blog.csdn.net/zhengfeng2100/article/details/52858946
