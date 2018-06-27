@@ -85,3 +85,10 @@
 86.filter  过滤
 87.provide 提供
 88.licence 证书 许可证
+89.Basics 基础
+90.miner 矿机
+91.profit 收益
+92.delimiter 分隔符 定界符
+93.scale 规模 比例
+94.validating 验证
+95.container 容器

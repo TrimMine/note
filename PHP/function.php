@@ -693,6 +693,8 @@ class IndexController extends Controller{
     $number = 123213.066666;
     echo sprintf("%.2f", $number); //123213.07
 
+    number_format($num, 2)  //生成两位小数，不四舍五入
+
 #==============================    TP事务    =================================
 
 
@@ -3290,3 +3292,171 @@ $key = array_search('green', $array); // $key = 2;
 php think crud -t recharge -c recharge/list  -m recharge
 
 php think menu -c recharge/list
+
+//=================================  PHP ini_set session 设置 ====================================
+
+
+ini_set('session.save_handler', 'redis');
+ini_set('session.save_path', 'tcp://r-j6cc3a2bf76ad1e4.redis.rds.aliyuncs.com:6379?auth=Yizhuanlian2018');
+
+
+TP5 redis session设置
+   'session' => [
+       'id' => '',
+       // SESSION_ID的提交变量,解决flash上传跨域
+       'var_session_id' => '',
+       // SESSION 前缀
+       'prefix' => 'think',
+       // 驱动方式 支持redis memcache memcached
+       'type' => 'redis',
+       // 是否自动开启 SESSION
+       'auto_start' => true,
+       'host' => 'r-j6cc3a2bf76ad1e4.redis.rds.aliyuncs.com',
+       'port' => 6379,
+       'password'=>'Yizhuanlian2018'
+
+
+
+
+//=================================  PHP 上传文件 ====================================
+
+//设置跨域名
+define('WEB_DOMAIN_FORE', 'http://192.168.10.112:8080');
+$arr = [
+    WEB_DOMAIN_FORE,
+];
+$domain = $_SERVER['HTTP_ORIGIN'];
+if ($domain && in_array($domain, $arr)) {
+    header('Access-Control-Allow-Origin:' . $domain);
+    header('Access-Control-Allow-Credentials:true');
+    header('Access-Control-Allow-Headers: X-Requested-With, Content-Type');
+}
+//设置字符集
+header("Content-Type:text/html;charset:utf8");//设置文件编码
+$img = $_FILES['uploadImg'];//获取到表单过来的文件变量，uploadImg为表单id
+if(!$_FILES){
+  echo  json_encode('先上传文件!',true);
+}
+//检测变量是否获取到
+if (isset($img)) {
+//上传成功$img中的属性error为0，当error>0时则上传失败有一下几种情况
+    if ($img['error'] > 0) {
+        $error = '上传失败';
+        switch ('error') {
+            case 1:
+                $error .= '大小超过了服务器设置的限制！';
+                break;
+            case 2:
+                $error .= '文件大小超过了表单设置的限制！';
+                break;
+            case 3:
+                $error .= '文件只有部分被上传';
+                break;
+            case 4:
+                $error .= '没有文件被上传';
+                break;
+            case 6:
+                $error .= '上传文件的临时目录不存在！';
+                break;
+            case 7:
+                $error .= '写入失败';
+                break;
+            default:
+                $error .= '未知错误';
+                break;
+        }
+        exit($error);//在php页面输出错误
+    } else {
+        $type = strrchr($img['name'], '.');//截取文件后缀名
+        $path = "./Uploads/" . $img['name'];//设置路径：当前目录下的uploads文件夹并且图片名称为$img['name'];
+        if (strtolower($type) == '.png' || strtolower($type) == '.jpg' || strtolower($type) == '.bmp' || strtolower($type) == '.gif')//判断上传的文件是否为图片格式
+        {
+            move_uploaded_file($img['tmp_name'], $path);//将图片文件移到该目录下
+        }
+    }
+    echo json_encode($path);
+}
+
+
+
+//=================================  PHP 计算中文长度 mb_strlen ====================================
+
+
+echo strlen("你好ABC") . "";
+# 输出 9
+echo mb_strlen("你好ABC", 'UTF-8') . "";
+# 输出 5
+echo mb_strwidth("你好ABC") . "";
+
+#输出 7
+从上面的测试，我们可以看出：
+
+strlen 把中文字符算成 3 个字节
+
+mb_strlen 不管中文还是英文，都算 1 个字节
+
+mb_strwidth 则把中文算成 2 个字节
+
+所以长度统计的时候用mb_strlen这个函数
+
+
+
+//====================  PHP array_filter 用回调函数过滤数组中的单元 ============================
+
+
+
+依次将 array 数组中的每个值传递到 callback 函数。如果 callback 函数返回 TRUE，则 input 数组的当前值会被包含在返回的结果数组中。数组的键名保留不变。
+
+function odd($var)
+{
+    return $var & 1;
+}
+$array1 = array("a"=>1, "b"=>2, "c"=>3, "d"=>4, "e"=>5);
+print_r(array_filter($array1, "odd"));
+
+Array
+(
+    [a] => 1
+    [c] => 3
+    [e] => 5
+)
+
+
+//====================  PHP mysql数据库字段为数字时不能修改 ============================
+
+
+使用原生语句 在sql 语句中 将字段名加入 `1` 这样形式 
+
+数据库字段冲突时 也可以用 `mysql` 这样写
+
+//====================  PHP 获取ip 格式化ip ============================
+
+
+gethostbyaddr()  //获取主机名 参数 ip地址 成功返回主机名 否则返回当前输入的参数ip
+getprotobyname(); //获取协议端口  参数->协议名
+gethostname());//获取主机名 无参数
+gethostbyname('www.jijijichain.com'); //获取ip通过域名
+gethostbynamel('www.jijijichain.com');//取ip通过域名以数组形式返回
+ip2long($ip)//用于将一个数字格式的IPv4地址转换成字符串格式(192.168.0.1)
+
+
+//====================  PHP 获取ip 格式化ip ============================
+
+/*
+eq  = $map['id'] = array('eq',100); 等效于：$map['id'] = 100;
+neq !=  $map['id'] = array('neq',100);  id != 100
+gt  > $map['id'] = array('gt',100); id > 100
+egt >=  $map['id'] = array('egt',100);  id >= 100
+lt  < $map['id'] = array('lt',100); id < 100
+elt <=  $map['id'] = array('elt',100);  id <= 100
+like  like  $map<'username'> = array('like','Admin%');  username like 'Admin%'
+between between and $map['id'] = array('between','1,8');  id BETWEEN 1 AND 8
+not between not between and $map['id'] = array('not between','1,8');  id NOT BETWEEN 1 AND 8
+in  in  $map['id'] = array('in','1,5,8'); id in(1,5,8)
+not in  not in  $map['id'] = array('not in','1,5,8'); id not in(1,5,8)
+and（默认） and $map['id'] = array(array('gt',1),array('lt',10)); (id > 1) AND (id < 10)
+or  or  $map['id'] = array(array('gt',3),array('lt',10), 'or'); (id > 3) OR (id < 10)
+xor（异或） xor 两个输入中只有一个是true时，结果为true，否则为false，例子略。 1 xor 1 = 0
+exp 综合表达式 $map['id'] = array('exp','in(1,3,8)');  $map['id'] = array('in','1,3,8');
+
+*/

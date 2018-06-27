@@ -3469,3 +3469,46 @@ $rdesktop -u administrator -p ****** -a 16 192.168.1.1 //都直接登陆了，�
 其它没什么了吧!加上-r sound:local可以把声音也搞过来了
 $rdesktop -u administrator -p ****** -a 16 -r sound:local 192.168.1.1
 其它吧,-r 的作用挺多的可以重定向许多东西，看一下帮助就会收获不少了。
+
+
+
+
+
+------------------------ linux  安装,搜索 包 yum provides ------------------------
+
+
+
+查看Linux发行版
+
+lsb_release
+找不到lsb_release 这个命令 可以用 
+
+cat /etc/redhat-release
+
+cat /etc/issue
+
+cat /pro
+
+先说查看linux 内核方法
+
+cat /proc/version
+uname -a
+
+然后由安装这个lsb_release命令，新学到了一个方法，就是上面黄底标红的文字yum provides */。
+
+/*意思就是通过目标命令名称，查找这个命令所属的安装包，比如本文我就是执行的 yum provides */lsb_release
+
+/*以后如果不知道某个命令从哪儿安装，可以考虑使用这个命令来查找。
+
+
+yum provides */lsb_release
+/*
+------------------------ linux  查看外网ip ------------------------
+
+curl icanhazip.com
+curl ifconfig.me
+curl curlmyip.com
+curl ip.appspot.com
+curl ipinfo.io/ip
+curl ipecho.net/plain
+curl www.trackip.net/i
