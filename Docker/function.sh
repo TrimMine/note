@@ -91,3 +91,28 @@ docker container run   -d   -p 192.168.0.3:8081:80   --rm   --name mynginx   --v
   --name mynginx \
   --volume "$PWD/html":/usr/share/nginx/html \
   nginx
+
+
+# No.5--------------------------- 容器的操作 ---------------------------
+
+
+docker ps         # 查看正在运行的容器
+docker ps -a      # 查看所有容器
+docker ps -l      # 查看最近一次运行的容器
+
+docker create 容器名或者容器ID    # 创建容器
+docker start [-i] 容器名        # 启动容器
+docker run 容器名或者容器ID       # 运行容器，相当于docker create + docker start
+docker attach 容器名或者容器ID bash     # 进入容器的命令行（退出容器后容器会停止）
+docker exec -it 容器名或者容器ID bash   # 进入容器的命令行
+docker stop 容器名                    # 停止容器
+docker rm 容器名                      # 删除容器
+
+docker top 容器名                    # 查看WEB应用程序容器的进程
+docker inspect 容器名                # 查看Docker的底层信息
+
+进入容器内部
+docker exec -it nginx1.0 bash
+
+
+docker run -d --name ethereum-node -v /Users/alice/ethereum:/root -p 8545:8545 -p 30303:30303 ethereum/client-go

@@ -1611,6 +1611,16 @@ nohup command > myout.file 2>&1 &
 
 Work for fun,Live for love!
 
+使用了nohup之后，很多人就这样不管了，其实这样有可能在当前账户非正常退出或者结束的时候，命令还是自己结束了。所以在使用nohup命令后台运行命令之后，需要使用exit正常退出当前账户，这样才能保证命令一直在后台运行。
+
+command >out.file 2>&1 &
+
+command>out.file是将command的输出重定向到out.file文件，即输出内容不打印到屏幕上，而是输出到out.file文件中。
+
+2>&1 是将标准出错重定向到标准输出，这里的标准输出已经重定向到了out.file文件，即将标准出错也输出到out.file文件中。最后一个&， 是让该命令在后台执行。
+
+试想2>1代表什么，2与>结合代表错误重定向，而1则代表错误重定向到一个文件1，而不代表标准输出；换成2>&1，&与1结合就代表标准输出了，就变成错误重定向到标准输出.
+
 
 ------------------------- linux 磁盘 ---------------------------
 df -h 查看磁盘和空间
@@ -3512,3 +3522,98 @@ curl ip.appspot.com
 curl ipinfo.io/ip
 curl ipecho.net/plain
 curl www.trackip.net/i
+
+------------------------ linux  安装依赖包 ubantu 和centos ------------------------
+
+centos
+yum groupinstall "Development Tools"
+
+ubantu
+udo apt-get install -y build-essential
+
+------------------------ linux  top 详解 ------------------------
+
+top这个命令会自动把消耗高的进程排到前面
+
+top -b -n 60 -d 60 > /home/server.log
+
+每隔60秒刷新一次 共刷新60次 将服务器状态写入到 日志文件中
+
+-n：number进入top后，top会定时刷新状态，这个值就是设置刷新几次
+-d：delay进入top后，top会定时刷新状态，这个值就是设置几秒刷新一次
+-b：Batch mode，top刷新状态默认是在原数据上刷新，使用这个参数后，会一屏一屏的显示数据。结合重定向功能和计划任务，这个参数在记录服务器运行状态时非常有用
+
+如果是多核服务器 按下 1键将会看到每个服务器的cpu消耗 cat /proc/cpuinfo  cpu cores  : 1  这个显示的是cpu的核数
+
+
+1 第一行： 跟uptime 一样，分别是当前时间13:48 系统运行时间3 days 当前登录用户数1user 系统负载load average:，即任务队列的平均长度
+2 第二、三行为进程和CPU的信息。当有多个CPU时，这些内容可能会超过两行
+Tasks: 96 total 进程总数
+1 running 正在运行的进程数 
+95 sleeping 睡眠的进程数
+0 stopped 停止的进程数
+0 zombie 僵尸进程数
+
+Cpu(s): 0.0% us 用户空间占用CPU百分比 查看CPU使用率
+1.0% sy 内核空间占用CPU百分比 
+0.0% ni 用户进程空间内改变过优先级的进程占用CPU百分比 
+100.0% id 空闲CPU百分比
+0.0% wa 等待输入输出的CPU时间百分比 
+0.0% hi
+0.0% si
+0.0% st
+
+3 最后两行为内存信息
+Mem:506708k total 物理内存总量
+477080k used 使用的物理内存总量
+29628k free 空闲内存总量
+113736k buffers 用作内核缓存的内存量
+Swap: 1015800k total 交换区总量
+112 used 使用的交换区总量
+1015688k free 空闲交换区总量
+169384k cached 缓冲的交换区总量
+内存中的内容被换出到交换区，而后又被换入到内存，但使用过的交换区尚未被覆盖，
+该数值即为这些内容已存在于内存中的交换区的大小。
+相应的内存再次被换出时可不必再对交换区写入。
+
+4 进程信息区 
+PID 进程ID PPID 父进程ID 
+PR 优先级
+NI nice值 负值表示高优先级，正值表示低优先级
+VIRT 进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES 
+RES 进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA
+SHR 共享内存大小，单位kb 
+S 进程状态 D=不可中断的睡眠状态R=运行 S=睡眠 T=跟踪/停止 Z=僵尸进程
+%CPU 上次更新到现在的CPU时间占用百分比
+%MEM 进程使用的物理内存百分比 
+TIME+ 进程使用的CPU时间总计，单位1/100秒
+
+
+------------------------ linux uniq 命令------------------------
+
+sort file.txt | uniq -c  统计各行在文件中出现的次数：
+
+uniq -u file.txt  只显示单一行：
+
+sort file.txt | uniq -d  在文件中找出重复的行：
+
+
+uniq file.txt  删除重复行：
+
+-c或——count：在每列旁边显示该行重复出现的次数；
+-d或--repeated：仅显示重复出现的行列；
+-f<栏位>或--skip-fields=<栏位>：忽略比较指定的栏位；
+-s<字符位置>或--skip-chars=<字符位置>：忽略比较指定的字符；
+-u或——unique：仅显示出一次的行列；
+-w<字符位置>或--check-chars=<字符位置>：指定要比较的字符。
+
+
+------------------------ linux wc 命令------------------------
+
+wc命令用来计算数字。利用wc指令我们可以计算文件的Byte数、字数或是列数，若不指定文件名称，或是所给予的文件名为“-”，则wc指令会从标准输入设备读取数据。
+
+语法 wc(选项)(文件)
+
+-c或--bytes或——chars：只显示Bytes数；
+-l或——lines：只显示列数；
+-w或——words：只显示字数。
