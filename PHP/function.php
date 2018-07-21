@@ -1325,7 +1325,21 @@ echo "mb_strcut-3:".mb_strcut($cn_str,0,3).'<br/><br/>'; //钓   按照字节来
 
   str_replace('要替换的字串' ,'替换成为',$str); #递归替换内容 替换字符串中所有
   substr_replace($num,'****',3,4);  #手机号截取  从第三位替换 替换4位
-
+  
+  substr_replace() 函数把字符串的一部分替换为另一个字符串。
+  substr_replace(string,replacement,start,length)
+ /*
+  string      必需。规定要检查的字符串。
+  replacement 必需。规定要插入的字符串。
+  start       必需。规定在字符串的何处开始替换。
+                正数 - 在字符串中的指定位置开始替换
+                负数 - 在从字符串结尾的指定位置开始替换
+                0 - 在字符串中的第一个字符处开始替换
+  length      可选。规定要替换多少个字符。默认是与字符串长度相同。
+                正数 - 被替换的字符串长度
+                负数 - 表示待替换的子字符串结尾处距离 string 末端的字符个数。
+                0 - 插入而非替换
+  */
   strstr($str ,'查找的内容','true或false不填为false');#true返回找到位置前面的内容 false返回后面默认false #stristr不区分大小写strstr区分
 
   strpos($str,'查找的内容')  #查找第一次出现的位置坐标 找不到为false  #stripos()（不区分大小写）
@@ -3612,3 +3626,79 @@ echo json_encode((object)$arr);
 //输出结果
 
 {"0":"a","1":"b","2":"c","3":"d"}
+
+//====================  PHP array_chunk 分割数组 ============================
+
+array array_chunk ( array $input , int $size [, bool $preserve_keys = false ] )
+/*将一个数组分割成多个数组，其中每个数组的单元数目由 size 决定。最后一个数组的单元数目可能会少于 size个。
+参数
+
+input
+需要操作的数组
+
+size
+每个数组的单元数目
+
+preserve_keys
+设为 TRUE，可以使 PHP 保留输入数组中原来的键名。如果你指定了 FALSE，那每个结果数组将用从零开始的新数字索引。默认值是 FALSE。
+
+返回值
+得到的数组是一个多维数组中的单元，其索引从零开始，每一维包含了 size 个元素。
+
+错误／异常
+如果 size 小于 1，会抛出一个 E_WARNING 错误并返回 NULL。
+
+范例
+ 
+
+Example #1 array_chunk() 例子
+
+<?php
+$input_array = array('a', 'b', 'c', 'd', 'e');
+print_r(array_chunk($input_array, 2));
+print_r(array_chunk($input_array, 2, true));
+?>
+以上例程会输出：
+
+Array
+(
+    [0] => Array
+        (
+            [0] => a
+            [1] => b
+        )
+
+    [1] => Array
+        (
+            [0] => c
+            [1] => d
+        )
+
+    [2] => Array
+        (
+            [0] => e
+        )
+
+)
+Array
+(
+    [0] => Array
+        (
+            [0] => a
+            [1] => b
+        )
+
+    [1] => Array
+        (
+            [2] => c
+            [3] => d
+        )
+
+    [2] => Array
+        (
+            [4] => e
+        )
+
+)
+
+*/
