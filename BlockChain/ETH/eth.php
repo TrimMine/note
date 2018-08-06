@@ -12,10 +12,10 @@ https://api.etherscan.io/api?module=account&action=balance&address=0x0975CA9F986
 0.001028999999790000
 
 //启动命令
-geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain api.jhain.com
+geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jhain.com
 
 //后台运行并输出到文件
-nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain api.jian.com >> ./execute_eth.log 2>&1 & 
+nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jian.com >> ./execute_eth.log 2>&1 & 
 
 --rpcaddr 0.0.0.0  //全部允许
 --rpccorsdomain api.jicin.com //允许域名
