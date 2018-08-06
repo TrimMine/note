@@ -1261,8 +1261,9 @@ scp -r local_folder remote_ip:remote_folder
 例如
    1. scp remote_user@host:remote_folder local_folder
    默认端口端口 -P 22 可不加
-   2. scp -P 7789 root@120.55.85.13:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
-  
+   2. scp -P 7789 root@172.31.1.22:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
+   2. scp -P 7789 root@172.31.1.22:/www/wwwroot/tea_chain/tea_chain.tar.gz  /www/wwwroot/tea_chain
+ 
 
 3.sz/rz
 
@@ -1932,6 +1933,31 @@ ps -ef|grep -v grep|grep process_name|while read u p o
 do
 kill -9 $p
 done
+
+ps：查看php-fpm开启的进程数以及每个进程的内存限制
+
+1.通过命令查看服务器上一共开了多少的 php-cgi 进程
+
+ps -fe |grep "php-fpm"|grep "pool"|wc -l
+
+2.查看已经有多少个php-cgi进程用来处理tcp请求
+
+netstat -anp|grep "php-fpm"|grep "tcp"|grep "pool"|wc -l
+
+
+
+通过各种搜索手段，发现可以通过配置 pm.max_children 属性，控制php-fpm子进程数量，首先，打开php-fpm配置文件，执行指令：
+
+vi /etc/php-fpm.d/www.conf
+
+如图， pm.max_children 值为50，每一个进程占用1%-2.5%的内存，加起来就耗费大半内存了，所以我们需要将其值调小，博主这里将其设置为25，同时，检查以下两个属性：
+
+pm.max_spare_servers : 该值表示保证空闲进程数最大值，如果空闲进程大于此值，此进行清理 pm.min_spare_servers : 保证空闲进程数最小值，如果空闲进程小于此值，则创建新的子进程;
+
+这两个值均不能不能大于 pm.max_children 值，通常设置 pm.max_spare_servers 值为 pm.max_children 值的60%-80%。
+
+重启php-fpm
+systemctl restart php-fpm
 
 ------------------------- linux  kill 的几种方式 ---------------------------
 
@@ -3617,3 +3643,12 @@ wc命令用来计算数字。利用wc指令我们可以计算文件的Byte数、
 -c或--bytes或——chars：只显示Bytes数；
 -l或——lines：只显示列数；
 -w或——words：只显示字数。
+
+------------------------ linux date 修改时间 ------------------------
+
+
+  date -s  7/26/2018 日期
+  date -s  16:00:3   时间
+  hwclock -w  使重启也能失效 ( 将当前时间写入BIOS永久生效（避免重启后失效）)
+
+
