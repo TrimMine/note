@@ -3303,10 +3303,39 @@ $key = array_search('green', $array); // $key = 2;
 
 //=================================  PHP fastadmin 生成 控制器,模型 和表单 ====================================
 
+/*
+-t, --table=TABLE                              表名，带不表前缀均可
+-c, --controller[=CONTROLLER]                  生成的控制器名,可选,默认根据表名进行自动解析
+-m, --model[=MODEL]                            生成的模型名,可选,默认根据表名进行自动解析
+-i, --fields[=FIELDS]                          生成的数据列表中可见的字段，默认是全部
+-f, --force[=FORCE]                            是否覆盖模式,如果目标位置已经有对应的控制器或模型会提示
+-l, --local[=LOCAL]                            是否本地模型,默认1,置为0时,模型将生成在common模块下
+-r, --relation[=RELATION]                      关联模型表名，带不带表前缀均可
+-e, --relationmodel[=RELATIONMODEL]            生成的关联模型名,可选,默认根据表名进行自动解析
+-k, --relationforeignkey[=RELATIONFOREIGNKEY]  表外键,可选,默认会识别为使用 模型_id 名称
+-p, --relationprimarykey[=RELATIONPRIMARYKEY]  关联模型表主键,可选,默认会自动识别
+-s, --relationfields[=RELATIONFIELDS]          关联模型表显示的字段，默认是全部
+-o, --relationmode[=RELATIONMODE]              关联模型,hasone或belongsto [default: "belongsto"]
+-d, --delete[=DELETE]                          删除模式,将删除之前使用CRUD命令生成的相关文件
+-u, --menu[=MENU]                              菜单模式,生成CRUD后将继续一键生成菜单
+--setcheckboxsuffix[=SETCHECKBOXSUFFIX]    自动生成复选框的字段后缀
+--enumradiosuffix[=ENUMRADIOSUFFIX]        自动生成单选框的字段后缀
+--imagefield[=IMAGEFIELD]                  自动生成图片上传组件的字段后缀
+--filefield[=FILEFIELD]                    自动生成文件上传组件的字段后缀
+--intdatesuffix[=INTDATESUFFIX]            自动生成日期组件的字段后缀
+--switchsuffix[=SWITCHSUFFIX]              自动生成可选组件的字段后缀
+--citysuffix[=CITYSUFFIX]                  自动生成城市选择组件的字段后缀
+--selectpagesuffix[=SELECTPAGESUFFIX]      自动生成Selectpage组件的字段后缀
+--ignorefields[=IGNOREFIELDS]                 排除的字段
+--editorclass[=EDITORCLASS]                自动生成富文本组件的字段后缀
+--sortfield[=SORTFIELD]                    排序字段
 
-php think crud -t recharge -c recharge/list  -m recharge
 
-php think menu -c recharge/list
+php think crud -t guide -c guide/guide  -m guide  --enumradiosuffix=satatus --editorclass=content --sortfield=updated_at 
+
+php think menu -c guide/guide
+
+*/
 
 //=================================  PHP ini_set session 设置 ====================================
 
@@ -3702,3 +3731,86 @@ Array
 )
 
 */
+//====================  PHP str_replace 批量替换内容 ============================
+
+
+
+多对一替换：想把内容字段里所有的<p></p>标签清除掉,替换成空 
+@str_replace(array('<p>','</p>'), '', $Content) 
+
+一对一替换：想把内容字段里所有的<br>标签换成<p> 
+@str_replace('<br>', '<p>', $Content) 
+
+多对多替换：想把内容字段里的<br>换成<br />, 同时<p>换<hr>，把</p>全清除 
+@str_replace(array('<br>', '<p>','</p>') , array('<br />','<hr>',''), $Content) 
+
+
+//====================  PHP 简体转繁体 ============================
+/*
+  
+  错误参考文章 https://www.jianshu.com/p/a9d0b9241a27
+
+  https://github.com/NauxLiu/opencc4php  中文简体转繁体文章
+
+  opencc4php 是OpenCC的PHP扩展，能很智能的完成简繁体转换。 
+  需要先安装OpenCC扩展 如果此处安装失败可去管方githup地址重新下载编译安装
+ 
+  你需要先安装1.0.1 版本以上的OpenCC，
+  
+
+  安装OpenCC：
+  
+  git clone https://github.com/BYVoid/OpenCC.git --depth 1
+  cd OpenCC
+  make
+  sudo make install
+
+
+  安装opencc4php：
+
+  git clone git@github.com:NauxLiu/opencc4php.git --depth 1
+  cd opencc4php
+  phpize    
+  ./configure
+  make && sudo make install
+  
+  如果你的OpenCC安装目录不在/usr或/usr/local，可在./configure时添加--with-opencc=[DIR]指定你的OpenCC目录
+
+  要注意phpzie的php版本  多个版本要指定 ./configure --with-php-config=/www/server/php/bin/php-config
+
+  安装完成后加入到php.ini文件最后一行加入
+
+  /www/server/php/71/lib/php/extensions/no-debug-non-zts-20160303/ 这个路径安装完成会显示
+  extension =  /www/server/php/71/lib/php/extensions/no-debug-non-zts-20160303/opencc.so
+
+  如果php -m 提示这条错误
+  PHP Startup: Unable to load dynamic library '/www/server/php/71/lib/php/extensions/no-debug-non-zts-20160303/opencc.so' - libopencc.so.2: cannot open shared object file: No such file or directory in Unknown on line 0
+
+  那么需要执行 ln -s /usr/lib/libopencc.so.2 /usr/lib64/libopencc.so.2
+  
+  最后查看 php -m 是否有opencc  如果有则重启php开始使用 
+
+
+
+  例子
+  $od = opencc_open("s2twp.json"); //传入配置文件名
+  $text = opencc_convert("我鼠标哪儿去了。", $od);
+  echo $text;
+  opencc_close($od);
+
+
+  函数列表：
+  opencc_open(string ConfigName) ConfigName:配置文件名，成功返回资源对象，失败返回false
+  opencc_close(resource ob) 关闭资源对象,成功返回true，失败返回false.
+  opencc_error() 返回最后一条错误信息，有错误信息返回String,无错误返回false
+  opencc_convert(string str, resource od) str：要转换的字符串(UTF-8)，od：opencc资源对象
+
+  可用配置
+  s2t.json 简体到繁体
+  t2s.json 繁体到简体
+  s2tw.json 简体到台湾正体
+  tw2s.json 台湾正体到简体
+  s2hk.json 简体到香港繁体（香港小学学习字词表标准）
+  hk2s.json 香港繁体（香港小学学习字词表标准）到简体
+  s2twp.json 简体到繁体（台湾正体标准）并转换为台湾常用词汇
+  tw2sp.json 繁体（台湾正体标准）到简体并转换为中国大陆常用词汇
