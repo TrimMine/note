@@ -314,7 +314,7 @@ du|sort -nr|more
 3.显示几个文件或目录各自占用磁盘空间的大小，还统计它们的总和
 du -c log30.tar.gz log31.tar.gz
 
--–max-depth=<目录层数> 超过指定层数的目录后，予以忽略
+--max-depth=<目录层数> 超过指定层数的目录后，予以忽略
 
 -a或-all  显示目录中个别文件的大小。   
 
@@ -709,7 +709,24 @@ find / -name 软件包
 
 用yum命令yum search  软件包
 
+yum remove 软件包 移除软件包
 
+需要安装底层编译软件
+   yum install openssl-devel  opensll 错误 
+
+error: curl/curl.h: No such file or directory
+   yum install libcurl-dev libcurl-devel
+
+entos安装git
+make[1]: *** [perl.mak] Error 2
+make: *** [perl/perl.mak] Error 2 
+  
+yum install perl-ExtUtils-MakeMaker package 解决
+
+which: no autoreconf in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin)
+configuration failed, please install autoconf first
+
+ yum install autoconf automake libtool
 
 rpm 等包方式的话,就要查其中的数据库了,比如 rpm -q 进行查询.
 -q <== 查询(查询本机已经安装的包时不需要版本名称)
@@ -3652,3 +3669,87 @@ wc命令用来计算数字。利用wc指令我们可以计算文件的Byte数、
   hwclock -w  使重启也能失效 ( 将当前时间写入BIOS永久生效（避免重启后失效）)
 
 
+------------------------ linux nslookup 查询 ------------------------
+
+查询域名的解析地址 如果有多个会返回多个
+
+cmd命令  nslookup进入命令输入
+输入域名 返回信息
+
+
+------------------------ linux AWS亚马逊服务器 ------------------------
+
+EC2 没有中国区域 可选择东京(在右上角)  选择配置的时候注意加磁盘空间 默认8G  
+
+CDN cloudFront  服务  加速静态资源  
+第一个origin domain 是源地址用于获取资源 解析到原服务器地址
+第二个 Alternate Domain Names (CNAMEs) 填写域名可用于域名转接相当于系统生成的域名被替换为此域名  解析的时候也是将cname值解析到此域名上
+
+有白名单和黑名单选项 但是只能选一个  只允许白名单访问 或者只拒绝黑名单
+
+上面是web的访问源  也可以用亚马逊S3服务将资源传到S3  第一个origin domain 就需要选择此S3路径下面不变
+
+
+------------------------ linux 在AWS亚马逊服务器上搭建负载均衡 ------------------------
+
+redis 授权对安全组访问 
+
+https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/nodes-connecting.html  测试是否连接成功   需要 gcc 和 redis-cli 包
+
+连接时不需要密码
+
+https://www.cnblogs.com/kongzhongqijing/p/6867960.html redis-cli 命令操作
+
+------------------------ linux 查看是否被ddos ------------------------
+
+
+netstat -anp |grep 'tcp\|udp' | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n
+
+
+登录到你的服务器以root用户执行下面的命令，使用它你可以检查你的服务器是在DDOS攻击与否：
+
+netstat -anp |grep 'tcp\|udp' | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n
+
+该命令将显示已登录的是连接到服务器的最大数量的IP的列表。
+
+DDOS变得更为复杂，因为攻击者在使用更少的连接，更多数量IP的攻击服务器的情况下，你得到的连接数量较少，即使你的服务器被攻击了。有一点很重要，你应该检查当前你的服务器活跃的连接信息，执行以下命令：
+
+netstat -n | grep :80 |wc -l
+
+上面的命令将显示所有打开你的服务器的活跃连接。
+
+您也可以使用如下命令：
+
+netstat -n | grep :80 | grep SYN |wc -l
+
+从第一个命令有效连接的结果会有所不同，但如果它显示连接超过500，那么将肯定有问题。
+
+如果第二个命令的结果是100或以上，那么服务器可能被同步攻击。
+
+一旦你获得了攻击你的服务器的IP列表，你可以很容易地阻止它。
+
+同构下面的命令来阻止IP或任何其他特定的IP：
+
+route add ipaddress reject
+
+一旦你在服务器上组织了一个特定IP的访问，你可以检查对它的阻止豆腐有效。
+
+通过使用下面的命令：
+
+route -n |grep IPaddress
+
+您还可以通过使用下面的命令，用iptables封锁指定的IP。
+
+iptables -A INPUT 1 -s IPADRESS -j DROP/REJECT
+
+service iptables restart
+
+service iptables save
+
+上面的命令执行后，停止httpd连接，重启httpd服务。
+
+使用下面的命令：
+
+killall -KILL httpd
+
+service httpd startss

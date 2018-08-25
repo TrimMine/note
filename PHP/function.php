@@ -3328,13 +3328,97 @@ $key = array_search('green', $array); // $key = 2;
 --selectpagesuffix[=SELECTPAGESUFFIX]      自动生成Selectpage组件的字段后缀
 --ignorefields[=IGNOREFIELDS]                 排除的字段
 --editorclass[=EDITORCLASS]                自动生成富文本组件的字段后缀
+--headingfilterfield[=HEADINGFILTERFIELD]  自动生成筛选过滤选项卡的字段，默认是status字段
 --sortfield[=SORTFIELD]                    排序字段
 
 
-php think crud -t guide -c guide/guide  -m guide  --enumradiosuffix=satatus --editorclass=content --sortfield=updated_at 
+php think crud -t users -c users/users  -m users  --enumradiosuffix=satatus --editorclass=content --ignorefields=updated_at 
+
+图片 多图的话需要后缀为iamges 富文本需要提前安装插件 后缀为content
+php think crud -t goods -c good/goods  -m goods  --enumradiosuffix=satatus  --enumradiosuffix=type --editorclass=content --imagefield=image --imagefield=banner --ignorefields=updatetime --ignorefields=deletetime --intdatesuffix=createtime   --force=true -u=设计师 1
+
+ 
+--force=true 覆盖模式
+php think crud -t users -c users/users  -m users  --enumradiosuffix=satatus --force=true
 
 php think menu -c guide/guide
 
+状态 类型 不显示字段 上传图片 地址  --enumradiosuffix=title_id 生成后会加载控制title来选择selectpage   -u 1 生成菜单 菜单名为标注释
+
+php think crud -t design_user -c design/designuser  -m designuser --enumradiosuffix=satatus  --intdatesuffix=createtime  --enumradiosuffix=type   --ignorefields=updatetime --ignorefields=deletetime   --imagefield=wechat   --citysuffix=address --setcheckboxsuffix=forte_ids --enumradiosuffix=title_id --force=true  -u 1
+
+
+
+php think crud -t  shop_apply -c shop/shopapply  -m shopapply   --intdatesuffix=createtime    --intdatesuffix=accesstime  --ignorefields=deletetime  --enumradiosuffix=satatus --enumradiosuffix=type_id   --ignorefields=updatetime  --imagefield=license_image  --imagefield=card_image_positive --imagefield=card_image_opposite   -u 1
+
+
+
+{:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
+
+
+#加入到字段js中可改变样式
+cellStyle: function (value, row, index, field) {
+      return {
+          classes: 'text-nowrap another-class',
+          css: {"color": "blue", "font-size": "50px"}
+      };
+  },
+
+
+#自定义按钮
+  {
+    field: 'Button',
+    title: '操作',
+    operate: 'RANGE',
+    events: addFunction,
+    formatter: addButtons
+  },
+
+   function addButtons(value, row, index) {
+                return [
+                    '<button class="btn btn-xs btn-success btn-ajax">通过</button>',
+                    '<button class="btn btn-xs btn-danger btn-ajax">驳回</button>'
+                ].join()
+    };
+
+    window.addFunction = {
+           "click .btn-success": function (e, value, row, index) {
+               console.log((index));
+               console.log($(this).parent().siblings('.status'));
+               $(this).parent().siblings('.status').text('通过');
+           }, "click .btn-danger": function (e, value, row, index) {
+               console.log((index))
+           }
+       }
+
+    #直接写点击事件 写在下面即可
+
+    $(document).on("click", ".ajax_buttons", function () {
+       console.log($(this).parent().siblings('.status').text('通过'));
+    });
+
+    #弹窗获取 id
+    Fast.api.open("coupons/allot?ids="+allotData);
+
+    #手动加上的样式 必须在table生成样式之后才会加载绑定事件
+    //当内容渲染完成后
+      table.on('post-body.bs.table', function (e, settings, json, xhr) {
+          console.log($('.statussssss'));
+      });
+    
+
+    //控制器内 关联查询的时候where条件中的 goods.shop_id 其中goods 是模型名 不能是表名 不能弄错了
+    
+    ->where(['type' => 4,'shopgoods.shop_id'=>['neq',1],'deletetime'=>null])
+    默认是本表的查询 但是当有两个的字段相同时要区分开
+   
+    protected $relationSearch = true; 要打开
+     
+     ->with(['goodClass','getShop']) 预加载
+
+    js中查询要是用这种
+    {field: 'getShop.nickname', title: __('Shop_id'), visible: false, operate: 'LIKE'},
+    {field: 'get_shop.nickname', title: __('Shop_id'), operate: false},
 */
 
 //=================================  PHP ini_set session 设置 ====================================
@@ -3465,6 +3549,12 @@ Array
     [e] => 5
 )
 
+//====================  PHP PHP_SAPI ============================
+var_dump(PHP_SAPI);
+
+获取php运行环境  
+"cgi-fcgi"  nginx 
+ "cli"      命令行
 
 //====================  PHP mysql数据库字段为数字时不能修改 ============================
 
