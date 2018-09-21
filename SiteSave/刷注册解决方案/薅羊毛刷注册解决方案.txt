@@ -1,0 +1,49 @@
+薅羊毛刷注册解决方案
+
+方案一:图形验证码 目的 识别人机
+1.在代码中已经加入了图形验证码 但是隔一段时间后被破解 
+2.准备加入第三方平台(极验)验证码 但是了解到极验验证码也是能被破解 只是破解难度的问题 同时验证码难度越高 用户体验越差 
+
+方案二:准备用语音验证码
+1.逆向分析找到别人薅羊毛的方法,根据经验找到别人是通过第三方获取的验证码,同时用程序自动填充验证码来达到注册的
+
+	在网上找了一些接收验证码的平台 我大概找到这么多
+	乐码：http://www.lema.pw/ 
+	商码：http://ma.d4z.cn/ 
+	百万码：http://www.baiwanma.com/ 
+	爱乐站： http://114.55.24.232/ 
+	备用：http://soft.hellotrue.com/ 
+	神话： http://www.shjmpt.com:8000/ 
+	号码短租： http://120.26.100.114:8888/ （以前的卓码， 捷 
+	码） 
+	优码： http://www.6tudou.com:9000/download.html 
+	天码： http://www.tianma168.com/ 
+	E 云： http://www.ema666.com/ 
+	野码： http://yemapt.com/web/index.html 
+	百万码： http://www.baiwanma.com/ 
+	云速:http://www.yunsu01.com/ 
+	    
+	能接语音码的： 这里面只有两个是能识别语音的
+
+	外星码： http://www.waixing.website/ 
+	星辰码： http://www.xingchenma.com:9000/ 
+	星空码： http://www.xk-yzm.com/ 
+	60 码： http://www.60ma.net/ 
+	Thewolf 码： http://www.yyyzmpt.com/ 
+
+	自动打码： 
+
+	若快： http://www.ruokuai.com/ 
+	超人： http://www.chaorendama.com/ 
+	联众： https://www.jsdati.com/
+
+2.通过沟通这些平台发现这些手机号都是虚拟号码 用完就会被释放掉 但是这些号码都是识别的 如果启用语音验证码大部分平台都会被pass掉
+
+方案三:手机号必须实名
+1.虽然能屏蔽大部分但是我找的这些平台有两个是能识别语音的 不能保证100%屏蔽掉
+2.通过分析知道他们这些手机号都是没有实名认证的 可以通过手机号是否实名来避免此类问题
+
+
+方案四:黑名单(辅助)
+1.通过我们自己设计的黑名单机制可以封杀这些账号,让对方多的成本越来越高
+2.如果黑名单的难度设计的很高会误杀一些账号,需要上面方案的配合才能达到100%避免

@@ -88,6 +88,27 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
     官方: https://bitcoin.org/en/full-node#configuring-dhcp
     其他: https://www.jianshu.com/p/63cc72b27e72
 
+---------- bitcoin-cli 在启动bitcoind客户端的时候，如何设置启动参数，常见的有以下的  ----------------
+
+
+-rpcuser=<用户名>  JSON-RPC 连接使用的用户名
+-rpcpassword=<密码>  JSON-RPC 连接使用的密码
+-rpcport=    JSON-RPC 连接所监听的 <端口>（默认：8332）
+-rpcallowip=   允许来自指定 地址的 JSON-RPC 连接
+-rpcconnect=   发送命令到运行在 地址的节点（默认：127.0.0.1）
+-blocknotify=<命令> 当最好的货币块改变时执行命令（命令中的 %s 会被替换为货币块哈希值）
+-upgradewallet     将钱包升级到最新的格式
+-keypool=       将密匙池的尺寸设置为 （默认：100）
+-rescan            重新扫描货币块链以查找钱包丢失的交易
+-checkblocks=   启动时检查多少货币块（默认：2500，0 表示全部）
+-checklevel=    货币块验证的级别（0-6，默认：1）
+
+
+
+-------------------- bitcoin-cli 当配置用户名和密码的时候需要加参数才能进行查询-------------------------
+
+bitcoin-cli -rpcuser=REPLACED -rpcpassword=REPLACED -rpcconnect=127.0.0.1 -rpcport=8332 -datadir=/data/btc getblockchaininfo
+
 ------------------------------ bitcoin-cli 参数  ------------------------------
 
 == Blockchain ==

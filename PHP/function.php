@@ -2898,12 +2898,14 @@ $order->order_num = time();
 //=================================  PHP  破解phpStorm   ====================================
 /*
 hpstorm破解方法适用于各种版本
+https://www.cnblogs.com/Worssmagee1002/p/6233698.html
 
 注册时选择 License server 输入 
 
 点击Activate 就可以
 http://www.0-php.com:1017
-备用服务器:http://www.heatsam.com:1017 
+备用服务器:
+http://www.heatsam.com:1017 
 http://active.fy-style.cn/
 */
 //=================================  PHP  判断是否有空格   ====================================
@@ -3301,7 +3303,7 @@ $array = array(0 => 'blue', 1 => 'red', 2 => 'green', 3 => 'red');
 $key = array_search('green', $array); // $key = 2;  
 
 
-//=================================  PHP fastadmin 生成 控制器,模型 和表单 ====================================
+//=========================== PHP fastadmin 生成 控制器,模型 和表单 =============================
 
 /*
 -t, --table=TABLE                              表名，带不表前缀均可
@@ -3349,9 +3351,10 @@ php think crud -t design_user -c design/designuser  -m designuser --enumradiosuf
 
 
 
-php think crud -t  shop_apply -c shop/shopapply  -m shopapply   --intdatesuffix=createtime    --intdatesuffix=accesstime  --ignorefields=deletetime  --enumradiosuffix=satatus --enumradiosuffix=type_id   --ignorefields=updatetime  --imagefield=license_image  --imagefield=card_image_positive --imagefield=card_image_opposite   -u 1
+php think crud -t withdraw -c withdraw/withdraw  -m withdraw --enumradiosuffix=status  --intdatesuffix=createtime   --intdatesuffix=accesstime  --force=true  -u 1
 
 
+php think crud -t index_shop -c indexshop/goods  -m indexshop --enumradiosuffix=type  --enumradiosuffix=good_type --intdatesuffix=createtime   --intdatesuffix=updatetime   -u 1
 
 {:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
 
@@ -3904,3 +3907,34 @@ Array
   hk2s.json 香港繁体（香港小学学习字词表标准）到简体
   s2twp.json 简体到繁体（台湾正体标准）并转换为台湾常用词汇
   tw2sp.json 繁体（台湾正体标准）到简体并转换为中国大陆常用词汇
+
+
+//====================  PHP   array_walk_recursive() 函数 ============================
+
+<?php
+function myfunction($value, $key)
+{
+    echo "键 $key 的值是 $value 。<br>";
+}
+
+$a1 = array("a" => "red", "b" => "green");
+$a2 = array($a1, "1" => "blue", "2" => "yellow");
+array_walk_recursive($a2, "myfunction");
+
+
+定义和用法
+array_walk_recursive() 函数对数组中的每个元素应用用户自定义函数。在函数中，数组的键名和键值是参数。
+
+该函数与 array_walk() 函数的不同在于可以操作更深的数组（一个数组中包含另一个数组）。
+
+参数  描述
+array 必需。规定数组。
+myfunction  必需。用户自定义函数的名称。
+userdata,...  可选。规定用户自定义函数的参数。您能够向此函数传递任意多参数。
+
+
+与 array_walk() 函数 类似，array_walk_recursive() 函数对数组中的每个元素应用回调函数。不一样的是，如果原数组中的元素也是数组，就会递归地调用回调函数，也就是说，会递归到更深层的数组中去。
+
+典型情况下，myfunction 接受两个参数。array 参数的值作为第一个，键名作为第二个。如果提供了可选参数 userdata ，将被作为第三个参数传递给回调函数。
+
+如果回调函数需要直接作用于数组中的值，可以将回调函数的第一个参数指定为引用，这样对这些单元的任何改变也将会改变原始数组本身。

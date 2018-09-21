@@ -79,8 +79,25 @@ docker container run   -d   -p 192.168.0.3:8081:80   --rm   --name mynginxss   n
   nginx
 
 #启动nginx 并映射目录到nginx下  test.com 是创建的网站文件夹 $PWD是我的位置
-docker container run   -d   -p 192.168.0.3:8081:80   --rm   --name mynginx   --volume "$PWD/test.com":/usr/share/nginx/html   nginx
-docker container run   -d   -p 192.168.0.3:8081:80   --rm   --name mynginx   --volume "$PWD/test.com":/www/wwwroot/test.com   nginx
+docker container run   -d   -p 192.168.8.102:80   --rm   --name mynginx   --volume "$PWD/test.com":/www/wwwroot/test.com   nginx
+
+docker run --name mynginx -d -p 8080:80  -v /Users/cabbage/Code/docker_data/nginx/conf/nginx.conf:/etc/nginx/nginx.conf  -v /Users/cabbage/Code/docker_data/nginx/logs:/var/log/nginx -d docker.io/nginx
+docker run --detach \
+    --name localnginx \
+    --publish 127.0.0.1:80:80 \
+    --link dkphp:php \
+    -v /Users/cabbage/Code/docker_data/www:/usr/share/nginx/html \
+    -v /Users/cabbage/Code/jbs:/usr/share/nginx/www \
+    -v /Users/cabbage/Code/docker_data/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:rw \
+    -v /Users/cabbage/Code/docker_data/nginx/conf/enable-php-71.conf:/etc/nginx/enable-php-71.conf:rw \
+    -v /Users/cabbage/Code/docker_data/nginx/conf/fastcgi.conf:/etc/nginx/fastcgi.conf:rw \
+    -v /Users/cabbage/Code/docker_data/nginx/conf/pathinfo.conf:/etc/nginx/pathinfo.conf:rw \
+    -v /Users/cabbage/Code/docker_data/nginx/conf/vhost:/etc/nginx/conf.d \
+    -v /Users/cabbage/Code/docker_data/nginx/logs/error.log:/var/log/nginx/error.log:rw \
+    -d nginx
+进入该镜像命令行  docker exec -i -t  localnginx /bin/bash
+
+docker container run   -d   -p 192.168.8.102:80     --name mynginx   --volume "$PWD/www":/www/wwwroot/test.com   nginx
 
 等同于下面
 
@@ -92,6 +109,7 @@ docker container run   -d   -p 192.168.0.3:8081:80   --rm   --name mynginx   --v
   --volume "$PWD/html":/usr/share/nginx/html \
   nginx
 
+启动 php-fpm
 
 # No.5--------------------------- 容器的操作 ---------------------------
 
@@ -116,3 +134,33 @@ docker exec -it nginx1.0 bash
 
 
 docker run -d --name ethereum-node -v /Users/alice/ethereum:/root -p 8545:8545 -p 30303:30303 ethereum/client-go
+
+# No.6--------------------------- PHP 容器 ---------------------------
+
+拉取容器
+docker pull php:7.1-fpm
+查看
+docker images 
+
+解释执行 php 需要 php-fpm，先让它运行起来：
+
+docker run --name dkphp -d \
+    -v  /Users/cabbage/Code/jbs:/var/www/html:ro \
+    php:7.1-fpm
+
+# No.7--------------------------- 安装centos容器 安装宝塔 bt ---------------------------
+
+
+
+1.拉取纯净系统镜像
+docker pull centos:7.2.1511
+
+2.启动镜像，映射主机与容器内8888端口
+docker run -d -it -p 8888:8888  centos:7.2.1511
+
+3.查看容器id，并进入容器
+docker exec -it 容器ID bash
+
+4.执行宝塔面板Centos安装命令 (可选择其他linux版本安装 必须和系统版本对应)
+yum install -y wget && wget -O install.sh http://download.bt.cn/install/install.sh && sh install.sh
+

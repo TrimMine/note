@@ -469,7 +469,7 @@ chmod u-x，g+w abc：给abc去除用户执行的权限，增加组写的权限
 
 chmod a+r abc：给所有用户添加读的权限
 
------------------------- linux ssh连接时间 ------------------------
+------------------------ linux ssh连接时间 保持服务器连接 ------------------------
 
 Method 1:
 修改/etc/ssh/sshd_config配置文件，设置ClientAliveCountMax值大一点，单位是分钟。然后重启ssh服务使生效：service sshd reload 
