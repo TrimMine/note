@@ -156,11 +156,37 @@ docker run --name dkphp -d \
 docker pull centos:7.2.1511
 
 2.启动镜像，映射主机与容器内8888端口
-docker run -d -it -p 8888:8888  centos:7.2.1511
+docker run -i -t -d --name bt-pure -p 20:20 -p 21:21 -p 80:80 -p 8080:8080  -p 8081:8081 -p 8332:8332 -p 8545:8545  -p 443:443 -p 888:888 -p 3306:3306 -p 8888:8888 --privileged=true -v /Users/cabbage/Code/jbs:/www/wwwroot chinesebigcabbage/bt-pure
 
 3.查看容器id，并进入容器
 docker exec -it 容器ID bash
 
 4.执行宝塔面板Centos安装命令 (可选择其他linux版本安装 必须和系统版本对应)
+安装必要的软件
+yum check-update -y && yum update -y && yum install initscripts screen wget -y 
+
 yum install -y wget && wget -O install.sh http://download.bt.cn/install/install.sh && sh install.sh
 
+
+
+https://www.cnblogs.com/Basu/p/7945166.html 摘自
+
+# No.7--------------------------- 制作自己的镜像 ---------------------------
+https://www.cnblogs.com/wherein/p/6862911.html 转自
+
+1.将自己本地的容易提交
+docker ps -a 查看容器id
+提交容器
+docker commit 容器ID chinesebigcabbage/bt-pure 
+
+2.登录dockerhup 账户 
+docker login 
+输入账号 密码 如果没有的话需要去注册一下  (https://hub.docker.com/)
+3.推送到仓库(latest(最新的) tag备注)  如果比较大 推送过程可能会断 就再次push一下 会自动断点续传
+docker push chinesebigcabbage/bt-pure:latest
+
+4.现在验证一下是否有次镜像 
+docker inspect wherein/ubuntu
+
+5.最后看一下你的hub中的tags 是否有了新的更新
+我们用的镜像都是公共的 私有的需要付费

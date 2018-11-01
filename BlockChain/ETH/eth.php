@@ -16,7 +16,7 @@ geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpc
 
 nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "*" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
 //后台运行并输出到文件
-nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jian.com >> ./execute_eth.log 2>&1 & 
+nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jxym2.cn >> ./execute_eth.log 2>&1 & 
 
 --rpcaddr 0.0.0.0  //全部允许
 --rpccorsdomain api.jicin.com //允许域名
@@ -50,6 +50,7 @@ personal_importRawKey([keydata, passphrase])
 # 连接到正在运行的 geth 节点上并进入命令行界面
 geth attach
 
+(如果指定了目录 --datadir /mnt/.ethereum 这样的使用时必须这样  geth attach ipc://mnt/.ethereum/geth.ipc)
 #自己的全部信息
 admin.nodeInfo
 

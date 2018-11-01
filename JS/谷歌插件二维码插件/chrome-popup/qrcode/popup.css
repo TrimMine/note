@@ -1,0 +1,51 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 200px;
+  height: 300px;
+}
+
+.show-qrcode {
+  width: 150px;
+  height: 150px;
+  margin: 10px auto;
+  text-align: center;
+  position: relative;
+}
+
+.qr-code {
+  width: 150px;
+  height: 150px;
+}
+
+.show-img {
+  width: 28px;
+  height: 28px;
+  top: 50%;
+  left: 50%;
+  margin-top: -14px;
+  margin-left: -14px;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.time {
+  font-size: 24px;
+  color: #09f;
+}
+
+.input {
+  width: 150px;
+  resize: none;
+  padding: 10px;
+  box-sizing: border-box;
+  font-size: 16px;
+  color: #09f;
+  height: calc(3.6em + 20px);
+  line-height: 1.2em;
+  overflow: hidden;
+  outline: none;
+}

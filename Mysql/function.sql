@@ -419,3 +419,49 @@ expire_logs_days = 3
 
 
 转自 https://blog.csdn.net/zhengfeng2100/article/details/52858946
+
+----------------------------mysql instr  ----------------------------
+INSTR(STR,SUBSTR) 在一个字符串(STR)中搜索指定的字符(SUBSTR),返回发现指定的字符的位置(INDEX); 
+STR 被搜索的字符串 
+SUBSTR 希望搜索的字符串 
+结论：在字符串STR里面,字符串SUBSTR出现的第一个位置(INDEX)，INDEX是从1开始计算，如果没有找到就直接返回0，没有返回负数的情况。
+--查询字符串存在的情况下：
+SELECT INSTR("abcd",'b');
+
+
+
+mysql中instr()的使用 
+标签： 检索速度 mysql数据库 索引 字段 it	分类： 电脑网络
+mysql数据库中记录数达到36万条了,检索速度慢了许多,怀疑是SQL query中
+
+SELECT * FROM table WHERE title LIKE '%keyword%'的问题。
+第一步：
+
+在title字段上加索引：create index stock_title on stock(title)；
+测试发现没什么效果,因为索引只对'keyword%'有效,对%开头的（'%keyword'，'%keyword%')起不了作用.mysql中instr()的使用
+
+第二步：
+
+改成SELECT * FROM table WHERE instr(title,'keyword')>0 后
+
+检索速度快了不少,问题解决了mysql中instr()的使用
+
+http://blog.sina.com.cn/s/blog_55d57a4601015rzl.html
+
+----------------------------mysql 利用instr 整理wherein是否排序  ----------------------------
+不进行默认排序 
+select * from xx_shop_user  where id in (59,77,95,35) and  ISNULL(deletetime)  order by instr(',59,77,95,35,',CONCAT(',',id,','))
+select * From 表 Where id in (1,5,3) order by instr(',1,5,3,',CONCAT(',',id,','))
+
+排序  默认主键排序
+select  *  from table where id in (59,77,95,35)
+
+----------------------------mysql ISNULL  ----------------------------
+
+查询mysql数据库表中字段为null的记录:
+
+select * 表名 where 字段名 ISNULL(字段)
+
+查询mysql数据库表中字段不为null的记录:
+
+select * 表名 where 字段名 is not null

@@ -45,6 +45,14 @@ extension=swoole.so
  ln -s   /www/server/php/72/bin/php /usr/bin/php72 制作软链 制定php版本
 
  */
+/*PHP 编译安装
+ PHP 查看ini文件的路径 
+ 编译安装查看配置生效的路径  php -i | grep php.ini  然后将源码包里面的文件拷贝到该目录下
+ 如果编译的时候选择过etc的路径则放到指定目录下
+
+ ps aft | grep tcp.php 
+ 查看启动了几个worker进程 显示结构
+*/
 #---------------------------------------------- easyswoole安装 ------------------------------------------
 
 /* easyswoole安装   

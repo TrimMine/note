@@ -643,6 +643,12 @@ Centos7 firewall -------------------------------------
       firewall-cmd --reload
 
 
+出现Failed to start firewalld.service: Unit firewalld.service is masked
+尝试卸载 
+systemctl unmask firewalld.service
+再开启
+systemctl status firewalld
+
 
 ------------------------ linux 服务器拒绝允许名单  ------------------------
 
@@ -694,6 +700,31 @@ ls  file  file  file  ....
 ------------------------ linux 检查配置  ------------------------
 
 chkconfig sendmail on
+
+--add：增加所指定的系统服务，让chkconfig指令得以管理它，并同时在系统启动的叙述文件内增加相关数据；
+--del：删除所指定的系统服务，不再由chkconfig指令管理，并同时在系统启动的叙述文件内删除相关数据；
+--level<等级代号>：指定读系统服务要在哪一个执行等级中开启或关毕。
+
+等级代号列表：
+
+等级0表示：表示关机
+等级1表示：单用户模式
+等级2表示：无网络连接的多用户命令行模式
+等级3表示：有网络连接的多用户命令行模式
+等级4表示：不可用
+等级5表示：带图形界面的多用户模式
+等级6表示：重新启动
+
+
+chkconfig --list             #列出所有的系统服务。
+chkconfig --add httpd        #增加httpd服务。
+chkconfig --del httpd        #删除httpd服务。
+chkconfig --level httpd 2345 on        #设置httpd在运行级别为2、3、4、5的情况下都是on（开启）的状态。
+chkconfig --list               #列出系统所有的服务启动情况。
+chkconfig --list mysqld        #列出mysqld服务设置情况。
+chkconfig --level 35 mysqld on #设定mysqld在等级3和5为开机运行服务，--level 35表示操作只在等级3和5执行，on表示启动，off表示关闭。
+chkconfig mysqld on            #设定mysqld在各等级为on，“各等级”包括2、3、4、5等级。
+
 
 ------------------------ linux 查找软件位置  ------------------------
 
@@ -3753,3 +3784,196 @@ service iptables save
 killall -KILL httpd
 
 service httpd startss
+
+------------------------ linux 制作SSH登录远程服务器的Shell脚本 ------------------------
+
+
+下载 expect  
+mac brew install expect 
+linux sudo apt-get install expect
+
+
+//不要忘记第一行expect的真实路径安装完成查看下 which expect 
+
+#!/usr/bin/expect -f  
+# 设置ssh连接的用户名
+set user root
+# 设置ssh连接的host地址
+set host 10.211.55.4
+# 设置ssh连接的port端口号
+set port 22
+# 设置ssh连接的登录密码
+set password admin123
+# 设置ssh连接的超时时间
+set timeout -1
+
+spawn ssh $user@$host -p $port
+expect "*password:"
+# 提交密码
+send "$password\r"
+# 控制权移交
+interact
+
+
+保存后加入执行权限
+chmod +x login.sh
+执行
+./login.sh
+
+---------------------
+
+本文来自 birdben 的CSDN 博客 ，全文地址请点击：https://blog.csdn.net/birdben/article/details/52166960?utm_source=copy 
+
+
+------------------------ linux 制作SSH登录远程服务器的Shell脚本  ------------------------
+(注意! 阿里云的ssd方法一和方法二都不符合 方法三符合 最好以服务器商提供的参数为准)
+
+
+方法一
+
+判断cat /sys/block/(*)名字/queue/rotational的返回值（其中*为你的硬盘设备名称，例如sda,vda等等），
+如果返回1则表示磁盘可旋转，那么就是HDD了；反之，如果返回0，则表示磁盘不可以旋转，那么就有可能是SSD了。
+
+cat /sys/block/磁盘名(vda,vdb等)/queue/rotational
+1
+
+方法二
+
+使用lsblk命令进行判断，参数-d表示显示设备名称，参数-o表示仅显示特定的列。
+
+[root@izc2mjnp7hy36fz ~]# lsblk -d -o name,rota
+NAME ROTA
+vda     1
+vdb     1
+这种方法的优势在于它只列出了你要看的内容，结果比较简洁明了。还是那个规则，ROTA是1的表示可以旋转，反之则不能旋转
+
+方法三
+
+可以通过fdisk命令查看，参数-l表示列出磁盘详情。在输出结果中，以Disk开头的行表示磁盘简介，下面是一些详细参数，我们可以试着在这些参数中寻找一些HDD特有的关键字，比如：”heads”（磁头），”track”（磁道）和”cylinders”（柱面）。
+下面分别是HDD和SSD的输出结果，HDD拷贝自网络。
+
+
+Disk /dev/sda: 120.0 GB, 120034123776 bytes
+255 heads, 63 sectors/track, 14593 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x00074f7d123456
+
+
+[cheshi@cheshi-laptop2 ~]$ sudo fdisk -l
+Disk /dev/nvme0n1: 238.5 GiB, 256060514304 bytes, 500118192 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0xad91c214
+......
+[cheshi@cheshi-laptop2 ~]$123456789
+
+
+其他方法
+
+可以使用第三方工具判断，比如smartctl，这些工具的结果展示比较直观，但是需要单独安装。
+
+---------------------
+作者：Charles_Shih 
+来源：CSDN 
+原文：https://blog.csdn.net/sch0120/article/details/77725658?utm_source=copy 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+
+------------------------------------------expect 自动化登录------------------------------------------
+
+#!/usr/local/bin/expect -f
+# 设置ssh连接的用户名
+set user [lindex $argv 0]
+# 设置ssh连接的host地址
+set host [lindex $argv 1]
+# 设置ssh连接的port端口号
+set port [lindex $argv 2]
+# 设置ssh连接的登录密码
+set password [lindex $argv 3]
+# 设置ssh连接的超时时间
+set timeout -1
+
+spawn ssh $user@$host -p $port
+expect "*password:"
+# 提交密码
+send "$password\r"
+
+# 控制权移交
+interact
+
+执行自动化任务通常 expect eof 结尾 而登录终端 一般用 interact
+
+安装expect
+
+[root@xuegod60 ~]# yum -yinstall expect
+
+也可以通过源码包的方式进行安装
+
+源码下载链接
+
+http://jaist.dl.sourceforge.net/project/tcl/Tcl/8.6.4/tcl8.6.4-src.tar.gz
+
+http://sourceforge.net/projects/expect/files/Expect/5.45/expect5.45.tar.gz/download
+
+ 
+expect中最关键的四个命令是send,expect,spawn,interact。
+
+send：用于向进程发送字符串 
+expect：从进程接收字符串 
+spawn：启动新的进程 
+interact：允许用户交互
+
+使用expect创建脚本的方法
+
+1）定义脚本执行的shell
+#!/usr/bin/expect
+
+这里定义的是expect可执行文件的链接路径（或真实路径），功能类似于bash等shell功能
+
+2）set timeout 30
+设置超时时间，单位是秒，如果设为timeout -1 意为永不超时
+
+3）spawn
+spawn 是进入expect环境后才能执行的内部命令，不能直接在默认的shell环境中进行执行
+
+主要功能：传递交互指令
+
+4）expect
+这里的expect同样是expect的内部命令
+主要功能：判断输出结果是否包含某项字符串，没有则立即返回，否则就等待一段时间后返回，等待时间通过timeout进行设置
+
+5）send
+执行交互动作，将交互要执行的动作进行输入给交互指令
+命令字符串结尾要加上"r"，如果出现异常等待的状态可以进行核查
+
+6）interact
+执行完后保持交互状态，把控制权交给控制台
+如果不加这一项，交互完成会自动退出
+
+7）exp_continue
+继续执行接下来的交互操作
+
+8）$argv
+expect 脚本可以接受从bash传递过来的参数，可以使用 [lindex $argv n]获得，n从0开始，分别表示第一个，第二个，第三个……参数
+
+------------------------------------------htop 系统工具------------------------------------------
+
+
+ 
+可以很直观的看服务器的状态 
+mac brew install htop
+yum install htop 
+apt-get install htop
+
+---------------------------------shell读取文件内容，然后把内容赋值给变量然后进行字符串处理-----------------------
+
+
+实现：
+
+dataline=$(cat /root/data/data.txt)
+
+echo $dataline
