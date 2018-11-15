@@ -25,7 +25,7 @@ readServerInfo()
 echo "正在查找服务器$1..... "
 
 #source $pwds/progress.sh #加载进度条文件 可以不用
-str=$(cat $pwds/host.txt |grep $1) #读取文件 匹配相应的账号密码
+str=$(cat $pwds/host.txt |grep -w $1) #读取文件 匹配相应的账号密码
 
 #progressBar #调用进度条 进度条文件方法 可以不用
 
@@ -35,7 +35,7 @@ then
 
   readServerInfo #服务器信息
 
-  echo "$1|${arr[1]}|${arr[2]}|${arr[3]}|${arr[4]}" >>./host.txt #写入文件
+  echo "$1|${arr[1]}|${arr[2]}|${arr[3]}|${arr[4]}" >> $pwds/host.txt #写入文件
 else
 
 arr=(${str//|/ }) # 表示'|'替换为' '空格 并转为数组

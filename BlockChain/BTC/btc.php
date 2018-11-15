@@ -103,6 +103,11 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 -checkblocks=   启动时检查多少货币块（默认：2500，0 表示全部）
 -checklevel=    货币块验证的级别（0-6，默认：1）
 
+----------------------------------------PDCC 节点6启动命令  ------------------------------------
+
+
+prexd -conf=/root/.PDCC/predix.conf -daemon
+
 
 
 -------------------- bitcoin-cli 当配置用户名和密码的时候需要加参数才能进行查询-------------------------

@@ -1205,6 +1205,9 @@ for i in /etc/profile.d/*.sh ; do
 
 功能：输出文件2中的内容，但是剔除包含在文件1中的内容
 
+grep 精确匹配
+
+用grep -w "abc" 或者是grep "\<abc\>"都可以实现
 
 ------------------------ linux  shell ------------------------
 
@@ -1309,7 +1312,7 @@ scp -r local_folder remote_ip:remote_folder
 例如
    1. scp remote_user@host:remote_folder local_folder
    默认端口端口 -P 22 可不加
-   2. scp -P 7789 root@172.31.1.22:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
+   2. scp -P 7789 r.22:/www/backuoot@172.31.1p/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
    2. scp -P 7789 root@172.31.1.22:/www/wwwroot/tea_chain/tea_chain.tar.gz  /www/wwwroot/tea_chain
  
 
@@ -1721,9 +1724,6 @@ root@vm-199:~# vmstat 2
 
 ls /etc/init.d/
 
-地板
-mingxue  准内测组成员 发表于 2017-8-23 10:10:57 | 只看该作者
-提示functions  httpd  iprdump  iprinit  iprupdate  mysqld  netconsole  network  php-fpm-56  README
 
 不正常 少了宝塔的启动文件
 输入这条命令重新升级修复一下 启动面板即可
