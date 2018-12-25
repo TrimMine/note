@@ -259,3 +259,4 @@ ssh-keygen -t rsa -C "chinesebigcabbage@163.com"
 /*----------------------------------------   git 放弃修改 ------------------------------------*/
 /*
 git checkout -- 文件名
+git checkout . 全部放弃  添加的文件需要手动删除 

@@ -66,6 +66,8 @@ find ./ -regex .*so.*\.gz
 查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令，没有选项-print时文件列表前一行不会显示目录名称)
 find ./ -type d -print -exec ls {} \;
 
+-print 递归查询目录
+
 查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令,执行命令前需要确认)
 find ./ -type d -ok ls {} \;
 
@@ -77,14 +79,22 @@ find ./ -type d -exec ls {} +
       find  ./* -type f  -exec cat {} + | grep aaaa
 
       查找所有文件包含 s888的文件  含有文件名
-      find ./* -type f   | xargs grep "s888." 
+      find ./* -type f -print  | xargs grep "s888." 
       find ./* -type f   | xargs grep "@eval($_POST" 
 
       从根目录开始查找所有扩展名为.log的文本文件，并找出包含”ERROR”的行
       find / -type f -name "*.log" | xargs grep "ERROR"  
       
+      grep
+      grep -lr 'string' /etc/   进入子目录在所有文件中搜索字符串
+      -i，乎略大小写
+      -l，找出含有这个字符串的文件
+      -r，不放过子目录
+    
+      find /www/* -iname “*.php” | xargs grep -H -n "eval(base64_decode"
 
 
+find ./* -type f   | xargs grep "余额提现" 
 
 查找文件名匹配*.c的文件
 find ./ -name \*.c
@@ -471,15 +481,57 @@ chmod a+r abc：给所有用户添加读的权限
 
 ------------------------ linux ssh连接时间 保持服务器连接 ------------------------
 
-Method 1:
-修改/etc/ssh/sshd_config配置文件，设置ClientAliveCountMax值大一点，单位是分钟。然后重启ssh服务使生效：service sshd reload 
+1:
+修改/etc/ssh/sshd_config配置文件
+在这个配置文件里，我们需要关注的配置选项有3个，分别是：
+
+TCPKeepAlive yes
+
+ClientAliveInterval 0
+
+ClientAliveCountMax 3
+
+可以看到这三个配置，默认情况下都是被注释起来的。
+
+这3个配置选项的含义分别是：
+
+是否保持TCP连接，默认值是yes。
+
+多长时间向客户端发送一次数据包判断客户端是否在线，默认值是0，表示不发送；
+
+发送连接后如果客户端没有响应，多少次没有响应后断开连接。默认是3次。
+
+第一个TCPKeepAlive默认值是yes，因此不用修改。需要修改的是下面的两个值，一般情况下的设置是：
+
+ClientAliveInterval  60
+
+ClientAliveCountMax  60
+
+即60s向客户端发送一次数据包，失败60次以后才会断开连接。也就是说如果什么都不操作，长达一个小时的时间才会断开连接。如果你觉得这个时间太短了，你还可以把第二个参数的值改成更大的值，比如说120，240这样的
+
+上和下面这两种情况，不管是修改客户端的配置，还是修改服务端的配置，在修改完成后，都需要重启sshd进程，让对应的配置生效
+
+然后重启ssh服务使生效：service sshd reload 
+或者  /bin/systemctl reload sshd.service
+如果是CentOS 6.x进程，可能就需要使用/etc/init.d/sshd 命令来重启了。
 
 
-Method 2:
-找到所在用户的.ssh目录,如root用户该目录在：/root/.ssh/
-在该目录创建config文件 vi /root/.ssh/config
+2: 客户端修改 修改自己电脑上的配置
+找到所在用户的.ssh目录,如root用户该目录在：~/.ssh/
+在该目录创建config文件 vi ~/.ssh/config
 加入下面一句：ServerAliveInterval 60
+ 
+重启 /bin/systemctl restart sshd
+
 保存退出，重新开启root用户的shell，则再ssh远程服务器的时候，不会因为长时间操作断开。应该是加入这句之后，ssh客户端会每隔一段时间自动与ssh服务器通信一次，所以长时间操作不会断开。
+
+3.此外，除了将这个参数写入配置文件固定起来以外，ssh客户端还支持临时设置这个参数，命令的用法是：
+
+ssh -o "ServerAliveInterval 60"  ip_address
+
+ip_address指的是对应的服务器IP，这种情况下，会临时将这个链接设置为60*60=3600秒的时间不会出现超时断开的情况。比较适用于公网服务器，不需要修改公网服务器配置
+
+
 
 ------------------------ linux 安装swoole运行phpize错误 ------------------------
 
@@ -1312,9 +1364,11 @@ scp -r local_folder remote_ip:remote_folder
 例如
    1. scp remote_user@host:remote_folder local_folder
    默认端口端口 -P 22 可不加
-   2. scp -P 7789 r.22:/www/backuoot@172.31.1p/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
+   2. scp -P 7789 root@172.31.1.22:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
    2. scp -P 7789 root@172.31.1.22:/www/wwwroot/tea_chain/tea_chain.tar.gz  /www/wwwroot/tea_chain
  
+
+scp  root@47.94.81.150:/www/wwwroot/easyswoole/  ./
 
 3.sz/rz
 
@@ -1375,6 +1429,10 @@ tar
 下面的参数-f是必须的
 
 -f: 使用档案名字，切记，这个参数是最后一个参数，后面只能接档案名。
+
+压缩命令
+
+tar -zcvf ./filename.tar.gz ./* 压缩本文件夹下的所有
 
 # tar -cf all.tar *.jpg
 这条命令是将所有.jpg的文件打成一个名为all.tar的包。-c是表示产生新的包，-f指定包的文件名。
@@ -1823,7 +1881,7 @@ dd if/dev/vda1 of=/被删目录/文件名 bs=offset(号码) count=1 skip=block(�
 需要切换到root用户  专享主机等或godaddy.com买的主机需要 su 切换到root才能看到占用的进程
 
 lsof -i :80  查看80端口占用的程序
-
+lsof -i 查看所有 lsof -i -p -n
 nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
 
 查看 lsof -i :80 
@@ -2764,6 +2822,24 @@ https://download.pureftpd.org/pure-ftpd/releases/
 
 mkdir -p  /www/server/ftp/pure-ftpd/ 递归建立文件夹  
 
+------------------------ linux  ftp   ------------------------
+ftp 需要主动模式和被动模式
+
+被动模式端口设置
+pure-ftpd.conf 文件中  (此处为pure-ftpd软件)
+PassivePortRange          39000 40000
+
+被动和主动都需要 21  
+20是主动模式传输数据用的 
+
+他们都需要先通过21端口连接认证服务器 
+由客户端发起 当由公网ip直接发起的 而不是路由器后的ip发起的为主动模式
+主动传输通过20端口 被动通过设置的被动端口传输 端口号不得小于1024
+在传输完成后需要再通过21端口进行一次认证
+
+fpt的种类
+
+ftp(普通)   ftps(ssl加密)     sftp(ssh传输协议)
 
 
 ------------------------ linux  Centos7找不到 netstat   ------------------------

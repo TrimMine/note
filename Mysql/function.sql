@@ -176,6 +176,11 @@ R-Tree在MySQL很少使用，仅支持geometry数据类型，支持该类型的�
 
 -- 可以调到150s 或者300s
 
+--=================================  mysql 获取表结构 ====================================
+--$this->model->getTableName() 为表名 实在think下Model下添加的方法返回当前表明 $this->name
+
+$sql = 'SHOW COLUMNS FROM `' . $this->model->getTableName() . '`';
+$res = Db::query($sql);
 
 ----------------------------mysql innodb事物产生死锁----------------------------
 /*1、查看是否存在物阻塞
@@ -456,6 +461,15 @@ select * From 表 Where id in (1,5,3) order by instr(',1,5,3,',CONCAT(',',id,','
 排序  默认主键排序
 select  *  from table where id in (59,77,95,35)
 
+
+******* wherein 关联 拼接域名 DOMAIN为域名常量 *******
+public function goodOrder($ids,$offset,$limit)
+{
+ 	//商品排序
+    $sql = "select g.id,title,shop_id,pay_type,CONCAT('".DOMAIN."' ,g.image) as image,price,g.sales_num,CONCAT('".DOMAIN."' ,s.image) as shop_image,s.name as shop_name from xx_goods as g LEFT JOIN xx_shop_user as s ON g.shop_id=s.id where g.status=1 and g.type=4 and  g.id in ($ids) and  ISNULL(g.deletetime)  order by instr(',$ids,',CONCAT(',',g.id,',')) LIMIT $offset,$limit";
+    $result = Db::query($sql);
+    return $result;
+}
 ----------------------------mysql ISNULL  ----------------------------
 
 查询mysql数据库表中字段为null的记录:
@@ -465,3 +479,21 @@ select * 表名 where 字段名 ISNULL(字段)
 查询mysql数据库表中字段不为null的记录:
 
 select * 表名 where 字段名 is not null
+----------------------------mysql 修改可以远程访问的权限  ----------------------------
+
+
+1.mysql -u root -p
+2.use mysql；
+3.select  User,authentication_string,Host from user
+4.GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123456'  
+	这里的123456为你给新增权限用户设置的密码，%代表所有主机，也可以具体到你的主机ip地址
+5.flush privileges;          这一步一定要做，不然无法成功！ 这句表示从mysql数据库的grant表中重新加载权限数据
+                             因为MySQL把权限都放在了cache中，所以在做完更改后需要重新加载。
+6.select  User,authentication_string,Host from user  再次查看  发现多了一个用户，该用户所有的主机都可以访问，此时再次用sqlyog访问连接成功！
+7.此方法不止针对root用户  可以将root换成你想要的用户
+
+----------------------------mysql 迁移服务器或第二次安装 报错 ----------------------------
+Starting MySQL. ERROR! The server quit without updating PID file (/www/server/data/1c2a7179f8bd.pid).
+ 
+删除 目录下 server/data/下面的pid (a04890ffe464.pid 前缀不一样)  删除 mysql-bin.index 然后启动 ok
+

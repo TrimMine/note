@@ -3,7 +3,7 @@
 ------------------------------ BTC安装  ------------------------------
 我的服务器是 centos  ubantu和debian 参考官方文档 https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md
 可安装的库 
-sudo dnf install gcc-c++ libtool make autoconf automake openssl-devel libevent-devel boost-devel libdb4-devel libdb4-cxx-devel
+sudo yum install gcc-c++ libtool make autoconf automake openssl-devel libevent-devel boost-devel libdb4-devel libdb4-cxx-devel
 
 如果你是基于最小化安装的linux系统，需要执行如下命令，安装必要的库，如果是安装过的可以跳过此步骤 
 
@@ -15,7 +15,7 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 	
 	没有git 要安装git centos 安装git yum install  git 
 	
-	1- git clone git@github.com:bitcoin/bitcoin.git
+	1- git clone https://github.com/bitcoin/bitcoin.git
 
 	2- ./autogen.sh 
 	报错 
@@ -36,6 +36,13 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 
     3- ./configure -without-gui   不安装gui图形界面
 	
+	报错
+	checking whether the C++ compiler works... no
+	configure: error: in `/home/ljw/bitcoin-master':
+	configure: error: C++ compiler cannot create executables
+	See `config.log' for more details
+	[root@localhost bitcoin-master]# yum install gcc-c++
+	
 	报错 
 	configure: error: libdb_cxx headers missing, Bitcoin Core requires this library for wallet functionality (--disable-wallet to disable wallet functionality)
 	
@@ -43,6 +50,7 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 
     看了下文档，提示需要libdb5.1。查查问题的时候都是关于bitcoin的，提到的都是要使用BerkeleyDb4.8NC。CentOS没有libdb，只能手动安装BerkeleyDb5.1。在doc/build-unix.md文档里有详细的说明，按说明操作安装即可。
 
+    方案:
 	wget 'http://download.oracle.com/berkeley-db/db-5.1.29.NC.tar.gz'
 	echo '08238e59736d1aacdd47cfb8e68684c695516c37f4fbe1b8267dde58dc3a576c db-5.1.29.NC.tar.gz' | sha256sum -c  效验下载的压缩包完整性
 	tar -xzvf db-5.1.29.NC.tar.gz 
@@ -52,7 +60,8 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 
 	报错  
 	configure: error: Found Berkeley DB other than 4.8, required for portable wallets (--with-incompatible-bdb to ignore or --disable-wallet to disable wallet functionality)
-    加上编译参数 --with-incompatible-bdb
+    加上编译参数 --with-incompatible-bdb 
+    ./configure -without-gui --with-incompatible-bdb 
 
     报错
     configure: error: No working boost sleep implementation found.
@@ -60,12 +69,12 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 
 
     最后
-    make 
+    make  执行时间较长
     make install
 
     创建软链  可省略看个人喜好
-    ln -s ~/btc/bitcoin/src/bitcoin-cli /usr/bin/btc  
-    ln -s ~/btc/bitcoin/src/bitcoind /usr/bin/btc-start
+    ln -s ~/bitcoin/src/bitcoin-cli /usr/bin/btc  
+    ln -s ~/bitcoin/src/bitcoind /usr/bin/btc-start
 
     btc-start -daemon #后台启动 如果没有创建软链就使用 bitcoind -daemon 
    

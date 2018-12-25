@@ -16,7 +16,7 @@ geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpc
 
 nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "*" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
 //后台运行并输出到文件
-nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jxym2.cn >> ./execute_eth.log 2>&1 & 
+nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jxym2.cn >> ./eth.log 2>&1 & 
 
 --rpcaddr 0.0.0.0  //全部允许
 --rpccorsdomain api.jicin.com //允许域名
@@ -221,3 +221,16 @@ Syncing方法的源代码很简单，注释说明也已经很清楚了。通过�
 - highestBlock：通过所链接的节点获得的当前最高的区块高度； 
 - pulledStates：当前已经拉取的状态条目数； 
 - knownStates：当前已知的待拉取的总状态条目数；
+
+
+------------------------------------------ eth 安装 ------------------------------------------
+
+1.github 克隆源码
+git clone https://github.com/ethereum/go-ethereum 
+2.安装golang
+yum install golang
+3.执行命令  (进入源码目录)
+make geth 或 make all
+
+
+

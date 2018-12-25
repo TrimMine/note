@@ -97,3 +97,40 @@ php server update
 
 
 //使用Chrome浏览器会自动请求一次favicon.ico，所以确保你的网站根目录下面有存在favicon.ico文件，否则会产生一次404请求的错误日志。
+
+#----------------------------------------------  定时任务 timer ------------------------------------------
+
+
+
+class Timer
+{
+    public function tick()
+    {
+        //循环定时任务
+        $timer_id = swoole_timer_tick(3000, function () {
+            echo "after 3000ms.\n";
+
+        });
+    }
+
+    public function after()
+    {
+        //一次定时
+        $after_timer_id = swoole_timer_after(14000, function () {
+            echo "after 14000ms.\n";
+        });
+    }
+
+    public function clear($timer_id)
+    {
+        //清除定时任务
+        if (swoole_timer_clear($timer_id)) {
+            echo "清除成功 \n";
+        }
+    }
+}
+#---------------------------  原生sql 利用字段查询付款后超过15天的订单 ------------------------------
+
+ $times = time();
+ $gone_time = 15 * 24 * 3600;
+ "select id,paytime,status from `xx_orders` where `status`=3 and `type`!=3 and (`paytime`+$gone_time)<=" . $times
