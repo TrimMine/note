@@ -3397,7 +3397,9 @@ php think crud -t goods -c good/goods  -m goods  --enumradiosuffix=satatus  --en
 --force=true 覆盖模式
 php think crud -t users -c users/users  -m users  --enumradiosuffix=satatus --force=true
 
-php think menu -c users/verifyrecharge
+php think menu -c good/rushactivity
+
+good/rushactivity/index
 
 状态 类型 不显示字段 上传图片 地址  --enumradiosuffix=title_id 生成后会加载控制title来选择selectpage   -u 1 生成菜单 菜单名为标注释
 
@@ -4673,4 +4675,91 @@ print_r(array_slice($a,1,2));
 //========================================   PHP获取扩展版本号 ======================================
 
 $version = phpversion('swoole');
+
+//========================================   composer 下载安装慢 ======================================
+
+
+composer速度慢
+使用国内镜像。国内镜像地址：http://pkg.phpcomposer.com/ 
+使用方式：
+
+composer config -g repo.packagist composer https://packagist.phpcomposer.com  修改全局
+composer config repo.packagist composer https://packagist.phpcomposer.com 修改当前项目
+
+
+上面命令执行之后会在composer.json里面添加镜像的配置信息。
+
+"repositories": {
+    "packagist": {
+        "type": "composer",
+        "url": "https://packagist.phpcomposer.com"
+    }
+}
+
+然后再下载 很快
+
+
+//========================================   xdebug 安装 mac ======================================
+
+https://github.com/xdebug/xdebug github 地址
+
+按照github给的方法安装 
+
+如果是安装官方给的安装php的方法 路径也都是默认路径就使用 
+./rebuild.sh
+
+否则使用
+1 ./configure --enable-xdebug --with-php-config=/www/server/php/73/bin/php-config
+2 make clean
+3 make
+4 make install
+5 //放到php.ini 文件中
+  ;扩展信息
+  zend_extension=xdebug.so 
+  ;xdebug 基本配置
+  xdebug.remote_enable=On
+  ;启用代码自动跟踪
+  xdebug.auto_trace=On
+  
+  ;启用性能检测分析
+  xdebug.profiler_enable=On
+  xdebug.profiler_enable_trigger=On
+  xdebug.profiler_output_name = cachegrind.out.%t.%p
+  ;指定性能分析文件的存放目录  /www/xdebuglog/要保证目录可写入权限 用户组网站有权限访问写入
+  xdebug.profiler_output_dir="/www/xdebuglog/" 
+
+  ;记录 xdebug与调试器会话 日志
+  xdebug.remote_log="/tmp/xdebug.log"
+  xdebug.show_local_vars=0
+
+  ;配置端口和监听的域名
+  xdebug.remote_port=9000
+  xdebug.remote_host=localhost
+
+//profiler_append profiler_enable profiler_enable_trigger 这几个 选项 还是关了吧，不然的话，会在 profiler_output_dir 目录下，产生 几十G 的缓存文件，占磁盘！
+检测是否安装上 
+$ php -v
+PHP 7.2.0RC6 (cli) (built: Nov 23 2017 10:30:56) ( NTS DEBUG )
+Copyright (c) 1997-2017 The PHP Group
+Zend Engine v3.2.0-dev, Copyright (c) 1998-2017 Zend Technologies
+        with Xdebug v2.6.0-dev, Copyright (c) 2002-2017, by Derick Rethans
+
+或者输出 phpinfo()  
+php -r "echo phpinfo();" 
+
+//========================================  compsoer 多个php共存版本冲突的问题 ======================================
+ php73 也可以写成绝对路径此处是加入了软链
+
+ php73 /usr/bin/composer update
+ php73 /usr/bin/composer.phar update
+
+ 如果直接修改composer 文件会导致sha签名不一致
+
+
+//=================================  PHP  final  ====================================
+final 官方文档指出 在php5以后的关键字
+
+只能在类中使用 属性不能指定 
+可以指定类名 被指定的类不能被继承  
+被指定的方法不能被子类重写
 

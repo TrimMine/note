@@ -479,21 +479,73 @@ select * 表名 where 字段名 ISNULL(字段)
 查询mysql数据库表中字段不为null的记录:
 
 select * 表名 where 字段名 is not null
-----------------------------mysql 修改可以远程访问的权限  ----------------------------
+----------------------------mysql 修改可以远程访问的权限 gateway ----------------------------
 
+mysql 5.6
 
 1.mysql -u root -p
-2.use mysql；
-3.select  User,authentication_string,Host from user
-4.GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123456'  
+2.use mysql;
+3.select  User,authentication_string,Host from user;
+4.GRANT ALL PRIVILEGES ON *.* TO `root`@`%` IDENTIFIED BY '123456'; 
 	这里的123456为你给新增权限用户设置的密码，%代表所有主机，也可以具体到你的主机ip地址
 5.flush privileges;          这一步一定要做，不然无法成功！ 这句表示从mysql数据库的grant表中重新加载权限数据
                              因为MySQL把权限都放在了cache中，所以在做完更改后需要重新加载。
 6.select  User,authentication_string,Host from user  再次查看  发现多了一个用户，该用户所有的主机都可以访问，此时再次用sqlyog访问连接成功！
 7.此方法不止针对root用户  可以将root换成你想要的用户
 
+-----新版本的mysql 8.0 目前使用的 不确定mysql 5.7是否是此方法  无外乎这两种-----
+
+新版本的mysql 将创建用户和赋予权限分开执行  否则报错 syntax to use near 'IDENTIFIED BY
+
+加入另一个root用户
+CREATE USER 'root'@'%' IDENTIFIED BY '123456'
+赋予权限
+grant all privileges on  *.* to 'root'@'%' with grant option
+
+
+%代表所有人
+
 ----------------------------mysql 迁移服务器或第二次安装 报错 ----------------------------
 Starting MySQL. ERROR! The server quit without updating PID file (/www/server/data/1c2a7179f8bd.pid).
  
 删除 目录下 server/data/下面的pid (a04890ffe464.pid 前缀不一样)  删除 mysql-bin.index 然后启动 ok
 
+----------------------------mysql 导入原5.6版本sql文件报错 ----------------------------
+Table storage engine for 'xx_table' doesn't have this option
+删除文件中所有
+ROW_FORMAT=FIXED 在执行就可以了
+
+----------------------------mysql 启用mysql日志记录执行过的sql ----------------------------
+
+在mysql命令行或者客户端管理工具中执行：SHOW VARIABLES LIKE "general_log%";
+
+结果：
+
+general_log OFF
+
+general_log_file /var/lib/mysql/localhost.log
+
+OFF说明没有开启日志记录
+
+分别执行开启日志以及日志路径和日志文件名
+
+SET GLOBAL general_log_file = '/var/lib/mysql/localhost.log';
+SET GLOBAL general_log = 'ON';
+
+还要注意
+
+这时执行的所有sql都会别记录下来，方便查看，但是如果重启mysql就会停止记录需要重新设置
+
+ 
+
+SHOW VARIABLES LIKE "log_output%";
+
+默认值是‘FILE‘，如果是NONE，需要设置
+
+SET GLOBAL log_output='TABLE,FILE'
+
+log_output=‘FILE‘表示将日志存入文件,默认值是‘FILE‘　
+
+log_output=‘TABLE‘表示将日志存入数据库,这样日志信息就会被写入到mysql.slow_log表中.
+
+mysql数据库支持同时两种日志存储方式,配置的时候以逗号隔开即可,如:log_output=‘FILE,TABLE‘.日志记录到系统专用日志表中,要比记录到文件耗费更多的系统资源,因此对于需要启用慢查日志,又需要比够获得更高的系统性能,那么建议优先记录到文件.

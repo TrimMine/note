@@ -1,6 +1,4 @@
-
-
-阿里云ECS CentOS 7 安装图形化桌面<?php 	
+<?php 	
 /*
 解决方案
 
@@ -49,6 +47,13 @@ HISTTIMEFORMAT='%F %T '
 export HISTTIMEFORMAT 
 
 source /etc/bashrc  重新加载文件
+-------------------------  sublime gbk 查看中文 ---------------------------
+
+为了解决编码问题，需要安装ConvertToUTF8插件
+
+在下载的时候不能下载 在下面加入即可
+"remote_encoding": "cp1252",
+
 -------------------------find---------------------------
 
 查找文件
@@ -839,364 +844,6 @@ FLAGS=
 
 
 
-CentOS 6系统安装sendmail邮件服务器
-发布时间：2013-12-09 来源：服务器之家
-
-说一下，这个是我边找资料边安装边记录的内容，有些地方不完全都是正确的，但是这也确实能够学到很多东西。安装成功后只做了发送测试，但是没有做接受测试。至少把想要的功能实现了。如果想完整的安装请参考文章最后面的链接。找了很多资料，有价值的貌似就这么几篇。剩下的全部都是粘来粘去。当然我的也是粘贴拼凑的但是至少我测试过。
-
-强调一点 centos 6 没有  /etc/dovecot.conf 文件 
-
-在CentOS下，sendmail一般默认是随操作系统一起安装的。如果安装系统时没有安装sendmail服务，手动安装sendmail也很简单：
-
-# yum install -y sendmail
-# yum install -y sendmail-cf
-2、 Senmail的SMTP认证配置（不需要认证的可忽略此步）
-首先确认saslauthd服务是否安装或启动。
-
-安装saslauthd服务：# yum install -y saslauthd
-
-启动saslauthd服务：# service saslauthd start
-
-testsaslauthd -u username -p password
-
-如果显示0: OK “Success.”则表明saslauthd工作正常；
-
-{输入 ./testsaslauthd -u userID -p 'yours.passwd' 用户名密码都感觉没输出，却报告
-
-0: NO "authentication failed"
-
-这里其实是让 输入 当前用户的 用字和密码 ==||| 我一开始就不知道
-[root@localhost sasl2]# testsaslauthd -u username -p password
-0: NO "authentication failed"
-
-}
-
-(1) 配置Senmail的SMTP认证
-
-# vi /etc/mail/sendmail.mc
-
-view plain   copy
-dnl TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
-
-dnl define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
-
-将上面两行的dnl去掉。在sendmail文件中，dnl表示该行为注释行，是无效的，因此通过去除行首的dnl字符串可以开启相应的设置行。
-
-[这两行默认是被dnl(注释掉的)掉的，要去掉它的注释，TRUST_AUTH_MECH”的作用是使sendmail不管access文件中如何设置，都能relay那些通过EXTERNAL, LOGIN, PLAIN, CRAM-MD5或DIGEST-MD5等方式验证的邮件，注意这里是对需要relay的邮件进行验证，这点很重要，只有这样通过验证的邮件才会被relay以防止sendmail服务器被滥用，confAUTH_MECHANISMS的作用是确定系统的认证方式。Outlook Express支持的认证方式是LOGIN。
-
-然后将DAEMON_OPTIONS(`Port=smtp,Addr=127.0.0.1, Name=MTA')dnl这行dnl(注释)掉，不然从其他计算机使用foxmail等客户端都将无法使用sendmail发邮件，因为这行的设置表示只接收本机的邮件。将这行注释掉也可以，或者改成DAEMON_OPTIONS(`Port=smtp,Name=MTA')dnl也可以。总之如果想进行邮件接收的话，就不要在这行里加入M=a的配置（注意大小写），因为它是对connection进行验证，这样对接收的邮件，sendmail也会先要求对这个连接验证，而其他邮箱发给你的邮件的这个连接是无法进行验证的。
-
-]
-
-#配置支持的认证方式，配置后通过验证的用户都可以发邮件，不用在access里配置Relay
-
-DAEMON_OPTIONS(`Port=smtp,Addr=0.0.0.0, Name=MTA’)dnl    #修改侦听范围
-
-DAEMON_OPTIONS(`Port=587,Name=MSA,M=a')dnl     #增加通过587端口发邮件
-
-这里要说一句，不要改
-dnl DAEMON_OPTIONS(`Port=submission, Name=MSA, M=Ea')dnl
-
-m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf      #生成配置
-
-7.添加sendmail接受邮件的域名；
-
-vi /etc/mail/local-host-names
-
-添加域名如: an.test //每个域名一行
-
-[打开/etc/mail/local-host-names
-加入你 @后面的邮箱地址。比如我这里是otto@linuxedentest.com
-那么，你要在local-host-names文件里的第二行添加：
-linuxedentest.com
-保存
-当然
-local-host-names还可以设置邮箱别名，这个不多说，大家查文档看看。]
-
-{[telnet 安装
-
-yum install telnet-server
-步骤2：安装完毕之后，需要对你所开放的telnet服务的一些参数作出必要的设定。
-在预设的/etc/xinetd.d/telnet内容是这样的：
-[root@linux ~]# vi /etc/xinetd.d/telnetservice telnet
-{ flags = REUSE <==额外的参数使用
-REUSE socket_type = stream <==使用TCP的封包格式
-wait = no <==可以有多个连线同时连进来
-user = root <==启动者预设为
-root server = /usr/sbin/in.telnetd <==使用的是这支程式！
-log_on_failure += USERID <==若登入错误，『加计』记录使用者ID
-disable = yes <==此服务预设关闭！
-}
-
-}
-
-8.重新启动sendmail并验证能否正常使用；
-service sendmail restart
-
-chkconfig sendmail on
-
-telnet smtp_server 25
-
-HELO domainname
-
-250 domainname Hello [10.57.28.221], pleased to meet you
-
-AUTH LOGIN
-
-#输入这个后，使用base64编码的用户名密码，使用下面一句话来生成
-
-perl -MMIME::Base64 -e ‘print encode_base64(“word”)’
-
-334 VXNlcm5hbWU6
-
-dGVzdA== # base64编码后的test
-
-334 UGFzc3dvcmQ6
-
-YWJjZC4xMjM0 #base64编码后的abcd.1234
-
-235 2.0.0 OK Authenticated
-
-MAIL FROM:test@an.test
-
-250 2.1.0 test@an.test… Sender ok
-
-RCPT TO:test@an.test
-
-250 2.1.5 test@an.test… Recipient ok
-
-DATA # 开始邮件的内容
-
-Subject:test #邮件标题
-
-This a test email. #邮件正文
-
-. #用一个.结束邮件
-
-{我的操作
-
-[root@localhost /]# telnet 127.0.0.1 25
-Trying 127.0.0.1...
-Connected to 127.0.0.1.
-Escape character is '^]'.
-220 localhost.localdomain ESMTP Sendmail 8.14.4/8.14.4; Fri, 18 Jan 2013 11:01:23 +0800
-AUTH LOGIN
-334 VXNlcm5hbWU6
-dGVzdA==
-501 5.5.4 cannot decode AUTH parameter dGVzdA==
-MAIL FORM:TEST@guo.test
-501 5.5.2 Syntax error in parameters scanning "FORM"
-500 5.5.1 Command unre"ognized: "
-MAIL FROM:test@guo.teset
-250 2.1.0 test@guo.teset... Sender ok
-RPCT TO:test@guo.test
-500 5.5.1 Command unrecognized: "RPCT TO:test@guo.test"
-RCPT TO:test@guo.com
-250 2.1.5 test@guo.com... Recipient ok (will queue)
-^]
-
-}
-
-9.安装dovecot支持pop3；
-yum install dovecot
-
-10.配置dovecot.conf
-vi /etc/dovecot.conf
-
-去掉以下几行前边的#并修改；
-
-protocols = imap pop3
-
-disable_plaintext_auth = no
-
-mail_location = mbox:/var/mail:INBOX=/var/mail/%u
-
-11.启动dovecot；
-service dovecot start
-
-chkconfig dovecot on
-
-{[我的操作：
-
-centos 6 没有 vi /etc/dovecot.conf
-
-打开dovecot.conf文件，搜索include_try，可以发现以下代码
-# Optional configurtaions, don't give an error if it's not found:
-!include_try /etc/dovecot/conf.d/*.conf
-，在/etc/dovecot/conf.d/目录下已经有一个
-
-那么可以猜测他们是互相引用的。然后开始编辑 10-mail.cof 文件中  mail_location = mbox:/var/mail:INBOX=/var/mail/%u
-
-和 vi 10-auth.conf 文件中的disable_plaintext_auth = no  修改
-
-[root@localhost dovecot]# vi dovecot.conf
-
-vi dovecot.conf
-# Protocols we want to be serving.
-#protocols = imap pop3 lmtp
-protocols = imap pop3  最后改为这个
-[root@localhost conf.d]# vi 10-ssl.conf
-# SSL/TLS support: yes, no, required. <doc/wiki/SSL.txt>
-ssl = no
-
-]}
-
-< 摘引：
-
-日志出现tried to use disabled plaintext auth
-
-outlook登陆不进
-
-/etc/dovecot/conf.d目录下有一个10-mail.conf的文件。内容如下：
-#   mail_location = maildir:~/Maildir
-    mail_location = mbox:~/mail:INBOX=/var/mail/%u
-#   mail_location = mbox:/var/mail/%d/%1n/%n:INDEX=/var/indexes/%d/%1n/%n
-取消注释protocols = imap pop3 lmtp
-disable_plaintext_auth=no
-ssl_disable = no
-取消注释，并添加你的文件中或许没有的内容。
-
-我的是dovecot-2.1.1-2_132.el5,修改方法如下：vi /etc/dovecot/conf.d/10-auth.conf去掉disable_plaintext_auth前面#,修改为disable_plaintext_auth = novi /etc/dovecot/conf.d/10-ssl.conf修改为ssl = no重启dovecot服务,OKservice dovecot restart
-
->
-
-<
-
-配置Ubuntu邮件服务器，Ubuntu Server 10.04，安装postfix，安装dovecot-postfix，修改dovecot.conf配置文件，启用disable_plaintext_auth无效，经研究发现需要修改conf.d目录下的配置文件……
-
-Ubuntu官方文档这部分的配置叙述得并不详细，相关信息是在一篇日文博客<ubuntu 10.04 をメールサーバーに (Dovecot 編)>中找到的。
-
-9.10 以前の ubuntu で提供されている Dovecot では /etc/dovecot/dovecot.conf
-ファイルを直接編集するしかなかった。
-どのバージョンからかは調べていないが、少なくとも 10.04 の Dovecot では include_try
-ディレクティブが導入され、/etc/dovecot/dovecot.conf ファイルの中で適宜この include_try
-ディレクティブを使って、/etc/dovecot/conf.d ディレクトリにある拡張子が .conf
-のファイルと、/etc/dovecot/auth.d ディレクトリにある拡張子が .auth
-のファイルを読み込むようになった。
-ただし、10.04 になった今でも一部の設定については /etc/dovecot/dovecot.conf
-ファイルを直接編集する必要がある。
-
-9.10以前的ubuntu提供的Dovecot只能直接编辑/etc/dovecot/dovecot.conf文件。
-没有调查从哪个版本开始，至少10.04的Dovecot导入了inlude_try指令，/etc/dovecot/conf.d文件中使用include_try指令，读取/etc/dovecot/conf.d目录中扩展名为.conf的文件和/etc/dovecot/auth.d目录中扩展名为.auth的文件。
-但是，目前10.04中的一部分设定仍然需要直接编辑/etc/dovecot/dovecot.conf文件。
-
-打开dovecot.conf文件，搜索include_try，可以发现以下代码
-
-# Optional configurtaions, don't give an error if it's not
-found:
-!include_try /etc/dovecot/conf.d/*.conf
-
-因为是直接安装dovecot-postfix这个包，在/etc/dovecot/conf.d/目录下已经有一个经过配置的01-dovecot-postfix.conf文件，将disable_plaintext_auth设置添加到这个文件即可生效。没试过分别安装postfix和dovecot再整合是什么情况。
-
-Ubuntu上的其它软件也启用了include_try，比如Apache：<Apache configuration files on Ubuntu>
-
-Google了一下，CentOS的一些配置中也涉及到了conf.d目录。
-
-Google关于Linux的include_try和Optional configurations的信息，返回的结果很少，难道这是很基础的Linux概念？
-
-引入include_try的优点是：可以保持初始的.conf文件，conf.d目录下可以导入多个配置文件，可以将配置分配在不同的文件中，可以快速地隔离出一个错误的配置修改。
-
-缺点方面，多个配置文件增加了复杂度。目前Ubuntu有些配置需要修改主配置文件，有些配置则只能添加在conf.d目录下的配置文件中才能生效。同时因为很多文档都基于单个conf配置文件编写，文档不能跟上更是增加了配置过程中的混乱。
-
->
-
-touch mail.php
-
-[code]
-
-<?php
-
-mail('your_email_addr@gmail.com','subject','message body');
-
-?>
-
-[/code]
-
-chmod a+x mail.php
-
-php mail.php
-
-{[如果 php 里找不到 php.ini 需要CP 一个   源码里面的php.ini-development或php.ini-production 到/usr/local/php/lib  为 php.ini 我的这个主机以为不是我配置的所有就没有
-
-用php内置函数通过sendmail发送信件的话，可以在php.ini中修改：
-
-sendmail_path = /usr/sbin/sendmail -f service@domain.com -t –i //我设置了但是没有用
-
-编辑 /etc/mail/sendmail.mc 开启下列各项
-
-MASQUERADE_AS(`mydomain.com')dnl 是否对信息作伪装
-
-修改 MASQUERADE_AS(`text.com')dnl 伪装成text.com域名
-
-FEATURE(masquerade_envelope)dnl 是否对整个域（包括子域）做伪装
-
-FEATURE(masquerade_entire_domain)dnl
-
-MASQUERADE_DOMAIN(localhost)dnl 对localhost域做伪装
-
-MASQUERADE_DOMAIN(localhost.localdomain)dnl
-
-将locahost.com域伪装成text.com
-
-斜体字部分 我做伪装结果不能用，不知道为什么  总是localhost.localdomain 最后是改 的host文件 才做出了伪装。
-
-]}
-
-
------------------------- linux 发送邮件  ------------------------
- 内容                   -v显示发送过程  -s邮件标题   对方邮件名
- echo 'hel1lo!' | mailx -v -s "hello t1est" chinesebigcabbage@163.com
-
-
- /usr/share/sendmail-cf/m4/cf.m4': No such file or directory
- linux 默认安装sendmail      yum install -y sendmail
- 但是有的没有  sendmail-cf  需要安装  yum install -y sendmail-cf
-
-认证saslauthd  代理认证服务 
-安装后需要修改 vi /etc/sysconfig/saslauthd  
-修改#MECH=pam
-改成：
-MECH=shadow
-
-
------------------------- linux  Started Sendmail Mail Transport Agent ------------------------
-
-解决方法：其实就是你的主机没有设置hostname
-mail发送邮件，默认调用的是sendmail，sendmail发送邮件，必须设置hostname，而hostname不能是一串字符串，而必须是格式正确的域名,例如mail.tome178.com
-
-所以我们的解决方法是修改hostname，一种是临时的，一种是永久的
-
-一般我们可以设置临时的
-
-[plain] view plain copy
-hostname mail.tome178.com  
-永久的修改/etc/sysconfig/network
-
-
-[plain] view plain copy
-hostname=mail.tome178.com //主机名(没有这行？那就添加这一行吧)   
-然后运行
-hostname mail.tome178.com
-
-然后重启sendmail就可以发送邮件了
-
------------------------- linux  设置自启动 ------------------------
-
-在启动时关闭sendmail 服务 [其它服务也一样] 
-在启动时关闭sendmail- -对其他的服务可以采取同样的措施。 
-而对于那些不是从inetd启动的服务，则通过命令来关闭，例如需要关闭sendmail服务，则： 
-
-/etc/rc.d/init.d/sendmail stop 
-
-然后再设置其不在系统启动时启动： 
-
-chkconfig -levels 12345 sendmail off 
-
-如果设置其开机启动
-
-
-chkconfig -levels 12345 sendmail on
-
 ------------------------ linux  iptables ------------------------
 
 iptables -I INPUT -p tcp --dport 25 -j ACCEPT
@@ -1331,7 +978,34 @@ groups user
 按下 Enter键后，vi 将搜索指定的pattern，并将光标定位在 pattern的第一个字符处。例如，要向上搜索 place一词，请键入 ：
 
 
-查找到结果后，如何退出查找呢？输入:noh命令。
+查找到结果后，如何退出查找呢？输入:noh命令 取消搜索。
+
+------------------------ linux 发送邮件  ------------------------
+1.yum install -y mailx 
+
+2.vim /etc/mail.rc
+
+set from=****@qq.com 邮箱账号 务必和邮箱号一直
+set smtp=smtp.qq.com
+set smtp-auth-user=****@qq.com 邮箱账号 务必和邮箱号一直
+set smtp-auth-password= 客户端授权码
+set smtp-auth=login 默认
+
+ 发送邮件
+ echo '111' | mail -s 'localbt1' chinesebigcabbage@163.com
+ cat 1.txt  | mail -s 'localbt' chinesebigcabbage@163.com
+ 或
+ mail -s 'localbt1' chinesebigcabbage@163.com < 1.txt
+
+echo '111' 和 cat 1.txt 为邮件内容  
+mail -s 'localbt' 为邮件标题  
+chinesebigcabbage@163.com 收件人
+
+当邮件内容无法识别或者为中文的时候 会转为附件的形式分发出
+
+qq邮箱不会出现此信息 网易可能会
+如遇：554 DT:SPM 发送的邮件内容包含了未被网易许可的信息，或违背了网易的反垃圾服务条款，可以自己邮箱发给自己！
+163的配置同理 只要打开邮箱的SMTP服务 获取授权码就能使用
 
 ------------------------ linux  命令行上传下载文件 ------------------------
 1.sftp
@@ -4045,7 +3719,7 @@ mac brew install htop
 yum install htop 
 apt-get install htop
 
----------------------------------shell读取文件内容，然后把内容赋值给变量然后进行字符串处理-----------------------
+---------------------------------shell 读取文件内容，然后把内容赋值给变量然后进行字符串处理-----------------------
 
 
 实现：
@@ -4053,3 +3727,53 @@ apt-get install htop
 dataline=$(cat /root/data/data.txt)
 
 echo $dataline
+
+
+---------------------------------linux  centos登录出现错误 -----------------------
+
+bash: warning: setlocale: LC_CTYPE: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_COLLATE: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_MESSAGES: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_NUMERIC: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_TIME: cannot change locale (en_US.UTF-8): No such file or directory
+
+输入locale发现上面报错
+
+centos 7没有百度以上一堆人抄袭的文章说的 /etc/sysconfig/i18n 这个文件
+
+输入whereis locale 找到 /etc/locale.conf
+编辑文件
+LANG=en_US.UTF-8 改为LANG=zh_CN.UTF-8 重新登录即可
+
+--------------------------------- linux 系统命令make.clean的用法讲解 -----------------------
+
+
+
+转自卡饭教程https://www.kafan.cn/edu/6506196.html
+
+makefile定义了一系列的规则来指定，哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至于进行更复杂的功能操作，因为 makefile就像一个Shell脚本一样，其中也可以执行操作系统的命令。
+makefile带来的好处就是--“自动化编译”,一旦写好，只需要一个make命令，整个工程完全自动编译，极大的提高了软件开发的效率。make是一个命令工具，是一个解释makefile中指令的命令工具，一般来说，大多数的IDE都有这个命令，比如：Delphi的make,Visual C++的nmake,Linux下GNU的make.可见，makefile都成为了一种在工程方面的编译方法。
+make
+根据Makefile文件编译源代码、连接、生成目标文件、可执行文件。
+
+make clean
+清除上次的make命令所产生的object文件（后缀为“.o”的文件）及可执行文件。
+
+make install
+将编译成功的可执行文件安装到系统目录中，一般为/usr/local/bin目录。
+make dist
+产生发布软件包文件（即distribution package）。这个命令将会将可执行文件及相关文件打包成一个tar.gz压缩的文件用来作为发布软件的软件包。
+它会在当前目录下生成一个名字类似“PACKAGE-VERSION.tar.gz”的文件。PACKAGE和VERSION,是我们在configure.in中定义的AM_INIT_AUTOMAKE（PACKAGE, VERSION）。
+make distcheck
+生成发布软件包并对其进行测试检查，以确定发布包的正确性。这个操作将自动把压缩包文件解开，然后执行configure命令，并且执行make,来确认编译不出现错误，最后提示你软件包已经准备好，可以发布了。
+make distclean
+类似make clean,但同时也将configure生成的文件全部删除掉，包括Makefile文件。
+
+
+--------------------------------- linux vim vi 编辑二进制文件 -----------------------
+
+vi -b 或vim -b 告诉系统打开的是二进制文件
+
+vim 输入 %!xxd 转换 vi 输入 %xxd 转换
+修改完成之后在上面命令的基础上加入 -r 然后wq保存退出
+
