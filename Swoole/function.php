@@ -45,6 +45,14 @@ extension=swoole.so
  ln -s   /www/server/php/72/bin/php /usr/bin/php72 制作软链 制定php版本
 
  */
+/*PHP 编译安装
+ PHP 查看ini文件的路径 
+ 编译安装查看配置生效的路径  php -i | grep php.ini  然后将源码包里面的文件拷贝到该目录下
+ 如果编译的时候选择过etc的路径则放到指定目录下
+
+ ps aft | grep tcp.php 
+ 查看启动了几个worker进程 显示结构
+*/
 #---------------------------------------------- easyswoole安装 ------------------------------------------
 
 /* easyswoole安装   
@@ -84,3 +92,45 @@ php server update
 //必须与http服务 
 //socket端口必须和页面对应
 //必须开启该服务
+
+#----------------------------------------------  websocket ------------------------------------------
+
+
+//使用Chrome浏览器会自动请求一次favicon.ico，所以确保你的网站根目录下面有存在favicon.ico文件，否则会产生一次404请求的错误日志。
+
+#----------------------------------------------  定时任务 timer ------------------------------------------
+
+
+
+class Timer
+{
+    public function tick()
+    {
+        //循环定时任务
+        $timer_id = swoole_timer_tick(3000, function () {
+            echo "after 3000ms.\n";
+
+        });
+    }
+
+    public function after()
+    {
+        //一次定时
+        $after_timer_id = swoole_timer_after(14000, function () {
+            echo "after 14000ms.\n";
+        });
+    }
+
+    public function clear($timer_id)
+    {
+        //清除定时任务
+        if (swoole_timer_clear($timer_id)) {
+            echo "清除成功 \n";
+        }
+    }
+}
+#---------------------------  原生sql 利用字段查询付款后超过15天的订单 ------------------------------
+
+ $times = time();
+ $gone_time = 15 * 24 * 3600;
+ "select id,paytime,status from `xx_orders` where `status`=3 and `type`!=3 and (`paytime`+$gone_time)<=" . $times

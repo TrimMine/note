@@ -12,3 +12,12 @@
 # 开头注释声明 执行路径和编码
 	#!/usr/bin/python
 	# -*- coding: UTF-8 -*-
+
+#=============================================== python 命令行开启一个http服务 ==================================================
+
+python 2 
+python -m SimpleHTTPServer 8080
+python 3
+python -m http.server 8080
+
+

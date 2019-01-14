@@ -1,6 +1,4 @@
-
-
-阿里云ECS CentOS 7 安装图形化桌面<?php 	
+<?php 	
 /*
 解决方案
 
@@ -49,6 +47,13 @@ HISTTIMEFORMAT='%F %T '
 export HISTTIMEFORMAT 
 
 source /etc/bashrc  重新加载文件
+-------------------------  sublime gbk 查看中文 ---------------------------
+
+为了解决编码问题，需要安装ConvertToUTF8插件
+
+在下载的时候不能下载 在下面加入即可
+"remote_encoding": "cp1252",
+
 -------------------------find---------------------------
 
 查找文件
@@ -66,6 +71,8 @@ find ./ -regex .*so.*\.gz
 查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令，没有选项-print时文件列表前一行不会显示目录名称)
 find ./ -type d -print -exec ls {} \;
 
+-print 递归查询目录
+
 查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令,执行命令前需要确认)
 find ./ -type d -ok ls {} \;
 
@@ -77,14 +84,22 @@ find ./ -type d -exec ls {} +
       find  ./* -type f  -exec cat {} + | grep aaaa
 
       查找所有文件包含 s888的文件  含有文件名
-      find ./* -type f   | xargs grep "s888." 
+      find ./* -type f -print  | xargs grep "s888." 
       find ./* -type f   | xargs grep "@eval($_POST" 
 
       从根目录开始查找所有扩展名为.log的文本文件，并找出包含”ERROR”的行
       find / -type f -name "*.log" | xargs grep "ERROR"  
       
+      grep
+      grep -lr 'string' /etc/   进入子目录在所有文件中搜索字符串
+      -i，乎略大小写
+      -l，找出含有这个字符串的文件
+      -r，不放过子目录
+    
+      find /www/* -iname “*.php” | xargs grep -H -n "eval(base64_decode"
 
 
+find ./* -type f   | xargs grep "余额提现" 
 
 查找文件名匹配*.c的文件
 find ./ -name \*.c
@@ -314,7 +329,7 @@ du|sort -nr|more
 3.显示几个文件或目录各自占用磁盘空间的大小，还统计它们的总和
 du -c log30.tar.gz log31.tar.gz
 
--–max-depth=<目录层数> 超过指定层数的目录后，予以忽略
+--max-depth=<目录层数> 超过指定层数的目录后，予以忽略
 
 -a或-all  显示目录中个别文件的大小。   
 
@@ -469,17 +484,59 @@ chmod u-x，g+w abc：给abc去除用户执行的权限，增加组写的权限
 
 chmod a+r abc：给所有用户添加读的权限
 
------------------------- linux ssh连接时间 ------------------------
+------------------------ linux ssh连接时间 保持服务器连接 ------------------------
 
-Method 1:
-修改/etc/ssh/sshd_config配置文件，设置ClientAliveCountMax值大一点，单位是分钟。然后重启ssh服务使生效：service sshd reload 
+1:
+修改/etc/ssh/sshd_config配置文件
+在这个配置文件里，我们需要关注的配置选项有3个，分别是：
+
+TCPKeepAlive yes
+
+ClientAliveInterval 0
+
+ClientAliveCountMax 3
+
+可以看到这三个配置，默认情况下都是被注释起来的。
+
+这3个配置选项的含义分别是：
+
+是否保持TCP连接，默认值是yes。
+
+多长时间向客户端发送一次数据包判断客户端是否在线，默认值是0，表示不发送；
+
+发送连接后如果客户端没有响应，多少次没有响应后断开连接。默认是3次。
+
+第一个TCPKeepAlive默认值是yes，因此不用修改。需要修改的是下面的两个值，一般情况下的设置是：
+
+ClientAliveInterval  60
+
+ClientAliveCountMax  60
+
+即60s向客户端发送一次数据包，失败60次以后才会断开连接。也就是说如果什么都不操作，长达一个小时的时间才会断开连接。如果你觉得这个时间太短了，你还可以把第二个参数的值改成更大的值，比如说120，240这样的
+
+上和下面这两种情况，不管是修改客户端的配置，还是修改服务端的配置，在修改完成后，都需要重启sshd进程，让对应的配置生效
+
+然后重启ssh服务使生效：service sshd reload 
+或者  /bin/systemctl reload sshd.service
+如果是CentOS 6.x进程，可能就需要使用/etc/init.d/sshd 命令来重启了。
 
 
-Method 2:
-找到所在用户的.ssh目录,如root用户该目录在：/root/.ssh/
-在该目录创建config文件 vi /root/.ssh/config
+2: 客户端修改 修改自己电脑上的配置
+找到所在用户的.ssh目录,如root用户该目录在：~/.ssh/
+在该目录创建config文件 vi ~/.ssh/config
 加入下面一句：ServerAliveInterval 60
+ 
+重启 /bin/systemctl restart sshd
+
 保存退出，重新开启root用户的shell，则再ssh远程服务器的时候，不会因为长时间操作断开。应该是加入这句之后，ssh客户端会每隔一段时间自动与ssh服务器通信一次，所以长时间操作不会断开。
+
+3.此外，除了将这个参数写入配置文件固定起来以外，ssh客户端还支持临时设置这个参数，命令的用法是：
+
+ssh -o "ServerAliveInterval 60"  ip_address
+
+ip_address指的是对应的服务器IP，这种情况下，会临时将这个链接设置为60*60=3600秒的时间不会出现超时断开的情况。比较适用于公网服务器，不需要修改公网服务器配置
+
+
 
 ------------------------ linux 安装swoole运行phpize错误 ------------------------
 
@@ -643,6 +700,12 @@ Centos7 firewall -------------------------------------
       firewall-cmd --reload
 
 
+出现Failed to start firewalld.service: Unit firewalld.service is masked
+尝试卸载 
+systemctl unmask firewalld.service
+再开启
+systemctl status firewalld
+
 
 ------------------------ linux 服务器拒绝允许名单  ------------------------
 
@@ -695,6 +758,31 @@ ls  file  file  file  ....
 
 chkconfig sendmail on
 
+--add：增加所指定的系统服务，让chkconfig指令得以管理它，并同时在系统启动的叙述文件内增加相关数据；
+--del：删除所指定的系统服务，不再由chkconfig指令管理，并同时在系统启动的叙述文件内删除相关数据；
+--level<等级代号>：指定读系统服务要在哪一个执行等级中开启或关毕。
+
+等级代号列表：
+
+等级0表示：表示关机
+等级1表示：单用户模式
+等级2表示：无网络连接的多用户命令行模式
+等级3表示：有网络连接的多用户命令行模式
+等级4表示：不可用
+等级5表示：带图形界面的多用户模式
+等级6表示：重新启动
+
+
+chkconfig --list             #列出所有的系统服务。
+chkconfig --add httpd        #增加httpd服务。
+chkconfig --del httpd        #删除httpd服务。
+chkconfig --level httpd 2345 on        #设置httpd在运行级别为2、3、4、5的情况下都是on（开启）的状态。
+chkconfig --list               #列出系统所有的服务启动情况。
+chkconfig --list mysqld        #列出mysqld服务设置情况。
+chkconfig --level 35 mysqld on #设定mysqld在等级3和5为开机运行服务，--level 35表示操作只在等级3和5执行，on表示启动，off表示关闭。
+chkconfig mysqld on            #设定mysqld在各等级为on，“各等级”包括2、3、4、5等级。
+
+
 ------------------------ linux 查找软件位置  ------------------------
 
 whereis oracle  都可以查找文件安装路径
@@ -709,7 +797,24 @@ find / -name 软件包
 
 用yum命令yum search  软件包
 
+yum remove 软件包 移除软件包
 
+需要安装底层编译软件
+   yum install openssl-devel  opensll 错误 
+
+error: curl/curl.h: No such file or directory
+   yum install libcurl-dev libcurl-devel
+
+entos安装git
+make[1]: *** [perl.mak] Error 2
+make: *** [perl/perl.mak] Error 2 
+  
+yum install perl-ExtUtils-MakeMaker package 解决
+
+which: no autoreconf in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin)
+configuration failed, please install autoconf first
+
+ yum install autoconf automake libtool
 
 rpm 等包方式的话,就要查其中的数据库了,比如 rpm -q 进行查询.
 -q <== 查询(查询本机已经安装的包时不需要版本名称)
@@ -738,364 +843,6 @@ FLAGS=
 终于成功了。
 
 
-
-CentOS 6系统安装sendmail邮件服务器
-发布时间：2013-12-09 来源：服务器之家
-
-说一下，这个是我边找资料边安装边记录的内容，有些地方不完全都是正确的，但是这也确实能够学到很多东西。安装成功后只做了发送测试，但是没有做接受测试。至少把想要的功能实现了。如果想完整的安装请参考文章最后面的链接。找了很多资料，有价值的貌似就这么几篇。剩下的全部都是粘来粘去。当然我的也是粘贴拼凑的但是至少我测试过。
-
-强调一点 centos 6 没有  /etc/dovecot.conf 文件 
-
-在CentOS下，sendmail一般默认是随操作系统一起安装的。如果安装系统时没有安装sendmail服务，手动安装sendmail也很简单：
-
-# yum install -y sendmail
-# yum install -y sendmail-cf
-2、 Senmail的SMTP认证配置（不需要认证的可忽略此步）
-首先确认saslauthd服务是否安装或启动。
-
-安装saslauthd服务：# yum install -y saslauthd
-
-启动saslauthd服务：# service saslauthd start
-
-testsaslauthd -u username -p password
-
-如果显示0: OK “Success.”则表明saslauthd工作正常；
-
-{输入 ./testsaslauthd -u userID -p 'yours.passwd' 用户名密码都感觉没输出，却报告
-
-0: NO "authentication failed"
-
-这里其实是让 输入 当前用户的 用字和密码 ==||| 我一开始就不知道
-[root@localhost sasl2]# testsaslauthd -u username -p password
-0: NO "authentication failed"
-
-}
-
-(1) 配置Senmail的SMTP认证
-
-# vi /etc/mail/sendmail.mc
-
-view plain   copy
-dnl TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
-
-dnl define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
-
-将上面两行的dnl去掉。在sendmail文件中，dnl表示该行为注释行，是无效的，因此通过去除行首的dnl字符串可以开启相应的设置行。
-
-[这两行默认是被dnl(注释掉的)掉的，要去掉它的注释，TRUST_AUTH_MECH”的作用是使sendmail不管access文件中如何设置，都能relay那些通过EXTERNAL, LOGIN, PLAIN, CRAM-MD5或DIGEST-MD5等方式验证的邮件，注意这里是对需要relay的邮件进行验证，这点很重要，只有这样通过验证的邮件才会被relay以防止sendmail服务器被滥用，confAUTH_MECHANISMS的作用是确定系统的认证方式。Outlook Express支持的认证方式是LOGIN。
-
-然后将DAEMON_OPTIONS(`Port=smtp,Addr=127.0.0.1, Name=MTA')dnl这行dnl(注释)掉，不然从其他计算机使用foxmail等客户端都将无法使用sendmail发邮件，因为这行的设置表示只接收本机的邮件。将这行注释掉也可以，或者改成DAEMON_OPTIONS(`Port=smtp,Name=MTA')dnl也可以。总之如果想进行邮件接收的话，就不要在这行里加入M=a的配置（注意大小写），因为它是对connection进行验证，这样对接收的邮件，sendmail也会先要求对这个连接验证，而其他邮箱发给你的邮件的这个连接是无法进行验证的。
-
-]
-
-#配置支持的认证方式，配置后通过验证的用户都可以发邮件，不用在access里配置Relay
-
-DAEMON_OPTIONS(`Port=smtp,Addr=0.0.0.0, Name=MTA’)dnl    #修改侦听范围
-
-DAEMON_OPTIONS(`Port=587,Name=MSA,M=a')dnl     #增加通过587端口发邮件
-
-这里要说一句，不要改
-dnl DAEMON_OPTIONS(`Port=submission, Name=MSA, M=Ea')dnl
-
-m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf      #生成配置
-
-7.添加sendmail接受邮件的域名；
-
-vi /etc/mail/local-host-names
-
-添加域名如: an.test //每个域名一行
-
-[打开/etc/mail/local-host-names
-加入你 @后面的邮箱地址。比如我这里是otto@linuxedentest.com
-那么，你要在local-host-names文件里的第二行添加：
-linuxedentest.com
-保存
-当然
-local-host-names还可以设置邮箱别名，这个不多说，大家查文档看看。]
-
-{[telnet 安装
-
-yum install telnet-server
-步骤2：安装完毕之后，需要对你所开放的telnet服务的一些参数作出必要的设定。
-在预设的/etc/xinetd.d/telnet内容是这样的：
-[root@linux ~]# vi /etc/xinetd.d/telnetservice telnet
-{ flags = REUSE <==额外的参数使用
-REUSE socket_type = stream <==使用TCP的封包格式
-wait = no <==可以有多个连线同时连进来
-user = root <==启动者预设为
-root server = /usr/sbin/in.telnetd <==使用的是这支程式！
-log_on_failure += USERID <==若登入错误，『加计』记录使用者ID
-disable = yes <==此服务预设关闭！
-}
-
-}
-
-8.重新启动sendmail并验证能否正常使用；
-service sendmail restart
-
-chkconfig sendmail on
-
-telnet smtp_server 25
-
-HELO domainname
-
-250 domainname Hello [10.57.28.221], pleased to meet you
-
-AUTH LOGIN
-
-#输入这个后，使用base64编码的用户名密码，使用下面一句话来生成
-
-perl -MMIME::Base64 -e ‘print encode_base64(“word”)’
-
-334 VXNlcm5hbWU6
-
-dGVzdA== # base64编码后的test
-
-334 UGFzc3dvcmQ6
-
-YWJjZC4xMjM0 #base64编码后的abcd.1234
-
-235 2.0.0 OK Authenticated
-
-MAIL FROM:test@an.test
-
-250 2.1.0 test@an.test… Sender ok
-
-RCPT TO:test@an.test
-
-250 2.1.5 test@an.test… Recipient ok
-
-DATA # 开始邮件的内容
-
-Subject:test #邮件标题
-
-This a test email. #邮件正文
-
-. #用一个.结束邮件
-
-{我的操作
-
-[root@localhost /]# telnet 127.0.0.1 25
-Trying 127.0.0.1...
-Connected to 127.0.0.1.
-Escape character is '^]'.
-220 localhost.localdomain ESMTP Sendmail 8.14.4/8.14.4; Fri, 18 Jan 2013 11:01:23 +0800
-AUTH LOGIN
-334 VXNlcm5hbWU6
-dGVzdA==
-501 5.5.4 cannot decode AUTH parameter dGVzdA==
-MAIL FORM:TEST@guo.test
-501 5.5.2 Syntax error in parameters scanning "FORM"
-500 5.5.1 Command unre"ognized: "
-MAIL FROM:test@guo.teset
-250 2.1.0 test@guo.teset... Sender ok
-RPCT TO:test@guo.test
-500 5.5.1 Command unrecognized: "RPCT TO:test@guo.test"
-RCPT TO:test@guo.com
-250 2.1.5 test@guo.com... Recipient ok (will queue)
-^]
-
-}
-
-9.安装dovecot支持pop3；
-yum install dovecot
-
-10.配置dovecot.conf
-vi /etc/dovecot.conf
-
-去掉以下几行前边的#并修改；
-
-protocols = imap pop3
-
-disable_plaintext_auth = no
-
-mail_location = mbox:/var/mail:INBOX=/var/mail/%u
-
-11.启动dovecot；
-service dovecot start
-
-chkconfig dovecot on
-
-{[我的操作：
-
-centos 6 没有 vi /etc/dovecot.conf
-
-打开dovecot.conf文件，搜索include_try，可以发现以下代码
-# Optional configurtaions, don't give an error if it's not found:
-!include_try /etc/dovecot/conf.d/*.conf
-，在/etc/dovecot/conf.d/目录下已经有一个
-
-那么可以猜测他们是互相引用的。然后开始编辑 10-mail.cof 文件中  mail_location = mbox:/var/mail:INBOX=/var/mail/%u
-
-和 vi 10-auth.conf 文件中的disable_plaintext_auth = no  修改
-
-[root@localhost dovecot]# vi dovecot.conf
-
-vi dovecot.conf
-# Protocols we want to be serving.
-#protocols = imap pop3 lmtp
-protocols = imap pop3  最后改为这个
-[root@localhost conf.d]# vi 10-ssl.conf
-# SSL/TLS support: yes, no, required. <doc/wiki/SSL.txt>
-ssl = no
-
-]}
-
-< 摘引：
-
-日志出现tried to use disabled plaintext auth
-
-outlook登陆不进
-
-/etc/dovecot/conf.d目录下有一个10-mail.conf的文件。内容如下：
-#   mail_location = maildir:~/Maildir
-    mail_location = mbox:~/mail:INBOX=/var/mail/%u
-#   mail_location = mbox:/var/mail/%d/%1n/%n:INDEX=/var/indexes/%d/%1n/%n
-取消注释protocols = imap pop3 lmtp
-disable_plaintext_auth=no
-ssl_disable = no
-取消注释，并添加你的文件中或许没有的内容。
-
-我的是dovecot-2.1.1-2_132.el5,修改方法如下：vi /etc/dovecot/conf.d/10-auth.conf去掉disable_plaintext_auth前面#,修改为disable_plaintext_auth = novi /etc/dovecot/conf.d/10-ssl.conf修改为ssl = no重启dovecot服务,OKservice dovecot restart
-
->
-
-<
-
-配置Ubuntu邮件服务器，Ubuntu Server 10.04，安装postfix，安装dovecot-postfix，修改dovecot.conf配置文件，启用disable_plaintext_auth无效，经研究发现需要修改conf.d目录下的配置文件……
-
-Ubuntu官方文档这部分的配置叙述得并不详细，相关信息是在一篇日文博客<ubuntu 10.04 をメールサーバーに (Dovecot 編)>中找到的。
-
-9.10 以前の ubuntu で提供されている Dovecot では /etc/dovecot/dovecot.conf
-ファイルを直接編集するしかなかった。
-どのバージョンからかは調べていないが、少なくとも 10.04 の Dovecot では include_try
-ディレクティブが導入され、/etc/dovecot/dovecot.conf ファイルの中で適宜この include_try
-ディレクティブを使って、/etc/dovecot/conf.d ディレクトリにある拡張子が .conf
-のファイルと、/etc/dovecot/auth.d ディレクトリにある拡張子が .auth
-のファイルを読み込むようになった。
-ただし、10.04 になった今でも一部の設定については /etc/dovecot/dovecot.conf
-ファイルを直接編集する必要がある。
-
-9.10以前的ubuntu提供的Dovecot只能直接编辑/etc/dovecot/dovecot.conf文件。
-没有调查从哪个版本开始，至少10.04的Dovecot导入了inlude_try指令，/etc/dovecot/conf.d文件中使用include_try指令，读取/etc/dovecot/conf.d目录中扩展名为.conf的文件和/etc/dovecot/auth.d目录中扩展名为.auth的文件。
-但是，目前10.04中的一部分设定仍然需要直接编辑/etc/dovecot/dovecot.conf文件。
-
-打开dovecot.conf文件，搜索include_try，可以发现以下代码
-
-# Optional configurtaions, don't give an error if it's not
-found:
-!include_try /etc/dovecot/conf.d/*.conf
-
-因为是直接安装dovecot-postfix这个包，在/etc/dovecot/conf.d/目录下已经有一个经过配置的01-dovecot-postfix.conf文件，将disable_plaintext_auth设置添加到这个文件即可生效。没试过分别安装postfix和dovecot再整合是什么情况。
-
-Ubuntu上的其它软件也启用了include_try，比如Apache：<Apache configuration files on Ubuntu>
-
-Google了一下，CentOS的一些配置中也涉及到了conf.d目录。
-
-Google关于Linux的include_try和Optional configurations的信息，返回的结果很少，难道这是很基础的Linux概念？
-
-引入include_try的优点是：可以保持初始的.conf文件，conf.d目录下可以导入多个配置文件，可以将配置分配在不同的文件中，可以快速地隔离出一个错误的配置修改。
-
-缺点方面，多个配置文件增加了复杂度。目前Ubuntu有些配置需要修改主配置文件，有些配置则只能添加在conf.d目录下的配置文件中才能生效。同时因为很多文档都基于单个conf配置文件编写，文档不能跟上更是增加了配置过程中的混乱。
-
->
-
-touch mail.php
-
-[code]
-
-<?php
-
-mail('your_email_addr@gmail.com','subject','message body');
-
-?>
-
-[/code]
-
-chmod a+x mail.php
-
-php mail.php
-
-{[如果 php 里找不到 php.ini 需要CP 一个   源码里面的php.ini-development或php.ini-production 到/usr/local/php/lib  为 php.ini 我的这个主机以为不是我配置的所有就没有
-
-用php内置函数通过sendmail发送信件的话，可以在php.ini中修改：
-
-sendmail_path = /usr/sbin/sendmail -f service@domain.com -t –i //我设置了但是没有用
-
-编辑 /etc/mail/sendmail.mc 开启下列各项
-
-MASQUERADE_AS(`mydomain.com')dnl 是否对信息作伪装
-
-修改 MASQUERADE_AS(`text.com')dnl 伪装成text.com域名
-
-FEATURE(masquerade_envelope)dnl 是否对整个域（包括子域）做伪装
-
-FEATURE(masquerade_entire_domain)dnl
-
-MASQUERADE_DOMAIN(localhost)dnl 对localhost域做伪装
-
-MASQUERADE_DOMAIN(localhost.localdomain)dnl
-
-将locahost.com域伪装成text.com
-
-斜体字部分 我做伪装结果不能用，不知道为什么  总是localhost.localdomain 最后是改 的host文件 才做出了伪装。
-
-]}
-
-
------------------------- linux 发送邮件  ------------------------
- 内容                   -v显示发送过程  -s邮件标题   对方邮件名
- echo 'hel1lo!' | mailx -v -s "hello t1est" chinesebigcabbage@163.com
-
-
- /usr/share/sendmail-cf/m4/cf.m4': No such file or directory
- linux 默认安装sendmail      yum install -y sendmail
- 但是有的没有  sendmail-cf  需要安装  yum install -y sendmail-cf
-
-认证saslauthd  代理认证服务 
-安装后需要修改 vi /etc/sysconfig/saslauthd  
-修改#MECH=pam
-改成：
-MECH=shadow
-
-
------------------------- linux  Started Sendmail Mail Transport Agent ------------------------
-
-解决方法：其实就是你的主机没有设置hostname
-mail发送邮件，默认调用的是sendmail，sendmail发送邮件，必须设置hostname，而hostname不能是一串字符串，而必须是格式正确的域名,例如mail.tome178.com
-
-所以我们的解决方法是修改hostname，一种是临时的，一种是永久的
-
-一般我们可以设置临时的
-
-[plain] view plain copy
-hostname mail.tome178.com  
-永久的修改/etc/sysconfig/network
-
-
-[plain] view plain copy
-hostname=mail.tome178.com //主机名(没有这行？那就添加这一行吧)   
-然后运行
-hostname mail.tome178.com
-
-然后重启sendmail就可以发送邮件了
-
------------------------- linux  设置自启动 ------------------------
-
-在启动时关闭sendmail 服务 [其它服务也一样] 
-在启动时关闭sendmail- -对其他的服务可以采取同样的措施。 
-而对于那些不是从inetd启动的服务，则通过命令来关闭，例如需要关闭sendmail服务，则： 
-
-/etc/rc.d/init.d/sendmail stop 
-
-然后再设置其不在系统启动时启动： 
-
-chkconfig -levels 12345 sendmail off 
-
-如果设置其开机启动
-
-
-chkconfig -levels 12345 sendmail on
 
 ------------------------ linux  iptables ------------------------
 
@@ -1157,6 +904,9 @@ for i in /etc/profile.d/*.sh ; do
 
 功能：输出文件2中的内容，但是剔除包含在文件1中的内容
 
+grep 精确匹配
+
+用grep -w "abc" 或者是grep "\<abc\>"都可以实现
 
 ------------------------ linux  shell ------------------------
 
@@ -1228,7 +978,34 @@ groups user
 按下 Enter键后，vi 将搜索指定的pattern，并将光标定位在 pattern的第一个字符处。例如，要向上搜索 place一词，请键入 ：
 
 
-查找到结果后，如何退出查找呢？输入:noh命令。
+查找到结果后，如何退出查找呢？输入:noh命令 取消搜索。
+
+------------------------ linux 发送邮件  ------------------------
+1.yum install -y mailx 
+
+2.vim /etc/mail.rc
+
+set from=****@qq.com 邮箱账号 务必和邮箱号一直
+set smtp=smtp.qq.com
+set smtp-auth-user=****@qq.com 邮箱账号 务必和邮箱号一直
+set smtp-auth-password= 客户端授权码
+set smtp-auth=login 默认
+
+ 发送邮件
+ echo '111' | mail -s 'localbt1' chinesebigcabbage@163.com
+ cat 1.txt  | mail -s 'localbt' chinesebigcabbage@163.com
+ 或
+ mail -s 'localbt1' chinesebigcabbage@163.com < 1.txt
+
+echo '111' 和 cat 1.txt 为邮件内容  
+mail -s 'localbt' 为邮件标题  
+chinesebigcabbage@163.com 收件人
+
+当邮件内容无法识别或者为中文的时候 会转为附件的形式分发出
+
+qq邮箱不会出现此信息 网易可能会
+如遇：554 DT:SPM 发送的邮件内容包含了未被网易许可的信息，或违背了网易的反垃圾服务条款，可以自己邮箱发给自己！
+163的配置同理 只要打开邮箱的SMTP服务 获取授权码就能使用
 
 ------------------------ linux  命令行上传下载文件 ------------------------
 1.sftp
@@ -1261,8 +1038,11 @@ scp -r local_folder remote_ip:remote_folder
 例如
    1. scp remote_user@host:remote_folder local_folder
    默认端口端口 -P 22 可不加
-   2. scp -P 7789 root@120.55.85.13:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
-  
+   2. scp -P 7789 root@172.31.1.22:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
+   2. scp -P 7789 root@172.31.1.22:/www/wwwroot/tea_chain/tea_chain.tar.gz  /www/wwwroot/tea_chain
+ 
+
+scp  root@47.94.81.150:/www/wwwroot/easyswoole/  ./
 
 3.sz/rz
 
@@ -1323,6 +1103,10 @@ tar
 下面的参数-f是必须的
 
 -f: 使用档案名字，切记，这个参数是最后一个参数，后面只能接档案名。
+
+压缩命令
+
+tar -zcvf ./filename.tar.gz ./* 压缩本文件夹下的所有
 
 # tar -cf all.tar *.jpg
 这条命令是将所有.jpg的文件打成一个名为all.tar的包。-c是表示产生新的包，-f指定包的文件名。
@@ -1611,6 +1395,16 @@ nohup command > myout.file 2>&1 &
 
 Work for fun,Live for love!
 
+使用了nohup之后，很多人就这样不管了，其实这样有可能在当前账户非正常退出或者结束的时候，命令还是自己结束了。所以在使用nohup命令后台运行命令之后，需要使用exit正常退出当前账户，这样才能保证命令一直在后台运行。
+
+command >out.file 2>&1 &
+
+command>out.file是将command的输出重定向到out.file文件，即输出内容不打印到屏幕上，而是输出到out.file文件中。
+
+2>&1 是将标准出错重定向到标准输出，这里的标准输出已经重定向到了out.file文件，即将标准出错也输出到out.file文件中。最后一个&， 是让该命令在后台执行。
+
+试想2>1代表什么，2与>结合代表错误重定向，而1则代表错误重定向到一个文件1，而不代表标准输出；换成2>&1，&与1结合就代表标准输出了，就变成错误重定向到标准输出.
+
 
 ------------------------- linux 磁盘 ---------------------------
 df -h 查看磁盘和空间
@@ -1662,9 +1456,6 @@ root@vm-199:~# vmstat 2
 
 ls /etc/init.d/
 
-地板
-mingxue  准内测组成员 发表于 2017-8-23 10:10:57 | 只看该作者
-提示functions  httpd  iprdump  iprinit  iprupdate  mysqld  netconsole  network  php-fpm-56  README
 
 不正常 少了宝塔的启动文件
 输入这条命令重新升级修复一下 启动面板即可
@@ -1764,7 +1555,7 @@ dd if/dev/vda1 of=/被删目录/文件名 bs=offset(号码) count=1 skip=block(�
 需要切换到root用户  专享主机等或godaddy.com买的主机需要 su 切换到root才能看到占用的进程
 
 lsof -i :80  查看80端口占用的程序
-
+lsof -i 查看所有 lsof -i -p -n
 nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
 
 查看 lsof -i :80 
@@ -1922,6 +1713,31 @@ ps -ef|grep -v grep|grep process_name|while read u p o
 do
 kill -9 $p
 done
+
+ps：查看php-fpm开启的进程数以及每个进程的内存限制
+
+1.通过命令查看服务器上一共开了多少的 php-cgi 进程
+
+ps -fe |grep "php-fpm"|grep "pool"|wc -l
+
+2.查看已经有多少个php-cgi进程用来处理tcp请求
+
+netstat -anp|grep "php-fpm"|grep "tcp"|grep "pool"|wc -l
+
+
+
+通过各种搜索手段，发现可以通过配置 pm.max_children 属性，控制php-fpm子进程数量，首先，打开php-fpm配置文件，执行指令：
+
+vi /etc/php-fpm.d/www.conf
+
+如图， pm.max_children 值为50，每一个进程占用1%-2.5%的内存，加起来就耗费大半内存了，所以我们需要将其值调小，博主这里将其设置为25，同时，检查以下两个属性：
+
+pm.max_spare_servers : 该值表示保证空闲进程数最大值，如果空闲进程大于此值，此进行清理 pm.min_spare_servers : 保证空闲进程数最小值，如果空闲进程小于此值，则创建新的子进程;
+
+这两个值均不能不能大于 pm.max_children 值，通常设置 pm.max_spare_servers 值为 pm.max_children 值的60%-80%。
+
+重启php-fpm
+systemctl restart php-fpm
 
 ------------------------- linux  kill 的几种方式 ---------------------------
 
@@ -2431,6 +2247,7 @@ pgrep -l  php
 
 pkill php  杀死所有php 的进程
 
+pkill -u user 杀死所有该用户下面的进程
 
 ------------------------ linux 查看python版本和shell版本  ------------------------
 
@@ -2680,6 +2497,24 @@ https://download.pureftpd.org/pure-ftpd/releases/
 
 mkdir -p  /www/server/ftp/pure-ftpd/ 递归建立文件夹  
 
+------------------------ linux  ftp   ------------------------
+ftp 需要主动模式和被动模式
+
+被动模式端口设置
+pure-ftpd.conf 文件中  (此处为pure-ftpd软件)
+PassivePortRange          39000 40000
+
+被动和主动都需要 21  
+20是主动模式传输数据用的 
+
+他们都需要先通过21端口连接认证服务器 
+由客户端发起 当由公网ip直接发起的 而不是路由器后的ip发起的为主动模式
+主动传输通过20端口 被动通过设置的被动端口传输 端口号不得小于1024
+在传输完成后需要再通过21端口进行一次认证
+
+fpt的种类
+
+ftp(普通)   ftps(ssl加密)     sftp(ssh传输协议)
 
 
 ------------------------ linux  Centos7找不到 netstat   ------------------------
@@ -3512,3 +3347,434 @@ curl ip.appspot.com
 curl ipinfo.io/ip
 curl ipecho.net/plain
 curl www.trackip.net/i
+
+------------------------ linux  安装依赖包 ubantu 和centos ------------------------
+
+centos
+yum groupinstall "Development Tools"
+
+ubantu
+udo apt-get install -y build-essential
+
+------------------------ linux  top 详解 ------------------------
+
+top这个命令会自动把消耗高的进程排到前面
+
+top -b -n 60 -d 60 > /home/server.log
+
+每隔60秒刷新一次 共刷新60次 将服务器状态写入到 日志文件中
+
+-n：number进入top后，top会定时刷新状态，这个值就是设置刷新几次
+-d：delay进入top后，top会定时刷新状态，这个值就是设置几秒刷新一次
+-b：Batch mode，top刷新状态默认是在原数据上刷新，使用这个参数后，会一屏一屏的显示数据。结合重定向功能和计划任务，这个参数在记录服务器运行状态时非常有用
+
+如果是多核服务器 按下 1键将会看到每个服务器的cpu消耗 cat /proc/cpuinfo  cpu cores  : 1  这个显示的是cpu的核数
+
+
+1 第一行： 跟uptime 一样，分别是当前时间13:48 系统运行时间3 days 当前登录用户数1user 系统负载load average:，即任务队列的平均长度
+2 第二、三行为进程和CPU的信息。当有多个CPU时，这些内容可能会超过两行
+Tasks: 96 total 进程总数
+1 running 正在运行的进程数 
+95 sleeping 睡眠的进程数
+0 stopped 停止的进程数
+0 zombie 僵尸进程数
+
+Cpu(s): 0.0% us 用户空间占用CPU百分比 查看CPU使用率
+1.0% sy 内核空间占用CPU百分比 
+0.0% ni 用户进程空间内改变过优先级的进程占用CPU百分比 
+100.0% id 空闲CPU百分比
+0.0% wa 等待输入输出的CPU时间百分比 
+0.0% hi
+0.0% si
+0.0% st
+
+3 最后两行为内存信息
+Mem:506708k total 物理内存总量
+477080k used 使用的物理内存总量
+29628k free 空闲内存总量
+113736k buffers 用作内核缓存的内存量
+Swap: 1015800k total 交换区总量
+112 used 使用的交换区总量
+1015688k free 空闲交换区总量
+169384k cached 缓冲的交换区总量
+内存中的内容被换出到交换区，而后又被换入到内存，但使用过的交换区尚未被覆盖，
+该数值即为这些内容已存在于内存中的交换区的大小。
+相应的内存再次被换出时可不必再对交换区写入。
+
+4 进程信息区 
+PID 进程ID PPID 父进程ID 
+PR 优先级
+NI nice值 负值表示高优先级，正值表示低优先级
+VIRT 进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES 
+RES 进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA
+SHR 共享内存大小，单位kb 
+S 进程状态 D=不可中断的睡眠状态R=运行 S=睡眠 T=跟踪/停止 Z=僵尸进程
+%CPU 上次更新到现在的CPU时间占用百分比
+%MEM 进程使用的物理内存百分比 
+TIME+ 进程使用的CPU时间总计，单位1/100秒
+
+
+------------------------ linux uniq 命令------------------------
+
+sort file.txt | uniq -c  统计各行在文件中出现的次数：
+
+uniq -u file.txt  只显示单一行：
+
+sort file.txt | uniq -d  在文件中找出重复的行：
+
+
+uniq file.txt  删除重复行：
+
+-c或——count：在每列旁边显示该行重复出现的次数；
+-d或--repeated：仅显示重复出现的行列；
+-f<栏位>或--skip-fields=<栏位>：忽略比较指定的栏位；
+-s<字符位置>或--skip-chars=<字符位置>：忽略比较指定的字符；
+-u或——unique：仅显示出一次的行列；
+-w<字符位置>或--check-chars=<字符位置>：指定要比较的字符。
+
+
+------------------------ linux wc 命令------------------------
+
+wc命令用来计算数字。利用wc指令我们可以计算文件的Byte数、字数或是列数，若不指定文件名称，或是所给予的文件名为“-”，则wc指令会从标准输入设备读取数据。
+
+语法 wc(选项)(文件)
+
+-c或--bytes或——chars：只显示Bytes数；
+-l或——lines：只显示列数；
+-w或——words：只显示字数。
+
+------------------------ linux date 修改时间 ------------------------
+
+
+  date -s  7/26/2018 日期
+  date -s  16:00:3   时间
+  hwclock -w  使重启也能失效 ( 将当前时间写入BIOS永久生效（避免重启后失效）)
+
+
+------------------------ linux nslookup 查询 ------------------------
+
+查询域名的解析地址 如果有多个会返回多个
+
+cmd命令  nslookup进入命令输入
+输入域名 返回信息
+
+
+------------------------ linux AWS亚马逊服务器 ------------------------
+
+EC2 没有中国区域 可选择东京(在右上角)  选择配置的时候注意加磁盘空间 默认8G  
+
+CDN cloudFront  服务  加速静态资源  
+第一个origin domain 是源地址用于获取资源 解析到原服务器地址
+第二个 Alternate Domain Names (CNAMEs) 填写域名可用于域名转接相当于系统生成的域名被替换为此域名  解析的时候也是将cname值解析到此域名上
+
+有白名单和黑名单选项 但是只能选一个  只允许白名单访问 或者只拒绝黑名单
+
+上面是web的访问源  也可以用亚马逊S3服务将资源传到S3  第一个origin domain 就需要选择此S3路径下面不变
+
+
+------------------------ linux 在AWS亚马逊服务器上搭建负载均衡 ------------------------
+
+redis 授权对安全组访问 
+
+https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/nodes-connecting.html  测试是否连接成功   需要 gcc 和 redis-cli 包
+
+连接时不需要密码
+
+https://www.cnblogs.com/kongzhongqijing/p/6867960.html redis-cli 命令操作
+
+------------------------ linux 查看是否被ddos ------------------------
+
+
+netstat -anp |grep 'tcp\|udp' | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n
+
+
+登录到你的服务器以root用户执行下面的命令，使用它你可以检查你的服务器是在DDOS攻击与否：
+
+netstat -anp |grep 'tcp\|udp' | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n
+
+该命令将显示已登录的是连接到服务器的最大数量的IP的列表。
+
+DDOS变得更为复杂，因为攻击者在使用更少的连接，更多数量IP的攻击服务器的情况下，你得到的连接数量较少，即使你的服务器被攻击了。有一点很重要，你应该检查当前你的服务器活跃的连接信息，执行以下命令：
+
+netstat -n | grep :80 |wc -l
+
+上面的命令将显示所有打开你的服务器的活跃连接。
+
+您也可以使用如下命令：
+
+netstat -n | grep :80 | grep SYN |wc -l
+
+从第一个命令有效连接的结果会有所不同，但如果它显示连接超过500，那么将肯定有问题。
+
+如果第二个命令的结果是100或以上，那么服务器可能被同步攻击。
+
+一旦你获得了攻击你的服务器的IP列表，你可以很容易地阻止它。
+
+同构下面的命令来阻止IP或任何其他特定的IP：
+
+route add ipaddress reject
+
+一旦你在服务器上组织了一个特定IP的访问，你可以检查对它的阻止豆腐有效。
+
+通过使用下面的命令：
+
+route -n |grep IPaddress
+
+您还可以通过使用下面的命令，用iptables封锁指定的IP。
+
+iptables -A INPUT 1 -s IPADRESS -j DROP/REJECT
+
+service iptables restart
+
+service iptables save
+
+上面的命令执行后，停止httpd连接，重启httpd服务。
+
+使用下面的命令：
+
+killall -KILL httpd
+
+service httpd startss
+
+------------------------ linux 制作SSH登录远程服务器的Shell脚本 ------------------------
+
+
+下载 expect  
+mac brew install expect 
+linux sudo apt-get install expect
+
+
+//不要忘记第一行expect的真实路径安装完成查看下 which expect 
+
+#!/usr/bin/expect -f  
+# 设置ssh连接的用户名
+set user root
+# 设置ssh连接的host地址
+set host 10.211.55.4
+# 设置ssh连接的port端口号
+set port 22
+# 设置ssh连接的登录密码
+set password admin123
+# 设置ssh连接的超时时间
+set timeout -1
+
+spawn ssh $user@$host -p $port
+expect "*password:"
+# 提交密码
+send "$password\r"
+# 控制权移交
+interact
+
+
+保存后加入执行权限
+chmod +x login.sh
+执行
+./login.sh
+
+---------------------
+
+本文来自 birdben 的CSDN 博客 ，全文地址请点击：https://blog.csdn.net/birdben/article/details/52166960?utm_source=copy 
+
+
+------------------------ linux 制作SSH登录远程服务器的Shell脚本  ------------------------
+(注意! 阿里云的ssd方法一和方法二都不符合 方法三符合 最好以服务器商提供的参数为准)
+
+
+方法一
+
+判断cat /sys/block/(*)名字/queue/rotational的返回值（其中*为你的硬盘设备名称，例如sda,vda等等），
+如果返回1则表示磁盘可旋转，那么就是HDD了；反之，如果返回0，则表示磁盘不可以旋转，那么就有可能是SSD了。
+
+cat /sys/block/磁盘名(vda,vdb等)/queue/rotational
+1
+
+方法二
+
+使用lsblk命令进行判断，参数-d表示显示设备名称，参数-o表示仅显示特定的列。
+
+[root@izc2mjnp7hy36fz ~]# lsblk -d -o name,rota
+NAME ROTA
+vda     1
+vdb     1
+这种方法的优势在于它只列出了你要看的内容，结果比较简洁明了。还是那个规则，ROTA是1的表示可以旋转，反之则不能旋转
+
+方法三
+
+可以通过fdisk命令查看，参数-l表示列出磁盘详情。在输出结果中，以Disk开头的行表示磁盘简介，下面是一些详细参数，我们可以试着在这些参数中寻找一些HDD特有的关键字，比如：”heads”（磁头），”track”（磁道）和”cylinders”（柱面）。
+下面分别是HDD和SSD的输出结果，HDD拷贝自网络。
+
+
+Disk /dev/sda: 120.0 GB, 120034123776 bytes
+255 heads, 63 sectors/track, 14593 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x00074f7d123456
+
+
+[cheshi@cheshi-laptop2 ~]$ sudo fdisk -l
+Disk /dev/nvme0n1: 238.5 GiB, 256060514304 bytes, 500118192 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0xad91c214
+......
+[cheshi@cheshi-laptop2 ~]$123456789
+
+
+其他方法
+
+可以使用第三方工具判断，比如smartctl，这些工具的结果展示比较直观，但是需要单独安装。
+
+---------------------
+作者：Charles_Shih 
+来源：CSDN 
+原文：https://blog.csdn.net/sch0120/article/details/77725658?utm_source=copy 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+
+------------------------------------------expect 自动化登录------------------------------------------
+
+#!/usr/local/bin/expect -f
+# 设置ssh连接的用户名
+set user [lindex $argv 0]
+# 设置ssh连接的host地址
+set host [lindex $argv 1]
+# 设置ssh连接的port端口号
+set port [lindex $argv 2]
+# 设置ssh连接的登录密码
+set password [lindex $argv 3]
+# 设置ssh连接的超时时间
+set timeout -1
+
+spawn ssh $user@$host -p $port
+expect "*password:"
+# 提交密码
+send "$password\r"
+
+# 控制权移交
+interact
+
+执行自动化任务通常 expect eof 结尾 而登录终端 一般用 interact
+
+安装expect
+
+[root@xuegod60 ~]# yum -yinstall expect
+
+也可以通过源码包的方式进行安装
+
+源码下载链接
+
+http://jaist.dl.sourceforge.net/project/tcl/Tcl/8.6.4/tcl8.6.4-src.tar.gz
+
+http://sourceforge.net/projects/expect/files/Expect/5.45/expect5.45.tar.gz/download
+
+ 
+expect中最关键的四个命令是send,expect,spawn,interact。
+
+send：用于向进程发送字符串 
+expect：从进程接收字符串 
+spawn：启动新的进程 
+interact：允许用户交互
+
+使用expect创建脚本的方法
+
+1）定义脚本执行的shell
+#!/usr/bin/expect
+
+这里定义的是expect可执行文件的链接路径（或真实路径），功能类似于bash等shell功能
+
+2）set timeout 30
+设置超时时间，单位是秒，如果设为timeout -1 意为永不超时
+
+3）spawn
+spawn 是进入expect环境后才能执行的内部命令，不能直接在默认的shell环境中进行执行
+
+主要功能：传递交互指令
+
+4）expect
+这里的expect同样是expect的内部命令
+主要功能：判断输出结果是否包含某项字符串，没有则立即返回，否则就等待一段时间后返回，等待时间通过timeout进行设置
+
+5）send
+执行交互动作，将交互要执行的动作进行输入给交互指令
+命令字符串结尾要加上"r"，如果出现异常等待的状态可以进行核查
+
+6）interact
+执行完后保持交互状态，把控制权交给控制台
+如果不加这一项，交互完成会自动退出
+
+7）exp_continue
+继续执行接下来的交互操作
+
+8）$argv
+expect 脚本可以接受从bash传递过来的参数，可以使用 [lindex $argv n]获得，n从0开始，分别表示第一个，第二个，第三个……参数
+
+------------------------------------------htop 系统工具------------------------------------------
+
+
+ 
+可以很直观的看服务器的状态 
+mac brew install htop
+yum install htop 
+apt-get install htop
+
+---------------------------------shell 读取文件内容，然后把内容赋值给变量然后进行字符串处理-----------------------
+
+
+实现：
+
+dataline=$(cat /root/data/data.txt)
+
+echo $dataline
+
+
+---------------------------------linux  centos登录出现错误 -----------------------
+
+bash: warning: setlocale: LC_CTYPE: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_COLLATE: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_MESSAGES: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_NUMERIC: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_TIME: cannot change locale (en_US.UTF-8): No such file or directory
+
+输入locale发现上面报错
+
+centos 7没有百度以上一堆人抄袭的文章说的 /etc/sysconfig/i18n 这个文件
+
+输入whereis locale 找到 /etc/locale.conf
+编辑文件
+LANG=en_US.UTF-8 改为 LANG=zh_CN.UTF-8 重新登录即可
+
+--------------------------------- linux 系统命令make.clean的用法讲解 -----------------------
+
+
+
+转自卡饭教程https://www.kafan.cn/edu/6506196.html
+
+makefile定义了一系列的规则来指定，哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至于进行更复杂的功能操作，因为 makefile就像一个Shell脚本一样，其中也可以执行操作系统的命令。
+makefile带来的好处就是--“自动化编译”,一旦写好，只需要一个make命令，整个工程完全自动编译，极大的提高了软件开发的效率。make是一个命令工具，是一个解释makefile中指令的命令工具，一般来说，大多数的IDE都有这个命令，比如：Delphi的make,Visual C++的nmake,Linux下GNU的make.可见，makefile都成为了一种在工程方面的编译方法。
+make
+根据Makefile文件编译源代码、连接、生成目标文件、可执行文件。
+
+make clean
+清除上次的make命令所产生的object文件（后缀为“.o”的文件）及可执行文件。
+
+make install
+将编译成功的可执行文件安装到系统目录中，一般为/usr/local/bin目录。
+make dist
+产生发布软件包文件（即distribution package）。这个命令将会将可执行文件及相关文件打包成一个tar.gz压缩的文件用来作为发布软件的软件包。
+它会在当前目录下生成一个名字类似“PACKAGE-VERSION.tar.gz”的文件。PACKAGE和VERSION,是我们在configure.in中定义的AM_INIT_AUTOMAKE（PACKAGE, VERSION）。
+make distcheck
+生成发布软件包并对其进行测试检查，以确定发布包的正确性。这个操作将自动把压缩包文件解开，然后执行configure命令，并且执行make,来确认编译不出现错误，最后提示你软件包已经准备好，可以发布了。
+make distclean
+类似make clean,但同时也将configure生成的文件全部删除掉，包括Makefile文件。
+
+
+--------------------------------- linux vim vi 编辑二进制文件 -----------------------
+
+vi -b 或vim -b 告诉系统打开的是二进制文件
+
+vim 输入 %!xxd 转换 vi 输入 %xxd 转换
+修改完成之后在上面命令的基础上加入 -r 然后wq保存退出
+

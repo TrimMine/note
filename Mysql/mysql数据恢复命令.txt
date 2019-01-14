@@ -23,7 +23,7 @@
 	      	ln -s /www/server/mysql/bin/mysqlbinlog /usr/bin/
 
 	      	文件内容过多最好输出到文件查看  *************
-	      	mysqlbinlog /wwww/server/data/mysql-bin.000006 > binlog.txt 输出很快 方便查看
+	      	mysqlbinlog /www/server/data/mysql-bin.000006 > binlog.txt 输出很快 方便查看
 		如果输出到文件后，文件很大无法打开 可用 head -10000 binlog.txt >binlog1.txt 或者 tail -10000 binlog.txt >binlog1.txt  分批次查看
 
 	      	/*!*/;

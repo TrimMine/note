@@ -92,3 +92,7 @@
 93.scale 规模 比例
 94.validating 验证
 95.container 容器
+96.specific  具体
+97.technical 技术
+98.contribution 贡献
+99.contributer 贡献者
