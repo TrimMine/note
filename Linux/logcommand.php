@@ -2247,6 +2247,7 @@ pgrep -l  php
 
 pkill php  杀死所有php 的进程
 
+pkill -u user 杀死所有该用户下面的进程
 
 ------------------------ linux 查看python版本和shell版本  ------------------------
 
@@ -3743,7 +3744,7 @@ centos 7没有百度以上一堆人抄袭的文章说的 /etc/sysconfig/i18n 这
 
 输入whereis locale 找到 /etc/locale.conf
 编辑文件
-LANG=en_US.UTF-8 改为LANG=zh_CN.UTF-8 重新登录即可
+LANG=en_US.UTF-8 改为 LANG=zh_CN.UTF-8 重新登录即可
 
 --------------------------------- linux 系统命令make.clean的用法讲解 -----------------------
 
