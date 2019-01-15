@@ -1,14 +1,14 @@
 <?php
-
+## 时间设置
 		#初始时间
 		$beginToday=mktime(0,0,0,date('m'),date('d'),date('Y'));
 		#结束时间
 		$endToday=mktime(0,0,0,date('m'),date('d')+1,date('Y'))-1;
-#=============sql查询语句中转换时间戳====================
+# =============sql查询语句中转换时间戳====================
 
 		//tp  	   field('*,FROM_UNIXTIME(create_at,"%Y年%m月%d日") as create_at');
 		//laravel  selectRaw('*,FROM_UNIXTIME(created_at,"%Y年%m月%d日") as gotmoney_date')
-#=========== laravel 对象查询======================
+# =========== laravel 对象查询======================
 		#定义表名  
 		$goods=M('goods');
 		#商品名查询
@@ -85,7 +85,7 @@
 
 		#=====================生成短信随机码=====================
 
-		    	 $str = "";
+		    $str = "";
            $length = 6;
            $ji = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   #字符串可用下标的方式取值
 	         do {
