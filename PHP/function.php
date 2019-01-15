@@ -1,344 +1,13 @@
 <?php
-## 时间设置
-		#初始时间
-		$beginToday=mktime(0,0,0,date('m'),date('d'),date('Y'));
-		#结束时间
-		$endToday=mktime(0,0,0,date('m'),date('d')+1,date('Y'))-1;
-# =============sql查询语句中转换时间戳====================
-
-		//tp  	   field('*,FROM_UNIXTIME(create_at,"%Y年%m月%d日") as create_at');
-		//laravel  selectRaw('*,FROM_UNIXTIME(created_at,"%Y年%m月%d日") as gotmoney_date')
-# =========== laravel 对象查询======================
-		#定义表名  
-		$goods=M('goods');
-		#商品名查询
-		if(isset($_POST['goods_name']) && $_POST['goods_name']!=''){
-			$goods=$goods->where('name','like',$_POST['goods_name']);
-		}
-		#查询商品数据
-		$data=$goods->where(['type'=>2])->get())
-		#模糊查询laravel中直接用like $goods在没有转换为数组之前可以无限制的累加查询语句
-		#可以产考http://blog.csdn.net/zyu67/article/details/45582297 类的基层封装
-		#分页laravel 用对象直接分页
-		$num=$_GET['p']==''?10:$_GET['p'];
-		# 获取分页
-		$data = get_page($num,$users);
-
-#============laravel 转换数组不适用if判断可以这么写=====================
-		#直接转换为数组
-		($user_province=M('city')->where(['level'=>1])->get()) && $user_province=$user_province->toArray();
-#========== json互转=======================
-		#数组或字符串转换为json 
-		json_encode($str);
-		#json转换为数组
-		json_decode($str,true); #加上true是转换为数组 否则是对象
-#======== 匹配二维数组下第一个指定下标的键和值=========================
-#匹配二维数组下第一个指定下标的键和值
- $arr= [
-      "a" => ['a'=> "a",1 => "1"],"b" => [2=> "2",3 => "3"],"c" => [4=> "4",5 => "5"],"d" => [6 => "6",7 => "7"],"e" => [8 => "8",9 => "9"],"f" => [10 => "10"11 => "11"],];
-     #定义两个容器
-     $data[0] = [];
-     $data[1] = [];
-     foreach ($arr as $key => $value) {
-        $i=1;
-        foreach ($value as $k => $v){
-            if ($i==1) {
-            $data[0][$k]=$v;
-            }else{
-            $data[1][$k]=$v;
-            }
-            $i++;
-         }    
-     }
-
-#========== laravel 连贯查询 join=======================
-          #留言板首页 超级玛丽奥
-          public function index(){
-                #查询留言
-                if ($info=M('forum')
-                        #forum表中fid为0的
-                        ->where(['fid'=>0])
-                        #给forum表中的id起别名
-                        ->select('*','forum.id as forum_id')
-                        #链接两个表
-                        ->join('users','users.id','forum.uid')
-                        ->orderBy('forum.created_at',DESC)
-                        ->get()){
-                        $info=$info->toArray();
-                }
-                #查询所有系统回复
-                if ($reply=M('forum')->where('fid','!=',0)->get()) {
-                        $reply=$reply->toArray();
-                }
-                #遍历插入系统回复
-                foreach ($info as $key => $value){
-                        foreach ($reply as $k => $v) {
-                                if ($value['id']==$v['fid']) {
-                                        $info[$key]['reply']=$v['content'];
-                                }       
-                        }
-                }
-		#=====================生成订单随机码=====================
-                do {
-                	$num=date('YmdHis',time()).rand(0,100).rand(1000,2000);
-                } while (#查询数据库是否已经有相同的值);
-
-		#=====================生成短信随机码=====================
-
-		    $str = "";
-           $length = 6;
-           $ji = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';   #字符串可用下标的方式取值
-	         do {
-	             for($i=0;$i<$length;$i++){
-	              
-                 $str .= $ji[rand(0,strlen($ji)-1)];
-
-	             }
-
-	        } while (false);
-          
-           //或者
-           
-           $ji = '0123456789';  
-           $length = 6;
-           $str = strval(substr(str_shuffle($ji), 0, $length));
-
-	         echo $str;
-
-           //数据表字段用 varchar 字符串 int类型 如果首字母或者前面数字是0会被忽略掉
-
-	      #============================= 短信验证码 ====================
-	        public  function edit_phone_code(){
-			  	# 定义验证码
-			  	$code = '';
-			  	# 获取验证码
-			  	for ($i=0; $i < 4; $i++) {
-			  		$code .= rand(0,9);
-			  	}
-			  	# 组合信息
-			  	$data = [];
-			  	$data['phone'] = $_GET['phone'];
-			  	$data['code'] = $code;
-			  	$data['created_at'] = time();
-			  	$data['updated_at'] = $data['created_at'];
-			  	# 插入数据
-			  	if(M('pcode') -> insert($data)){
-			  		# 发送短信
-			  		if(PhoneMessage::sendCode(3,$_GET['phone'],$code)){
-			  			$this -> ajaxReturn(['status'=>1,'message'=>'发送成功'],'JSONP');
-			  		}else{
-			  			$this -> ajaxReturn(['status'=>3,'message'=>'系统错误.短信接口错误:'.PhoneMessage::$error['message']],'JSONP');
-			  		}
-			  	}else{
-			  		$this -> ajaxReturn(['status'=>2,'message'=>'系统错误.数据库错误'],'JSONP');
-		  	}
-
-   #=====================  #TP 组合查询====================
-
-		  	      
-		#或查询和与查询 (or and)
-		$where=[];
-        $where['login_name']=$_GET['username'];
-        $where['phone']=$_GET['username'];
-        #定义或
-        $where['_logic']='OR';
-        #复合语句 定义二维数据
-        $map['_complex'] = $where;
-        $map['password']=md5($_GET['password']);
-        # 总后台登录
-        $user=M('agents') -> where($map) ->find();
-        #gt 大于  lt于
-        #分页
-        // 默认每页条数
-        }
-        // 默认每页条数
-        $num = 2;
-        // $p=($_GET['p']<1?0:($_GET['p']-1))*($_GET['num'] < 1?$num:$_GET['num']);
-        #第几页
-        $p=$_GET['p']<1?0:($_GET['p']-1);
-        // 获取分页的数据 10秒停止缓存          -> cache(10)
-        $data['data'] = M('shops') -> where($where) -> limit($p,$num) -> select();
 
 
-
-    #===================input上传多文件=====================
-#       <input type="file" name="pic[]" multiple="true"/>
-#=================laravel 字段自增 自减==================
-DB::table('users')->increment('votes'); #不写参数默认加1
-DB::table('users')->increment('votes', 5);
-DB::table('users')->decrement('votes');  # 不写参数默认减一
-DB::table('users')->decrement('votes', 5);
-
-#TP自减setDec() 自增setInc()
-array_merge_recursive() #合并二维数组 追加合并
-array_merge() #合并二维数组 追加合并
-
-#========================laravel5 事务回滚====================
-#方法一
-
-//不需要引入，直接开干
-
-public function Transaction(){ 
-
-　　DB::beginTransaction(); //开启事务
-
-　　$sql1 = DB::table('demo')->where('id','6')->delete(); 
-　　$sql2 = DB::table('errcode')->where('id','4')->delete();
-
-　　if($rs1&&$rs2){   //判断两条同时执行成功
-
-　　　　DB::commit();  //提交
-　　　　return 1;
-
-　　}else{
-
-　　　　DB::rollback();  //回滚
-　　　　return 0;
-　　}
-
-}
-
-#方法二
-public function Transaction(Request $request, $id)
-{
-　　$externalAccount = ExternalAccounts::find($id);
-　　DB::beginTransaction();
-
-　　try {
-
-　　　　$externalAccount->fund_number = 876;
-　　　　$externalAccount->capital_balance = '阿斯顿发过火';
-　　　　$externalAccount->save();
-　　　　DB::commit();
-
-　　} catch (Exception $e){
-
-　　　　DB::rollback();
-　　　　throw $e;
-
-　　}
-}
-
-#===============正则=================
-#匹配手机号
-#/^1[34578]{1}\d{9}$/
-
-#===============laravel打印sql语句=================
-DB::enableQueryLog();//开启查询
-/************************
- *   中间为查询语句放置处  *
- ***********************/
-dd(DB::getQueryLog());//打印查询SQL
-
-
-#===============laravel orwhere查询=================
-// AccountRecord::TYPE_HEALTH_BALANCE为type类型  1 ,2 ,3
-$log=AccountRecord::whereIn('type',[1 ,2 ,3])->where(function($query){
-            $query->where('user_id',self::$user_info['id'])
-                ->orWhere(function($query){
-                    $query->where('to_id',self::$user_info);
-                });
-            })->get();
-#===============laravel 原生或和绑定查询=================
-$log=AccountRecord::whereIn('type',[AccountRecord::TYPE_HEALTH_BALANCE,AccountRecord::TYPE_HEALTH_STIMULATE,AccountRecord::TYPE_HEALTH_SHOP])
- -> whereRaw('(user_id = ? or to_id = ?)',[self::$user_info['id'],self::$user_info['id']])
- -> get();
-
-
-#===============laravel ajax返回语句=================
-
-return response()->json(['status'=>1,'message'=>'修改成功']);
-
-#===============限制ip登陆=================
-$ip = '115.57.130.99';
-if($_SERVER["REMOTE_ADDR"]!=$ip){
-    exit();
-}
-#===============laravel 判断是否为空 =================
-#在使用Laravel Eloquent模型时，我们可能要判断取出的结果集是否为空，但我们发现直接使用is_null或empty是无法判段它结果集是否为空的。
-
-#var_dump之后我们很容易发现，即使取到的空结果集， Eloquent仍然会返回Illuminate\Database\Eloquent\Collection对象实例。
-#其实，Eloquent已经给我们封装几个判断方法。
-
-$result = Model::where()->get();
-#不为空则
-if ($result->first()) {} 
-if (!$result->isEmpty()) {} 
-if ($result->count()) {}
-
-#===============================laravel 判断是否有错误或者成功信息 =================================
-/*
-                @if (count($errors) > 0)
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                 @endif*/
-
-#===============================laravel 判断是什么方法传值 =================================
- $request->isMethod('post');
- $request->isMethod('get');
- $request->isMethod('put');
- #路由  
-Route::get('announcement/index','AnnouncementController@index');
-            #访问名                    访问控制器内的方法名
-#===============================运用数据表模型   =================================
- # 没有条件时  可以先实例化模型
-        $log= new Announcement(); 
-        if ($request->has('title')) {   #has方法判断是否有参数
-            $log =$log->where('title','like','%'.$request->input('title').'%');
-        }
-        $log = $log ->paginate(10);  #laravel中的分页 分页后不能在进行数据库操作
-#===============================laravel中上传删除   =================================
-#上传文件
-$request->file('pic')#获取文件
-#删除文件
-unlink($_SERVER['DOCUMENT_ROOT'].$it['pic']);
-
-
-#===============================$_SERVER =================================
-
-#获取当前服务器项目的根目录
-$_SERVER['REMOTE_PORT'] //端口。 
-$_SERVER['SERVER_NAME'] //服务器主机的名称。 
-$_SERVER['PHP_SELF']//正在执行脚本的文件名 
-$_SERVER['argv'] //传递给该脚本的参数。 
-$_SERVER['argc'] //传递给程序的命令行参数的个数。 
-$_SERVER['GATEWAY_INTERFACE']//CGI 规范的版本。 
-$_SERVER['SERVER_SOFTWARE'] //服务器标识的字串 
-$_SERVER['SERVER_PROTOCOL'] //请求页面时通信协议的名称和版本 
-$_SERVER['REQUEST_METHOD']//访问页面时的请求方法 
-$_SERVER['QUERY_STRING'] //查询(query)的字符串。 
-$_SERVER['DOCUMENT_ROOT'] //当前运行脚本所在的文档根目录 
-$_SERVER['HTTP_ACCEPT'] //当前请求的 Accept: 头部的内容。 
-$_SERVER['HTTP_ACCEPT_CHARSET'] //当前请求的 Accept-Charset: 头部的内容。 
-$_SERVER['HTTP_ACCEPT_ENCODING'] //当前请求的 Accept-Encoding: 头部的内容 
-$_SERVER['HTTP_CONNECTION'] //当前请求的 Connection: 头部的内容。例如：“Keep-Alive”。 
-$_SERVER['HTTP_HOST'] //当前请求的 Host: 头部的内容。 
-$_SERVER['HTTP_REFERER'] //链接到当前页面的前一页面的 URL 地址。 
-$_SERVER['HTTP_USER_AGENT'] //当前请求的 User_Agent: 头部的内容。 
-$_SERVER['HTTPS']//如果通过https访问,则被设为一个非空的值(on)，否则返回off 
-$_SERVER['SCRIPT_FILENAME'] #当前执行脚本的绝对路径名。 
-$_SERVER['SERVER_ADMIN'] #管理员信息 
-$_SERVER['SERVER_PORT'] #服务器所使用的端口 
-$_SERVER['SERVER_SIGNATURE'] #包含服务器版本和虚拟主机名的字符串。 
-$_SERVER['PATH_TRANSLATED'] #当前脚本所在文件系统（不是文档根目录）的基本路径。 
-$_SERVER['SCRIPT_NAME'] #包含当前脚本的路径。这在页面需要指向自己时非常有用。 
-$_SERVER['PHP_AUTH_USER'] #当 PHP 运行在 Apache 模块方式下，并且正在使用 HTTP 认证功能，这个变量便是用户输入的用户名。 
-$_SERVER['PHP_AUTH_PW'] #当 PHP 运行在 Apache 模块方式下，并且正在使用 HTTP 认证功能，这个变量便是用户输入的密码。 
-$_SERVER['AUTH_TYPE'] #当 PHP 运行在 Apache 模块方式下，并且正在使用 HTTP 认证功能，这个变量便是认证的类型
-
-#===============================搜索用 get方式不适用post =================================
 
 
 #===============================laravel 查询用户信息 pluck =================================
 #键值交换
 array_flip()
 #查询单列(用户的数据)
-$users = pluck('id','nickanme');    
+$users = pluck('id','nickanme');
 #查询的数据 记录
 foreach ($data as $key => $value) {
     $data[$key]['nickname'] = $users[$value['uid']];
@@ -388,7 +57,7 @@ function get_pwd_strength($pwd){
 *统计财务总表                                                                      *
 *服务中心账号  服务中心名称  VIP总收入  VIP总支出  VIP净利润. 健康使者总收入 健康使者总支出 *
 *健康使者净利润 商户总收入 商户总支出 商户净利润 利润总和                                *
-**********************************************************************************/  
+**********************************************************************************/
 
 #===============================思想 =================================
 
@@ -411,16 +80,16 @@ Route::group([ 'prefix' => 'shop_data'], function () {
  #上传图片
     function upload_pic($file,$path)
     {
-        $upload = new Think\Upload(); 
+        $upload = new Think\Upload();
         $upload->maxSize   =     3145728 ;
         $upload->exts      =     array('jpg', 'gif', 'png', 'jpeg');
         #最后一个目录名加/号就在此目录下创建 不加/号直接创建带日期的文件夹
         $upload->rootPath  =     $path; // 设置附件上传根目录
-        $upload->savePath  =     ''; 
+        $upload->savePath  =     '';
         // 上传文件 
         $info   =   $upload->upload($file);
         if(!$info) {
-            return $upload ->getError();     
+            return $upload ->getError();
         }else{
             return $info;
         }
@@ -431,16 +100,16 @@ Route::group([ 'prefix' => 'shop_data'], function () {
 
 #============================== TP 模型关联 =================================
 
-namespace Admin\Model; 
+namespace Admin\Model;
 use Think\Model\RelationModel; //必须引用
 /**
-* 
+*
 */
 class ArticleModel extends RelationModel //必须继承该Model
 {
   protected $tableName = 'article'; #$tableName 必须为该变量 区分大小写
 
-  protected $fields =array( 
+  protected $fields =array(
     'id',
     #分类id
     'class_id',
@@ -504,7 +173,7 @@ class ArticleModel extends RelationModel //必须继承该Model
 #命名service类
 namespace Service;
 /**
-* 
+*
 */
 class Test
 {
@@ -512,7 +181,6 @@ class Test
     dump('This is /Service/Test/test()');die();
   }
 }
-<?php
 #调用
 use Service\Test; //自动加载规则会去寻找Service下的文件 use 就是为了指定文件夹 namespace 作用也是为了指明文件夹
 class IndexController extends Controller{
@@ -521,7 +189,7 @@ class IndexController extends Controller{
                $a = new Test;
                 $a -> test();
     }
-         
+
 } 
 #============================== TP 不是用模型关联查询  =================================
       $info = M('buy_equipment');  //默认内敛 inner join
@@ -559,7 +227,7 @@ class IndexController extends Controller{
                15 =>  "0",
                16 =>  "0",
                17 =>  "0"];
-            for ($i=1; $i <=23 ; $i++) { 
+            for ($i=1; $i <=23 ; $i++) {
                 foreach ($arr as $key => $value) {
                   if (!isset($arr[$i])) {
                         $arr[$i] = 0;
@@ -593,7 +261,7 @@ class IndexController extends Controller{
                     unset($arr[$key]);
                 }
             }
-            for ($i=1; $i <=23 ; $i++) { 
+            for ($i=1; $i <=23 ; $i++) {
                 foreach ($arr as $key => $value) {
                   if (!isset($arr[$i])) {
                         $arr[$i] = 0;
@@ -606,8 +274,8 @@ class IndexController extends Controller{
 #============================== TP不报错 404 改为报出错误详细信息  =================================
           #在think.class下面的start方法
   static public function start() {
-      // 注册AUTOLOAD方法    
-      spl_autoload_register('Think\Think::autoload');      
+      // 注册AUTOLOAD方法
+      spl_autoload_register('Think\Think::autoload');
       // 设定错误和异常处理  如果不需要报错信息 则注释这三行
       register_shutdown_function('Think\Think::fatalError');
       set_error_handler('Think\Think::appError');
@@ -687,7 +355,7 @@ class IndexController extends Controller{
     echo sprintf("%.3f", $num); // 0.022
     #=>php保留三位小数不四舍五入
     $num=0.0215489;
-    echo substr(sprintf("%.4f", $num),0,-1); // 0.021 
+    echo substr(sprintf("%.4f", $num),0,-1); // 0.021
 
     #=>PHP四舍五入保留两位小数点最精确的方法
 
@@ -706,10 +374,10 @@ $Info = M("Info"); // 实例化Info对象
 $Info->save($User); // 保存用户信息
 if (操作成功){
     // 提交事务
-    $User->commit(); 
+    $User->commit();
 }else{
    // 事务回滚
-   $User->rollback(); 
+   $User->rollback();
 }
 
 
@@ -746,11 +414,11 @@ json_decode(json_encode($str),true); #转换一下
 #ssl 465  tls 587
 
 #==============================  #判断是微信还是浏览器   =================================
-function is_weixin() { 
-    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false) { 
-        return true; 
-    } 
-        return false; 
+function is_weixin() {
+    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false) {
+        return true;
+    }
+        return false;
 }
 #定义微信判断
 define ('IS_WECHAT', is_weixin() == true ? true : false);
@@ -841,7 +509,7 @@ define(NAME,'1234');
      );
  curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
  //设置超时时间
- curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,$timeout); 
+ curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,$timeout);
  //证书验证 https是否验证证书
  curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
  curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
@@ -1095,62 +763,62 @@ function filterNickname($nickname)
 *参数：文件url,保存文件目录,保存文件名称，使用的下载方式 
 *当保存文件名称为空时则使用远程文件原来的名称 
 */ 
-public static function getImage($url,$save_dir='',$filename='',$type=0){ 
-    if(trim($url)==''){ 
-        return array('file_name'=>'','save_path'=>'','error'=>1); 
-    } 
-    if(trim($save_dir)==''){ 
-        $save_dir='./'; 
-    } 
-    if(trim($filename)==''){//保存文件名 
-        $ext=strrchr($url,'.'); 
-        if($ext!='.gif'&&$ext!='.jpg'){ 
-            return array('file_name'=>'','save_path'=>'','error'=>3); 
-        } 
-        $filename=time().$ext; 
-    } 
-    if(0!==strrpos($save_dir,'/')){ 
-        $save_dir.='/'; 
-    } 
+public static function getImage($url,$save_dir='',$filename='',$type=0){
+    if(trim($url)==''){
+        return array('file_name'=>'','save_path'=>'','error'=>1);
+    }
+    if(trim($save_dir)==''){
+        $save_dir='./';
+    }
+    if(trim($filename)==''){//保存文件名
+        $ext=strrchr($url,'.');
+        if($ext!='.gif'&&$ext!='.jpg'){
+            return array('file_name'=>'','save_path'=>'','error'=>3);
+        }
+        $filename=time().$ext;
+    }
+    if(0!==strrpos($save_dir,'/')){
+        $save_dir.='/';
+    }
     //创建保存目录 
-    if(!file_exists($save_dir)&&!mkdir($save_dir,0777,true)){ 
-        return array('file_name'=>'','save_path'=>'','error'=>5); 
-    } 
+    if(!file_exists($save_dir)&&!mkdir($save_dir,0777,true)){
+        return array('file_name'=>'','save_path'=>'','error'=>5);
+    }
     //获取远程文件所采用的方法    一个是文件流 一个是数据流直接输出 用ob接收
-    if($type){ 
-        $ch=curl_init(); 
-        $timeout=5; 
-        curl_setopt($ch,CURLOPT_URL,$url); 
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1); 
-        curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout); 
-        $img=curl_exec($ch); 
-        curl_close($ch); 
-    }else{ 
-        ob_start();  
-        readfile($url); 
-        $img=ob_get_contents();  
-        ob_end_clean();  
-    } 
+    if($type){
+        $ch=curl_init();
+        $timeout=5;
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+        $img=curl_exec($ch);
+        curl_close($ch);
+    }else{
+        ob_start();
+        readfile($url);
+        $img=ob_get_contents();
+        ob_end_clean();
+    }
     //$size=strlen($img); 
     //文件大小  
-    $fp2=@fopen($save_dir.$filename,'a'); 
-    fwrite($fp2,$img); 
-    fclose($fp2); 
-    unset($img,$url); 
-    return array('file_name'=>$filename,'save_path'=>$save_dir.$filename,'error'=>0); 
+    $fp2=@fopen($save_dir.$filename,'a');
+    fwrite($fp2,$img);
+    fclose($fp2);
+    unset($img,$url);
+    return array('file_name'=>$filename,'save_path'=>$save_dir.$filename,'error'=>0);
 } 
 
 #==============================  #PHP 获取文件 =================================
 #$url 网页路径
 public function get_file($url)
   {
-    $ch = curl_init(); 
-    $timeout = 5; 
-    curl_setopt ($ch, CURLOPT_URL, $url); 
-    curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1); 
-    curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout); 
-    $file_contents = curl_exec($ch); 
-    curl_close($ch); 
+    $ch = curl_init();
+    $timeout = 5;
+    curl_setopt ($ch, CURLOPT_URL, $url);
+    curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+    $file_contents = curl_exec($ch);
+    curl_close($ch);
     return $file_contents;
 
   }
@@ -1160,11 +828,11 @@ public function get_file($url)
   public static function dlfile($file_url, $save_to)
   {
     $ch = curl_init();
-    $timeout = 5; 
-    curl_setopt($ch, CURLOPT_POST, 0); 
-    curl_setopt($ch,CURLOPT_URL,$file_url); 
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
-    curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout); 
+    $timeout = 5;
+    curl_setopt($ch, CURLOPT_POST, 0);
+    curl_setopt($ch,CURLOPT_URL,$file_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
     $file_content = curl_exec($ch);
     curl_close($ch);
     $downloaded_file = fopen($save_to, 'w');
@@ -1237,7 +905,7 @@ public function get_file($url)
 
     #生成二维码
     public static function MakeQrcode($CodeName,$path,$content)
-    {   
+    {
         #引入包
         Vendor('phpqrcode.phpqrcode');
         $object = new \QRcode();
@@ -1291,7 +959,7 @@ public function get_file($url)
 #==============================  #PHP  更快的取到$_POST的值  =================================
 #PHP 定时任务 访问url  加get传值 加判断是否是本机ip访问
 public static  function check()
-  { 
+  {
     #如果是定时任务 需将此ip设为服务器ip
     if ($_SERVER['REMOTE_ADDR'] != '47.52.46.86') {
       return false;
@@ -1340,20 +1008,20 @@ public static  function check()
 第三个参数是截取的数量
 mb_substr和mb_strcut还有第四个参数：第四个参数可以根据不同的字符集进行设置
 */
-$cn_str="钓鱼岛是中国的hehe";    
-echo "mb_substr-3:".mb_substr($cn_str,0,3).'<br/>';   //钓鱼岛    按照字来划分     
-echo "substr-3:".substr($cn_str,0,3).'<br/>';//钓   按照字节来划分      
-echo "mb_strcut-3:".mb_strcut($cn_str,0,3).'<br/><br/>'; //钓   按照字节来划分    
+$cn_str="钓鱼岛是中国的hehe";
+echo "mb_substr-3:".mb_substr($cn_str,0,3).'<br/>';   //钓鱼岛    按照字来划分
+echo "substr-3:".substr($cn_str,0,3).'<br/>';//钓   按照字节来划分
+echo "mb_strcut-3:".mb_strcut($cn_str,0,3).'<br/><br/>'; //钓   按照字节来划分
 
 
 #==============================  #PHP substr strstr stristr strpos str_repalce str_repeat strlen =================================
 
   substr($v['created_at'],0,-8);#截取从最后一位 截取8位 返回剩余的内容 截取时间
-  substr($str,0,8);            #截取1-8位 返回截取的内容 
+  substr($str,0,8);            #截取1-8位 返回截取的内容
   
   #只有一个参数  当为正数的时候返回剩余部分        当为负数的时候从最后一位开始截取且返回截取的部分
 
-  echo substr("Hello world",7)."<br>";    //orld    # 截取1-7位 返回截取后剩余的内容 
+  echo substr("Hello world",7)."<br>";    //orld    # 截取1-7位 返回截取后剩余的内容
   echo substr("Hello world",-4)."<br>";   //orld
   
 
@@ -1497,7 +1165,7 @@ urldecode()函数与urlencode()# 函数原理相反，用于解码已编码的 U
                                      #第一个数字 - 第二个数字
 $a = 0.1;
 $b = 0.7;
-var_dump(bcadd($a,$b,2) == 0.8); 
+var_dump(bcadd($a,$b,2) == 0.8);
 
 #==============================  #PHP sprintf()  =================================
 
@@ -1511,19 +1179,19 @@ $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
 #==============================  #PHP strpad 填充字符串  =================================
 
 
-/** 
-* 将字符串填充成指定长度的字符串(多字节安全) 
-* @param string $str 指定被填充的字符串 
-* @param int $len 指定被填充的字符串的长度，如果值为负数或小于字符串的长度则不填充 
-* @param string $pad_str 要填充的字符串 
-* @param int $pad_type 指定填充的方向STR_PAD_RIGHT,STR_PAD_LEFT或STR_PAD_BOTH 
-* @return string 
-*/ 
+/**
+* 将字符串填充成指定长度的字符串(多字节安全)
+* @param string $str 指定被填充的字符串
+* @param int $len 指定被填充的字符串的长度，如果值为负数或小于字符串的长度则不填充
+* @param string $pad_str 要填充的字符串
+* @param int $pad_type 指定填充的方向STR_PAD_RIGHT,STR_PAD_LEFT或STR_PAD_BOTH
+* @return string
+*/
 $input = "Alien"; 
 echo str_pad($input, 10); // produces "Alien " 
 echo str_pad($input, 10, "-=", STR_PAD_LEFT); // produces "-=-=-Alien" 
 echo str_pad($input, 10, "_", STR_PAD_BOTH); // produces "__Alien___" 
-echo str_pad($input, 6 , "___"); // produces "Alien_" 
+echo str_pad($input, 6 , "___"); // produces "Alien_"
 
 #==============================  #PHP 将数组的键值转为为大写或者小写  =================================
 
@@ -1540,18 +1208,18 @@ strtolower() #将字符串转为小写
         #下载图片到本地 $url 图片路径 $filename 文件新名字 1.jpg 1.png 等 $tpye 类型 curl 还是ob_start缓冲文件
         public function GrabImage($url='http://www.naf.ewtouch.com/headimg/2017091418502117140000002123114142.jpg', $filename = "",$type = 1 ) {
 
-         if ($url == ""):return false; endif; 
-         #如果$url地址为空，直接退出 
-         if ($filename == "") { 
-         #如果没有指定新的文件名 
-         $ext = strrchr($url, "."); 
-         #得到$url的图片格式 
-         if ($ext != ".gif" && $ext != ".jpg"  && $ext != ".jpeg"  && $ext != ".png"):return false; 
-         endif; 
-         #如果图片格式不为.gif或者.jpg，直接退出 
-         $filename = date("dMYHis") . $ext; 
-         #用天月面时分秒来命名新的文件名 
-         }  
+         if ($url == ""):return false; endif;
+         #如果$url地址为空，直接退出
+         if ($filename == "") {
+         #如果没有指定新的文件名
+         $ext = strrchr($url, ".");
+         #得到$url的图片格式
+         if ($ext != ".gif" && $ext != ".jpg"  && $ext != ".jpeg"  && $ext != ".png"):return false;
+         endif;
+         #如果图片格式不为.gif或者.jpg，直接退出
+         $filename = date("dMYHis") . $ext;
+         #用天月面时分秒来命名新的文件名
+         }
          if($type){
                 #curl
                 $ch=curl_init();
@@ -1562,10 +1230,10 @@ strtolower() #将字符串转为小写
                 $img=curl_exec($ch);
                 curl_close($ch);
          }else{
-               ob_start(); 
+               ob_start();
                readfile($url);
-               $img=ob_get_contents(); 
-               ob_end_clean(); 
+               $img=ob_get_contents();
+               ob_end_clean();
          }
          $size = strlen($img);#得到图片大小
          #文件路径及名称
@@ -1578,16 +1246,16 @@ strtolower() #将字符串转为小写
              echo '1';
          }else{
              echo 2;
-         };#向当前目录写入图片文件，并重新命名 
-         fclose($fp2); 
+         };#向当前目录写入图片文件，并重新命名
+         fclose($fp2);
          return $filename;#返回新的文件名称
-      } 
+      }
 #==============================  #PHP 数组  =================================
 
  // 获取去掉重复数据的数组 
-    $unique_arr = array_unique ( $array ); 
+    $unique_arr = array_unique ( $array );
     // 获取重复数据的数组 
-    $repeat_arr = array_diff_assoc ( $array, $unique_arr ); 
+    $repeat_arr = array_diff_assoc ( $array, $unique_arr );
 
 #==============================  #PHP 获取毫秒  =================================
 
@@ -1634,42 +1302,42 @@ is_object()  #判断是否为对象
 
 #==============================  #PHP 按字母分组排序  =================================
 
- public static function  getFirstLetter($str){  
+ public static function  getFirstLetter($str){
 
         if(empty($str)){
             return false;
-        }  
-        $fchar = ord($str{0});  
-        if($fchar>=ord('A')&&$fchar<=ord('z')) return strtoupper($str{0});  
-        $s1=iconv('UTF-8','gb2312',$str);  
-        $s2=iconv('gb2312','UTF-8',$s1);  
-        $s=$s2==$str?$s1:$str;  
-        $asc=ord($s{0})*256+ord($s{1})-65536;  
-        if($asc>=-20319&&$asc<=-20284) return 'A';  
-        if($asc>=-20283&&$asc<=-19776) return 'B';  
-        if($asc>=-19775&&$asc<=-19219) return 'C';  
-        if($asc>=-19218&&$asc<=-18711) return 'D';  
-        if($asc>=-18710&&$asc<=-18527) return 'E';  
-        if($asc>=-18526&&$asc<=-18240) return 'F';  
-        if($asc>=-18239&&$asc<=-17923) return 'G';  
-        if($asc>=-17922&&$asc<=-17418) return 'H';  
-        if($asc>=-17417&&$asc<=-16475) return 'J';  
-        if($asc>=-16474&&$asc<=-16213) return 'K';  
-        if($asc>=-16212&&$asc<=-15641) return 'L';  
-        if($asc>=-15640&&$asc<=-15166) return 'M';  
-        if($asc>=-15165&&$asc<=-14923) return 'N';  
-        if($asc>=-14922&&$asc<=-14915) return 'O';  
-        if($asc>=-14914&&$asc<=-14631) return 'P';  
-        if($asc>=-14630&&$asc<=-14150) return 'Q';  
-        if($asc>=-14149&&$asc<=-14091) return 'R';  
-        if($asc>=-14090&&$asc<=-13319) return 'S';  
-        if($asc>=-13318&&$asc<=-12839) return 'T';  
-        if($asc>=-12838&&$asc<=-12557) return 'W';  
-        if($asc>=-12556&&$asc<=-11848) return 'X';  
-        if($asc>=-11847&&$asc<=-11056) return 'Y';  
-        if($asc>=-11055&&$asc<=-10247) return 'Z';  
-        return false;;  
-       }  
+        }
+        $fchar = ord($str{0});
+        if($fchar>=ord('A')&&$fchar<=ord('z')) return strtoupper($str{0});
+        $s1=iconv('UTF-8','gb2312',$str);
+        $s2=iconv('gb2312','UTF-8',$s1);
+        $s=$s2==$str?$s1:$str;
+        $asc=ord($s{0})*256+ord($s{1})-65536;
+        if($asc>=-20319&&$asc<=-20284) return 'A';
+        if($asc>=-20283&&$asc<=-19776) return 'B';
+        if($asc>=-19775&&$asc<=-19219) return 'C';
+        if($asc>=-19218&&$asc<=-18711) return 'D';
+        if($asc>=-18710&&$asc<=-18527) return 'E';
+        if($asc>=-18526&&$asc<=-18240) return 'F';
+        if($asc>=-18239&&$asc<=-17923) return 'G';
+        if($asc>=-17922&&$asc<=-17418) return 'H';
+        if($asc>=-17417&&$asc<=-16475) return 'J';
+        if($asc>=-16474&&$asc<=-16213) return 'K';
+        if($asc>=-16212&&$asc<=-15641) return 'L';
+        if($asc>=-15640&&$asc<=-15166) return 'M';
+        if($asc>=-15165&&$asc<=-14923) return 'N';
+        if($asc>=-14922&&$asc<=-14915) return 'O';
+        if($asc>=-14914&&$asc<=-14631) return 'P';
+        if($asc>=-14630&&$asc<=-14150) return 'Q';
+        if($asc>=-14149&&$asc<=-14091) return 'R';
+        if($asc>=-14090&&$asc<=-13319) return 'S';
+        if($asc>=-13318&&$asc<=-12839) return 'T';
+        if($asc>=-12838&&$asc<=-12557) return 'W';
+        if($asc>=-12556&&$asc<=-11848) return 'X';
+        if($asc>=-11847&&$asc<=-11056) return 'Y';
+        if($asc>=-11055&&$asc<=-10247) return 'Z';
+        return false;;
+       }
        /**
      * 调用字母分组
      */
@@ -1726,7 +1394,7 @@ is_object()  #判断是否为对象
     }
 #==============================  #PHP TP5 上传图片 =================================
 public function upload($file,$path='default'){
-       
+
         #移动到框架应用根目录/public/uploads/ 目录下
           if($file){
             $info = $file->validate(['ext'=>'jpg,jpeg,png,gif'])->move(ROOT_PATH . 'public' . DS . 'uploads'. DS .$path);
@@ -1738,7 +1406,7 @@ public function upload($file,$path='default'){
           }else{
              #上传失败获取错误信息
               echo $file->getError();
-          }    
+          }
     }
 
     public function uploadMony($files,$path='default'){
@@ -1761,7 +1429,7 @@ public function upload($file,$path='default'){
             }else{
                 # 上传失败获取错误信息
                 echo $file->getError();
-            }    
+            }
         }
         return $filename;
     }
@@ -1833,7 +1501,7 @@ class TestController extends Controller
 
 #==============================  #mysql 导出数据结构语句  执行语句之后导出 =================================
 
-select TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,COLUMN_TYPE,COLUMN_COMMENT from information_schema.columns where TABLE_SCHEMA='testzcdjk' 
+select TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,COLUMN_TYPE,COLUMN_COMMENT from information_schema.columns where TABLE_SCHEMA='testzcdjk'
 
 #==============================  #mysql 查询表中数量大于10的=================================
 
@@ -2201,7 +1869,6 @@ echo basename($path);
 
 //显示不带有文件扩展名的文件名
 echo basename($path,".php");
-?> 
 
 #=================================  php tp重定向参数 ====================================
 #        参数值为get 必须是数组
@@ -2415,120 +2082,10 @@ var_dump($arr);
 
 
 
-//常用验证
-#验证姓名
-   public static function CheckName($str){
-      if (!preg_match('/^([\xe4-\xe9][\x80-\xbf]{2}){2,4}$/',$str)) {
-        return '姓名最少两个最多4个汉字';
-        }
-   }
 
-   #验证密码
-    public static function CheckPassword($str){
-    if (!preg_match('/^[a-zA-Z0-9_]{6,16}$/',$str)) {
-      return '密码必须大于6位少于16位的字母或数字';
-      }
-   }
-   #验证交易密码
-    public static function CheckDealPass($str){
-    if (!preg_match('/^[0-9]{6}$/',$str)) {
-      return '交易密码必须为6位数字';
-      }
-   }
-   #生成随机数
-   public static function RandNumber($user_id)
-   {
-    $str = '';
-    do {
-      $str =mt_rand()(1,100).mt_rand(200,900);
-    } while (M('pass_record')->where('user_id='.$user_id.' and pass_number='.$str)->find());
-     return $str;
-   }
-   #生成随机数
-   public static  function RandPass()
-   {
-    $str = md5(mt_rand(0,99)*(substr(time(),0,3)).mt_rand(100,200)*(substr(time(),4,7)));
-    return $str;
-   }
-   #验证手机号
-   public static function CheckPhone($phone){
-      if (!preg_match("/^1[34578]{1}\d{9}$/", I('phone'))) {
-      return '手机号不合法';
-      }
-   }
 
-   #判断两次密码是否一致
-   public static function CheckRepeat($password,$repassword){
-      if ($password != $repassword) {
-      return '两次密码不一致';
-      }
-    }
-    public function check_email($email)
-    {
-      if (!preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/", $email)) {
-        return '邮箱格式不正确!';
-      }
-    }
-//=================================  PHP preg_match()  ====================================
-
-   /* 
-    int preg_match ( string $pattern , string $subject [, array &$matches [, int $flags = 0 [, int $offset = 0 ]]] )$pattern: 要搜索的模式，字符串形式。
-
-    $subject: 输入字符串。
-
-    $matches: 如果提供了参数matches，它将被填充为搜索结果。 $matches[0]将包含完整模式匹配到的文本， $matches[1] 将包含第一个捕获子组匹配到的文本，以此类推。
-
-    $flags：flags 可以被设置为以下标记值：
-
-    PREG_OFFSET_CAPTURE: 如果传递了这个标记，对于每一个出现的匹配返回时会附加字符串偏移量(相对于目标字符串的)。 注意：这会改变填充到matches参数的数组，使其每个元素成为一个由 第0个元素是匹配到的字符串，第1个元素是该匹配字符串 在目标字符串subject中的偏移量。
-
-    offset: 通常，搜索从目标字符串的开始位置开始。可选参数 offset 用于 指定从目标字符串的某个未知开始搜索(单位是字节)。
-
-    返回值
-    返回 pattern 的匹配次数。 它的值将是 0 次（不匹配）或 1 次，因为 preg_match() 在第一次匹配后 将会停止搜索。preg_match_all() 不同于此，它会一直搜索subject 直到到达结尾。 如果发生错误preg_match()返回 FALSE。
-
-    */
    
-//=================================  PHP    laravel 'Data Missing'  ====================================
 
-
-//larave 插入到数据库或者读取数据的时候字段缺少值 或者created_at 或updated_at缺少值或者值不符合时间戳 会报错
-// 当进行toArray操作是会报错
-//=================================  PHP    scandir  ====================================
-
-// scandir() 函数返回指定目录中的文件和目录的数组。
-
-$dir = "/images/";
-
-// 以升序排序 - 默认
-$a = scandir($dir);
-
-// 以降序排序
-$b = scandir($dir,1);
-
-print_r($a);
-print_r($b);
-/*
-结果：
-Array
-(
-[0] => .
-[1] => ..
-[2] => cat.gif
-[3] => dog.gif
-[4] => horse.gif
-[5] => myimages
-)
-Array
-(
-[0] => myimages
-[1] => horse.gif
-[2] => dog.gif
-[3] => cat.gif
-[4] => ..
-[5] => .
-)
-*/
 //=================================  PHP    上手并过渡到PHP7（2）——必须传递int, string, bool参数？没问题  ====================================
 
 
@@ -2549,7 +2106,7 @@ string: 表示字符串类型；
 
 <?php
 function sendHttpResponse(int $statusCode, string $statusText) {
-    
+
 }
 
 sendHttpResponse(200, "OK");
@@ -2570,7 +2127,7 @@ coerciveInt("100.1");  // 100
 coerciveInt("100int"); // 100
 
 function coerciveFloat(float $a) {
-    echo "a = ".$a;    
+    echo "a = ".$a;
 }
 
 coerciveFloat(1);        // 1.0
@@ -2599,7 +2156,7 @@ strictInt("100.1");  // \TypeError
 strictInt("100int"); // \TypeError
 
 function strictFloat(float $a) {
-    echo "a = ".$a;    
+    echo "a = ".$a;
 }
 
 strictFloat(1);        // \TypeError
@@ -2739,7 +2296,7 @@ class Excel extends Base{
     }
 
   /**
-    * excel表格导出 第一种 
+    * excel表格导出 第一种
     * @param string $name 当前活动名称
     * @param string $title 文件名称
     * @param array  $th 表头名称
@@ -2747,34 +2304,34 @@ class Excel extends Base{
     * @author  */
     public function makeExport($tr,$th='',$title='订单列表',$name='普通订单'){
       $PHPExcel = new PHPExcel();
-      #获得当前活动sheet的操作对象    
-          $PHPSheet = $PHPExcel->getActiveSheet();     
-          #给当前活动sheet设置名称 
-      $PHPSheet->setTitle($name);   
+      #获得当前活动sheet的操作对象
+          $PHPSheet = $PHPExcel->getActiveSheet();
+          #给当前活动sheet设置名称
+      $PHPSheet->setTitle($name);
       #判断数据大小
       if (count($tr) < 500) {
-           $array =array_merge_recursive([$th],$tr); 
-               $PHPSheet -> fromArray($array);//数据较大时，不建议使用此方法，建议使用setCellValue()  
+           $array =array_merge_recursive([$th],$tr);
+               $PHPSheet -> fromArray($array);//数据较大时，不建议使用此方法，建议使用setCellValue()
       }else{
-         $PHPSheet->setCellValue('A1','订单ID')->setCellValue('B1','订单编号')->setCellValue('C1','用户名/收货人')->setCellValue('D1','收货地址')->setCellValue('E1','套餐名称')->setCellValue('F1','订单价格')->setCellValue('G1','订单状态')->setCellValue('H1','商品标题')->setCellValue('I1','商品价格')->setCellValue('J1','商品图片')->setCellValue('K1','商品数量');  
+         $PHPSheet->setCellValue('A1','订单ID')->setCellValue('B1','订单编号')->setCellValue('C1','用户名/收货人')->setCellValue('D1','收货地址')->setCellValue('E1','套餐名称')->setCellValue('F1','订单价格')->setCellValue('G1','订单状态')->setCellValue('H1','商品标题')->setCellValue('I1','商品价格')->setCellValue('J1','商品图片')->setCellValue('K1','商品数量');
       }
-       
+
       #给当前活动sheet填充数据，数据填充是按顺序一行一行填充的，假如想给A1留空，可以直接setCellValue('A1',');
-      $PHPWriter = PHPExcel_IOFactory::createWriter($PHPExcel,'Excel2007');     
+      $PHPWriter = PHPExcel_IOFactory::createWriter($PHPExcel,'Excel2007');
       #按照指定格式生成Excel文件，'Excel2007'表示生成2007版本的xlsx，'Excel5'表示生成2003版本Excel文件
       #告诉浏览器输出07Excel文件
-      header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');     
+      header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       #header('Content-Type:application/vnd.ms-excel');     #告诉浏览器将要输出Excel03版本文件
       #告诉浏览器输出浏览器名称
-          header('Content-Disposition: attachment;filename="'.$title.'.xlsx"');  
-          #禁止缓存   
-          header('Cache-Control: max-age=0');     
+          header('Content-Disposition: attachment;filename="'.$title.'.xlsx"');
+          #禁止缓存
+          header('Cache-Control: max-age=0');
           $PHPWriter->save("php://output");
-          
+
   }
 
    /**
-    * excel表格导出 第二种 
+    * excel表格导出 第二种
     * @param string $fileName 文件名称
     * @param array $headArr 表头名称
     * @param array $data 要导出的数据
@@ -2982,7 +2539,7 @@ while(! feof($file))
     if (strpos($info,'php') || strpos($info,'eval')){
         echo 'find php word'."\n";die;
     }
-    
+
 }
 
 fclose($file);
@@ -3284,7 +2841,7 @@ preg_match("/^dfcc[a-zA-Z0-9]{3,6}$/", $param)
 //php5.4 以后，json_encode增加了JSON_UNESCAPED_UNICODE , JSON_PRETTY_PRINT 等几个常量参数。使显示中文与格式化更方便。
 
 //使用 JSON_UNESCAPED_UNICODE 或者  JSON_PRETTY_PRINT 使数据阅读更方便,会自动换行,但是会占用更多的空间
-echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);  
+echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
 
 //=================================  PHP  redis连接  ====================================
 
@@ -3934,14 +3491,14 @@ Array
 
 
 
-多对一替换：想把内容字段里所有的<p></p>标签清除掉,替换成空 
-@str_replace(array('<p>','</p>'), '', $Content) 
+多对一替换：想把内容字段里所有的<p></p>标签清除掉,替换成空
+@str_replace(array('<p>','</p>'), '', $Content)
 
-一对一替换：想把内容字段里所有的<br>标签换成<p> 
+一对一替换：想把内容字段里所有的<br>标签换成<p>
 @str_replace('<br>', '<p>', $Content) 
 
-多对多替换：想把内容字段里的<br>换成<br />, 同时<p>换<hr>，把</p>全清除 
-@str_replace(array('<br>', '<p>','</p>') , array('<br />','<hr>',''), $Content) 
+多对多替换：想把内容字段里的<br>换成<br />, 同时<p>换<hr>，把</p>全清除
+@str_replace(array('<br>', '<p>','</p>') , array('<br />','<hr>',''), $Content)
 
 
 //====================  PHP 简体转繁体 ============================

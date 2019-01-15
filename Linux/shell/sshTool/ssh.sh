@@ -46,7 +46,7 @@ port=${arr[1]}
 host=${arr[2]}
 user=${arr[3]}
 password=${arr[4]}
-$pwds/expects.sh $user $host $port $password 
+$pwds/expects.sh $user $host $port $password
 
 
 #本文件为登录控制
