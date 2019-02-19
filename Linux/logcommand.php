@@ -1040,7 +1040,7 @@ scp -r local_folder remote_ip:remote_folder
    默认端口端口 -P 22 可不加
    2. scp -P 7789 root@172.31.1.22:/www/backup/site/www.zzjbs.com_20180522_185755.zip  /www/wwwroot/wap.zzjbs.com/
    2. scp -P 7789 root@172.31.1.22:/www/wwwroot/tea_chain/tea_chain.tar.gz  /www/wwwroot/tea_chain
- 
+scp -r 可递归上传文件夹
 
 scp  root@47.94.81.150:/www/wwwroot/easyswoole/  ./
 
