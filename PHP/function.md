@@ -1722,15 +1722,14 @@ basename() 函数返回路径中的文件名部分。
 
 ### PHP    大愚支付 微信  
 
-1.引入包
-2.修改命名空间
-3.回调为数组 字段不和官方字段相同
-4.最好事先模拟订单测试回调方法是否正常
-5.需判断返回状态是否成功
-6.需判断金额是否与订单一致
-7.tp5因为驼峰命名导致地址栏的事自动转换为 _和小写  这个时候和微信商户号支付授权目录会找不到该目录,避免这种写法
-8.回调结束如果不成功可输出 exit('success');微信 exit(xml)
-
+  1.引入包
+  2.修改命名空间
+  3.回调为数组 字段不和官方字段相同
+  4.最好事先模拟订单测试回调方法是否正常
+  5.需判断返回状态是否成功
+  6.需判断金额是否与订单一致
+  7.tp5因为驼峰命名导致地址栏的事自动转换为 _和小写  这个时候和微信商户号支付授权目录会找不到该目录,避免这种写法
+  8.回调结束如果不成功可输出 exit('success');微信 exit(xml)
 
 ### PHP   微信 商户号配置  
  
@@ -2177,11 +2176,11 @@ list()
     php think crud -t goods -c good/goods  -m goods  --enumradiosuffix=satatus  --enumradiosuffix=type --editorclass=content --imagefield=image --imagefield=banner --ignorefields=updatetime --ignorefields=deletetime --intdatesuffix=createtime   --force=true -u=设计师 1
     
      
-    --force=true 覆盖模式
+    --force=true 覆盖模式 -f 1
+    -m 0  不生成model
     php think crud -t users -c users/users  -m users  --enumradiosuffix=satatus --force=true
     
     php think menu -c good/rushactivity
-    
     good/rushactivity/index
     
     状态 类型 不显示字段 上传图片 地址  --enumradiosuffix=title_id 生成后会加载控制title来选择selectpage   -u 1 生成菜单 菜单名为标注释
@@ -2192,10 +2191,12 @@ list()
     
     php think crud -t prize_list -c gift/prizegift  -m prizegift --enumradiosuffix=status  --enumradiosuffix=type --intdatesuffix=createtime   --imagefield=image  --ignorefields=updatetime    -u 1 
     
-    php think crud -t record -c users/verifyrecharge  -m verifyrecharge --enumradiosuffix=status --enumradiosuffix=type --enumradiosuffix=money_type  --enumradiosuffix=is_add --intdatesuffix=accesstime  --intdatesuffix=gonetime --ignorefields=updatetime   
-    
+    php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --enumradiosuffix=type --enumradiosuffix=money_type  --enumradiosuffix=is_add --intdatesuffix=accesstime  --intdatesuffix=gonetime --ignorefields=updatetime   
+
+    php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --intdatesuffix=createtime --ignorefields=updatetime   
+
     {:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
-    
+
 #### 小技巧
 
     #加入到字段js中可改变样式 写法
@@ -2224,31 +2225,47 @@ list()
     },
     
 ##### 自定义按钮
-      {
-        field: 'Button',
-        title: '操作',
-        operate: 'RANGE',
-        events: addFunction,
-        formatter: addButtons
+###### 第一步
+    {
+        field: 'operate',
+        title: __('Operate'),
+        operate: false,
+        class: 'button_status',
+        formatter: Controller.api.formatter.buttons
       },
-    
-       function addButtons(value, row, index) {
+###### 第二步  放在为表格绑定事件 下面
+
+      Table.api.bindevent(table);      
+      //点击通过
+      $(document).on('click', ".access", function () {
+          var data = $(this);
+          var id = data.data('id');
+          $.post('shop/shopapply/access', {id: id}, function (res) {
+              if (res.status == 200) {
+                  layer.alert(res.message);
+                  data.parent().siblings('.status').html('<a href="javascript:;" class="searchit" data-toggle="tooltip" title="" data-field="status" data-value="2" data-original-title="点击搜索 通过"><span class="text-success"><i class="fa fa-circle"></i> 通过</span></a>');
+                   data.parent().html('已处理');
+              }else{
+                  layer.alert(res.message);
+              }
+          })
+      });
+
+######  第三步 下面的api绑定加入方法
+        api: {
+            formatter: {
+                buttons: function (value, row, index) {
                     return [
-                        '<button class="btn btn-xs btn-success btn-ajax">通过</button>',
-                        '<button class="btn btn-xs btn-danger btn-ajax">驳回</button>'
-                    ].join()
-        };
-    
-        window.addFunction = {
-               "click .btn-success": function (e, value, row, index) {
-                   console.log((index));
-                   console.log($(this).parent().siblings('.status'));
-                   $(this).parent().siblings('.status').text('通过');
-               }, "click .btn-danger": function (e, value, row, index) {
-                   console.log((index))
-               }
-           }
-    
+                        '<button class="btn btn-xs btn-success access" data-id=' + row.id + '  data-status=' + row.status + ' >通过</button>',
+                        '<button class="btn btn-xs btn-danger reject" data-id=' + row.id + '   data-status=' + row.status + '>驳回</button>'
+                    ];
+                }
+            },
+            bindevent: function () {
+                Form.api.bindevent($("form[role=form]"));
+            }
+        }
+  
 ##### 直接写点击事件 写在下面即可
     
         $(document).on("click", ".ajax_buttons", function () {
@@ -2259,9 +2276,16 @@ list()
         Fast.api.open("coupons/allot?ids="+allotData);
     
 ##### 手动加上的样式 必须在table生成样式之后才会加载绑定事件
+
         //当内容渲染完成后
           table.on('post-body.bs.table', function (e, settings, json, xhr) {
-              console.log($('.statussssss'));
+
+                $.each($('td.button_status'),function(index,value){
+                      var status =$(this).children().data('status');
+                      if(status !== 1){
+                          $(this).html('已处理');
+                      }
+                  });
           });
         
 ##### 关联 
@@ -2474,98 +2498,1146 @@ list()
 
 
 -------------------------------------------------------------------
+### PHP cal_days_in_month() 获取指定月份的天数
+
+    $days = cal_days_in_month(CAL_GREGORIAN, 4, 2011);
+#### 获取当月天数
+    echo date('t');
+
+    如果出现找不到该方法 cal_days_in_month()
+    1.是因为安装php的时候没有 简单的就使用下面的方法
+      if (!function_exists('cal_days_in_month')) 
+      { 
+          function cal_days_in_month($calendar, $month, $year) 
+          { 
+              return date('t', mktime(0, 0, 0, $month, 1, $year)); 
+          } 
+      } 
+
+
+    2.想要使用原方法就用
+    http://www.ypgogo.com/Event/info/vid/53511    
+    Fatal error: Call to undefined function: cal_days_in_month() in ...
+    再去查手册，原来要使用PHP日历函数，必须要在编译的时候使用参数--with-calendar。我们使用的那台服务器显然没有安装这个功能。于是要使用phpize来安装了。方法如下：
+
+    第一步：使用ssh登录服务器，必须有权限才行啊。租用虚拟主机的站长自己想办法吧。
+
+    第二步：找到PHP安装程序
+
+    cd /your_path/php-5.3.14/ext/calendar
+
+    your_path，就是你放PHP安装文件的路径。ext是扩展包的路径。到里面一看，有不少东西呢，关键看有没有calendar这个路径。
+
+    第三步：#/usr/daemon/php/bin/phpize
+
+    这个/usr/daemon是我安装php的路径，你的服务器上在哪里你要自己找一找，用locate找吧
+
+    第四步：#./configure --with-php-config=/usr/daemon/php/bin/php-config
+
+    同样，你的服务器上这个php-config文件肯定与我这个不同。
+
+    第四步：make
+
+    看看有没有错误。有错误的话要处理好再继续下一步。
+
+    第五步：make install
+
+    第六步：修改php.ini文件。在最后添加一句extentsion=calendar.so
+
+    如果你的php.ini文件中extension路径那句还是注释着的话，需要激活。你把目录下的 calendar.so拷贝到你php.ini中的extension_dir指向的目录中。一般第五步结束的时候，会提示你，calendar.so被拷贝到哪个路径了。你注意看就可以发现。
+
+    第七步：重启apache即可。#service httpd restart
+
+
+-------------------------------------------------------------------
+### 计算当前日期的星期日历
+
+    /**
+     * 计算星期
+     */
+    public function week()
+    {
+        //当月天数
+        $total_day = date("t");
+        //当前星期
+        $week = (int)date("N");
+        //当前日期
+        $today = (int)date('d');
+        $date = [];
+        for ($i = $week; $i <= 7; $i++) {
+            //超过了当前月份天数
+            if ($today > $total_day) {
+                $today = 1;
+            } else {
+                $date[$i] = $today++;
+            }
+        }
+        $last_days = 0;
+        //当前日期
+        $today = (int)date('d');
+        for ($i = $week; $i >= 1; $i--) {
+            if ($today <= 0) {
+                if ($last_days == 0) {
+                    //上月天数
+                    $last_days = date('t', mktime(0, 0, 0, date('m') - 1, 1, date('Y')));
+                    $today = (int)$last_days;
+                }
+                $date[$i] = $today--;
+            } else {
+                $date[$i] = $today--;
+
+            }
+        }
+        ksort($date);
+        dd($date);
+    }
+
+
+-------------------------------------------------------------------
+### PHP 查询openssl配置文件路径
+####进入命令行输入
+    echo '<?php phpinfo(); ?>' | php 2>&1 |grep -i ssl
+    默认是为 /usr/local/openssl/openssl.cnf
+
+
+
+-------------------------------------------------------------------
+### PHP生成公钥和私钥对
+          public function makeKey()
+            {
+                //openssl文件路径
+                $opensslConfigPath = "/usr/local/openssl/openssl.cnf";
+                $config = [
+                    'config' => $opensslConfigPath,
+                    "digest_alg" => "sha512",
+                    "private_key_bits" => 2048,
+                    "private_key_type" => OPENSSL_KEYTYPE_RSA,
+                ];
+                //创建密钥对
+                $key = openssl_pkey_new($config);
+                //生成私钥
+                openssl_pkey_export($key, $privkey, null, $config);
+                //生成公钥
+                $pubKey = openssl_pkey_get_details($key)['key'];
+                echo $privkey . "<hr>";
+                echo $pubKey ;
+                //写入到文件或写入到数据库
+                file_put_contents('private.key', $privkey);
+                file_put_contents('public.key', $pubKey);
+            }
+##### 生成结果 每64个字符一个换行
+            私钥
+            -----BEGIN PRIVATE KEY----- 
+            MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDQ385/WvfFOBBY 
+            JVQvKKO2FnbTkh/QsOd+2TpE1pH//aMGA7oVGws6EhA/PBf2e1vhGmPK00Oba4wz /4CKitP5rNGh2ltweOQRhYN5jJGGPiFjBPQwQHckiaNlIMH4PZodqdrceStpNrEd 03PITf6QlIG8WXQbD2RFdWniZ/39V8YijuWQ0GOHM/8rtJLvplU+v8fsdDZaoHqB RJ13NTvsr+9C5ubr540AcWmueM1TdExO+tdM2eaEvZLeFZiXaq9JrlVOHjlUSdPq BB5Q0V8DcDUh4QtMCeG+nW6BThtYjsRoO2dWbb11GJEgqg7c8pDm+aA01O34o877 
+            2jH/KX7VAgMBAAECggEAdQzWdXwO2VBfqGXS1VKa25GfKVT7y0E3mVg2VRlBXAlQ 
+            8C/qeaVcF0DEJguRCil7BZx6S9E0U8ZjHUiTShAeVg5Is8Df+RlmBYOid90UN/xd 
+            TVYbWWbm3WzcSfGfgXNUCEeFRIQKlb12Z9Z1TcyXWYI/acNfU0K+2EXB/oR0SyF/ 
+            r4G7RRnz/YEZPEiYqUAG0TfSMXNxMrYov9G5jE5rUqy3lzcC5Eh1/HJc+IAqw4Pk 
+            qPKOAIvV+n+k9R5OEI5/7PDX/h0KbnF5IsLFMviGHwZCD8A4pse6EgUUmlu4PES8 H9eZyCpbjYy5fyeo6/4pXONROHskgEHtBoCxvD9hSQKBgQDvMC0Ijbs8gmfeFpqM km5U1IDTObnDTQ9kSdoQwg+YTgt7T9zZ2HFnf0tiVFMr1xMSATWv30a02OLaC5w9 
+            J5+9ovUNZ2IJxXQpAslOYb8h0/FtftOZFozx9gBNTrkL35cryBR1cQ3pG6Px5y61 
+            z92FIQiVDgFf4dfjaRM4eeMdKwKBgQDfji2JfDjZEGOGL/sxzjv5b5Ekgdbpnuu/ 
+            1nPlApqX6l67VAJa2CH/DHWUn/9v+Ch1XcQaEJbQpyw9Pj5kYX/MVbwTlnSGW9Ms 
+            0Ym/NNWWdBGZhRA0IuNT87m7gFfllGV9r/ono/Y6UKu1tluhoXo4i20XK5d54PBv 
+            1+KXHi/T/wKBgQCTVkfHRxcZNPMqeR4GjYTtOGGKu7pUNbnPezaasA/PL/Qep5lR j+R7boxPK8Z38OpMYvZhOdZiPF+xFQnPGgNqW2E8OnzHrBvbz12VrNyBx/6mBkPt 
+            v1hfC7wv4thWGgsS6xK/LT72YxJgRpodYMgB49FXj+ME3yePbABs/5gJNQKBgQDN mWP16sIZl8IAWkZqUuLDj8Dr02HE8Dye7OsfdlqZVpoTLLsRs27osxu8Ob3hy1fi QP8mfZVGhkjgdktJZIX1dfAID7pRC0hXEsrdiAjbWxoIl+EEIgXyYtexQuMTqHwC 
+            sQKezGOa1DBnaTQynWDbehc1VQj1tVNLeT/SfZe9HwKBgQCwpP3Ol8N5GoD4ll0e Oz6Xf6J8dpq6Dote4+sUzCwOLHmHb6Wd+tJ95WMCeeuUxhcr6sTLmNHFQFAn8RA9 
+            DYzOQ1FW+iu10k/WfDymuRKeedXZXdgBao/Wya9smwqJb8jPUXnfQfz3vgel2hs5 
+            F7vu+bfBgIW9Dz/TCJAhavCXWQ== 
+            -----END PRIVATE KEY-----
+
+            公钥
+            -----BEGIN PUBLIC KEY----- 
+            MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0N/Of1r3xTgQWCVULyij thZ205If0LDnftk6RNaR//2jBgO6FRsLOhIQPzwX9ntb4RpjytNDm2uMM/+AiorT +azRodpbcHjkEYWDeYyRhj4hYwT0MEB3JImjZSDB+D2aHana3HkraTaxHdNzyE3+ 
+            kJSBvFl0Gw9kRXVp4mf9/VfGIo7lkNBjhzP/K7SS76ZVPr/H7HQ2WqB6gUSddzU7 
+            7K/vQubm6+eNAHFprnjNU3RMTvrXTNnmhL2S3hWYl2qvSa5VTh45VEnT6gQeUNFf A3A1IeELTAnhvp1ugU4bWI7EaDtnVm29dRiRIKoO3PKQ5vmgNNTt+KPO+9ox/yl+ 
+            1QIDAQAB 
+            -----END PUBLIC KEY-----
+
+
+-------------------------------------------------------------------
+### PHP判断扩展是否存在
+    if (!extension_loaded('openssl')) {
+       throw new \Exception('请先安装openssl扩展');
+    }
+
+
+-------------------------------------------------------------------
+
+##  PHP trim 
+包括
+- trim();  //默认去除两边的空格
+- rtrim(); //默认去除右边的空格
+- ltrim(); //默认去除左边的空格
+
+        trim('31222333');   //默认去除两边的空格
+        time('3222333',3);  //去除字符串两边的3
+        rtrim('333222333',3);   //去除字符串右边的3 多个会全部去掉直到不一样的停止
 
 
 
 
 -------------------------------------------------------------------
 
+## PHP array_chunk 分割数组 
+
+    array array_chunk ( array $input , int $size [, bool $preserve_keys = false ] )
+    将一个数组分割成多个数组，其中每个数组的单元数目由 size 决定。最后一个数组的单元数目可能会少于 size个。
+#### 参数
+
+    1. input 
+    需要操作的数组
+    
+    2. size  
+    每个数组的单元数目
+    
+    3. preserve_keys
+    设为 TRUE，可以使 PHP 保留输入数组中原来的键名。如果你指定了 FALSE，那每个结果数组将用从零开始的新数字索引。默认值是 FALSE。
+    
+#### 返回值
+    得到的数组是一个多维数组中的单元，其索引从零开始，每一维包含了 size 个元素。
+    错误／异常
+    如果 size 小于 1，会抛出一个 E_WARNING 错误并返回 NULL。
+
+#### 范例 array_chunk() 例子
+            设置一个数组
+            $input_array = array('a', 'b', 'c', 'd', 'e');
+
+1.常用
+ 
+        print_r(array_chunk($input_array, 2));
+        输出:
+        Array
+        (
+            [0] => Array
+                (
+                    [0] => a
+                    [1] => b
+                )
+        
+            [1] => Array
+                (
+                    [0] => c
+                    [1] => d
+                )
+        
+            [2] => Array
+                (
+                    [0] => e
+                )
+        
+        )
+2.加true 
+       
+        print_r(array_chunk($input_array, 2, true));
+        
+        Array
+        (
+            [0] => Array
+                (
+                    [0] => a
+                    [1] => b
+                )
+        
+            [1] => Array
+                (
+                    [2] => c
+                    [3] => d
+                )
+        
+            [2] => Array
+                (
+                    [4] => e
+                )
+        
+        )
+
+-------------------------------------------------------------------
+## PHP array_column 将数组指定下标为键值 
+#### 参数
+     array_column(array,value,key);
+     1.array 参数1为数组 
+     2.value 为结果需要保留的字段,会变成1维数组key=>value,null为所有 
+     3.key 需要为下标的键
+     
+     //查询出结果数组
+     $users = db('users')->select();
+     
+     $users = array_column($users,null,'id');
+
+-------------------------------------------------------------------
+## PHP str_replace 批量替换内容 
+
+- 多对一替换 
+
+        想把内容字段里所有的<p></p>标签清除掉,替换成空
+        
+        str_replace(array('<p>','</p>'), '', $Content)
+
+- 一对一替换
+    
+        想把内容字段里所有的<br>标签换成<p>
+        ``
+        str_replace('<br>', '<p>', $Content) 
+
+- 多对多替换
+    
+        想把内容字段里的<br>换成<br />, 同时<p>换<hr>，把</p>全清除
+        
+        str_replace(array('<br>', '<p>','</p>') , array('<br />','<hr>',''), $Content)
+
+
+
+-------------------------------------------------------------------
+## PHP 简体转繁体 
+  
+- [错误参考文章链接](https://www.jianshu.com/p/a9d0b9241a27)
+
+
+- [中文简体转繁体文章链接](https://github.com/NauxLiu/opencc4php)   
+
+1. opencc4php 是OpenCC的PHP扩展，能很智能的完成简繁体转换。 
+2. 需要先安装OpenCC扩展 如果此处安装失败可去管方githup地址重新下载编译安装
+3. 你需要先安装1.0.1 版本以上的OpenCC，
+
+###### 安装OpenCC：
+  
+      git clone https://github.com/BYVoid/OpenCC.git --depth 1
+      cd OpenCC
+      make
+      sudo make install
+
+
+###### 安装opencc4php：
+
+      git clone git@github.com:NauxLiu/opencc4php.git --depth 1
+      cd opencc4php
+      phpize    
+      ./configure
+      make && sudo make install
+  
+      - 如果你的OpenCC安装目录不在/usr或/usr/local，可在./configure时添加--with-opencc=[DIR]指定你的OpenCC目录
+    
+      - 要注意phpzie的php版本  多个版本要指定 ./configure --with-php-config=/www/server/php/bin/php-config
+    
+      - 安装完成后加入到php.ini文件最后一行加入
+
+      /www/server/php/71/lib/php/extensions/no-debug-non-zts-20160303/ 这个路径安装完成会显示
+      extension =  /www/server/php/71/lib/php/extensions/no-debug-non-zts-20160303/opencc.so
+
+      如果php -m 提示这条错误
+      PHP Startup: Unable to load dynamic library '/www/server/php/71/lib/php/extensions/no-debug-non-zts-20160303/opencc.so' - libopencc.so.2: cannot open shared object file: No such file or directory in Unknown on line 0
+    
+      那么需要执行 ln -s /usr/lib/libopencc.so.2 /usr/lib64/libopencc.so.2
+      
+      最后查看 php -m 是否有opencc  如果有则重启php开始使用 
+
+
+
+###### 例子
+      $od = opencc_open("s2twp.json"); //传入配置文件名
+      $text = opencc_convert("我鼠标哪儿去了。", $od);
+      echo $text;
+      opencc_close($od);
+
+
+###### 函数列表：
+      opencc_open(string ConfigName) ConfigName:配置文件名，成功返回资源对象，失败返回false
+      opencc_close(resource ob) 关闭资源对象,成功返回true，失败返回false.
+      opencc_error() 返回最后一条错误信息，有错误信息返回String,无错误返回false
+      opencc_convert(string str, resource od) str：要转换的字符串(UTF-8)，od：opencc资源对象
+
+###### 可用配置
+      s2t.json 简体到繁体
+      t2s.json 繁体到简体
+      s2tw.json 简体到台湾正体
+      tw2s.json 台湾正体到简体
+      s2hk.json 简体到香港繁体（香港小学学习字词表标准）
+      hk2s.json 香港繁体（香港小学学习字词表标准）到简体
+      s2twp.json 简体到繁体（台湾正体标准）并转换为台湾常用词汇
+      tw2sp.json 繁体（台湾正体标准）到简体并转换为中国大陆常用词汇
+
+-------------------------------------------------------------------
+## PHP  redis 秒杀商品 
+
+
+-   后台添加活动时将商品的库存添加进入redis
+    
+        public function addRedis($good_ids)
+            {
+                $redis = Redis::getRedis();
+                $goods = \app\admin\model\Goods::where(['type' => 3, 'status' => 1, 'id' => ['in', $good_ids]])->select();
+                //健前缀
+                $key_prefix = config('Redis.goods_prefix');
+                foreach ($goods as $k => $v) {
+                    //检查redis是否有该键
+                    if ($redis->getKeys($key_prefix . $v['id'])) {
+                        //如果有则删除
+                        $redis->del($key_prefix . $v['id']);
+                    }
+                    //循环加入到redis队列
+                    for ($i = 1; $i <= $v['stock']; $i++) {
+                        $redis->lPush($key_prefix . $v['id'], 1);
+                    }
+                    //完成
+                    if ($redis->lLen($key_prefix . $v['id']) != $v['stock']) {
+                        $redis->del($key_prefix . $v['id']);
+                        $this->error('添加活动失败');
+                    }
+                }
+            }
+
+- 前台redis抢购减少
+
+        public function buy(){
+          
+            $good_info = Goods::get($good_id);
+            //查询该商品redis库存
+            $redis = Redis::getRedis();
+            $prefix = config('Redis.goods_prefix');
+            $redis_goods = $prefix . $good_info['id'];
+    
+            //键是否还存在redis中
+            if (!$redis->getKeys($redis_goods)) {
+                return msg(213, '手慢了，已抢完!');
+            }
+            //能否取出 取出的操作一定要放在事物外面 防止和回插的冲突
+            if (!$redis->rPop($redis_goods)) {
+                return msg(214, '手慢了，已抢完!');
+            }
+        
+            try{
+    
+              //进行数据库操作
+    
+            }catch(Exception $e){
+              /如果抛出异常在将redis值插入进去
+              $redis->lPush($redis_goods,1);
+    
+            }
+        }
+
+
+- 注意事项 
+  >   - redis减少和数据库速度不成正比 
+  >   - 库存减少和redis库存会不一致 特比是在事物中 但是又不得不使用事物
+
+- 1.错误写法
+
+  >   ```
+  >   $good_info->stock -= $num; 然后 $good_info->save(); 
+  >
+  >   这种写法在事物中不可取 因为在高并发中查出内容到下面扣除库存的时候已经不一样 
+  >   其他比较快到的进程可能已经扣除了库存 导致保存的时候不是预料的值 高并发的时候无法保存值  
+  >   这种是阻塞的 
+  >   ```  
+- 2.推荐
+  >  用自增或自减的方法 然后将数据库字段设为无符号 当为负数是直接回抛出程序
+  >```
+  >    $goods_stock_res = $goods_model->where(['id' => $good_info['id']])->setDec('stock');
+  >    if (!$goods_stock_res) {
+  >        throw  new Exception('手慢了，已抢完~', 205);
+  >    }
+  >```
 
 
 -------------------------------------------------------------------
 
+## PHP  redis list操作 
 
-
--------------------------------------------------------------------
-
-
-
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
-
-
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
-
-
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
-
-
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
+1. `blpop key1 [key2 ] timeout`
+ 
+    移出并获取列表的第一个元素， 如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。
+2. `brpop key1 [key2 ] timeout`
+ 
+    移出并获取列表的最后一个元素， 如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。
+3. `brpoplpush source destination timeout`
+ 
+    从列表中弹出一个值，将弹出的元素插入到另外一个列表中并返回它； 如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。
+4. `lindex key index`
+ 
+    通过索引获取列表中的元素
+5. `linsert key before|after pivot value`
+ 
+    在列表的元素前或者后插入元素
+6. `llen key`
+ 
+    获取列表长度
+7. `lpop key`
+ 
+    移出并获取列表的第一个元素
+8. `lpush key value1 [value2]`
+ 
+    将一个或多个值插入到列表头部
+9. `lpushx key value`
+ 
+    将一个值插入到已存在的列表头部
+10. `lrange key start stop`
+ 
+    获取列表指定范围内的元素
+11. `lrem key count value`
+ 
+    移除列表元素
+12. `lset key index value`
+ 
+    通过索引设置列表元素的值
+13. `ltrim key start stop`
+ 
+    对一个列表进行修剪(trim)，就是说，让列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除。
+14. `rpop key`
+ 
+    移除列表的最后一个元素，返回值为移除的元素。
+15. `rpoplpush source destination`
+ 
+    移除列表的最后一个元素，并将该元素添加到另一个列表并返回
+16. `rpush key value1 [value2]`
+ 
+    在列表中添加一个或多个值
+17. `rpushx key value`
+ 
+    为已存在的列表添加值
 
 
 
 -------------------------------------------------------------------
+## PHP获取扩展版本号 
+
+    $version = phpversion('swoole');
+
+
+-------------------------------------------------------------------
+## composer 下载安装慢 
+
+1. composer速度慢
+
+    使用国内镜像。[国内镜像地址](http://pkg.phpcomposer.com) 
+    使用方式：
+        
+        修改全局
+        composer config -g repo.packagist composer https://packagist.phpcomposer.com
+        修改当前项目  
+        composer config repo.packagist composer https://packagist.phpcomposer.com 
+
+        上面命令执行之后会在composer.json里面添加镜像的配置信息。
+        
+        "repositories": {
+            "packagist": {
+                "type": "composer",
+                "url": "https://packagist.phpcomposer.com"
+            }
+        }
+
+        然后再下载 很快
+
+
+-------------------------------------------------------------------
+## xdebug 安装 mac 
+
+github [安装地址](https://github.com/xdebug/xdebug)
+
+按照github给的方法安装 
+    
+    如果是安装官方给的安装php的方法 路径也都是默认路径就使用 
+    ./rebuild.sh
+    
+    否则使用
+ 1. `./configure --enable-xdebug --with-php-config=/www/server/php/73/bin/php-config`
+ 2. `make clean`
+ 3. `make`
+ 4. `make install`
+ 5. 配置放到php.ini 文件中
+ 
+          ;扩展信息
+          zend_extension=xdebug.so 
+          ;xdebug 基本配置
+          xdebug.remote_enable=On
+          ;启用代码自动跟踪
+          xdebug.auto_trace=On
+          
+          ;启用性能检测分析
+          xdebug.profiler_enable=On
+          xdebug.profiler_enable_trigger=On
+          xdebug.profiler_output_name = cachegrind.out.%t.%p
+          ;指定性能分析文件的存放目录  /www/xdebuglog/要保证目录可写入权限 用户组网站有权限访问写入
+          xdebug.profiler_output_dir="/www/xdebuglog/" 
+        
+          ;记录 xdebug与调试器会话 日志
+          xdebug.remote_log="/tmp/xdebug.log"
+          xdebug.show_local_vars=0
+        
+          ;配置端口和监听的域名
+          xdebug.remote_port=9000
+          xdebug.remote_host=localhost
+        
+ - profiler_append profiler_enable profiler_enable_trigger 这几个 选项 还是关了吧，不然的话，会在 profiler_output_dir 目录下，产生 几十G 的缓存文件，占磁盘！
+    
+### 检测是否安装上 
+    $ php -v
+      输出:
+      PHP 7.2.0RC6 (cli) (built: Nov 23 2017 10:30:56) ( NTS DEBUG )
+      Copyright (c) 1997-2017 The PHP Group
+      Zend Engine v3.2.0-dev, Copyright (c) 1998-2017 Zend Technologies
+      with Xdebug v2.6.0-dev, Copyright (c) 2002-2017, by Derick Rethans
+    
+      或者输出 phpinfo()  
+      php -r "echo phpinfo();" 
 
 
 
 -------------------------------------------------------------------
+## compsoer 多个php共存版本冲突的问题 
+
+- php73 也可以写成绝对路径此处是加入了软链
+
+        php73 /usr/bin/composer update
+        php73 /usr/bin/composer.phar update
+
+- 如果直接修改 composer 那个二进制文件 文件会导致sha签名不一致
 
 
 
 -------------------------------------------------------------------
+## PHP  final  
 
+- final 官方文档指出 在php5以后的关键字
+- 只能在类中使用 属性不能指定 
+- 可以指定类名 被指定的类不能被继承  
+- 被指定的方法不能被子类重写
+
+
+-------------------------------------------------------------------
+## PHP 数组截取 array_slice() 函数  转载
+
+- 定义和用法
+
+ >   array_slice() 函数在数组中根据条件取出一段值，并返回。
+ >   
+ >   注释：如果数组有字符串键，所返回的数组将保留键名。（参见例子 4）
+    
+- 语法
+
+        array_slice(array,offset,length,preserve)
+    
+- 参数 
+1. > array - 必需,规定输入的数组。
+2. > offset - 必需。数值。规定取出元素的开始位置
+   > - 如果是正数，则从前往后开始取
+   > - 如果是负值，从后向前取 offset 绝对值
+3. > length - 可选。数值。规定被返回数组的长度
+   > - 如果 length 为正，则返回该数量的元素
+   > - 如果 length 为负，则序列将终止在距离数组末端这么远的地方。如果省略，则序列将从 offset 开始直到 array 的末端
+4. > preserve 
+   > - 可选。可能的值：
+   > - true - 保留键
+   > - false - 默认 - 重置键
+
+
+- 例子 1
+
+        $a=array(0=>"Dog",1=>"Cat",2=>"Horse",3=>"Bird");
+        print_r(array_slice($a,1,2));
+        
+        输出：Array ( [0] => Cat [1] => Horse )
+
+
+- 例子 2 带有负的 offset 参数：
+
+        <?php
+        $a=array(0=>"Dog",1=>"Cat",2=>"Horse",3=>"Bird");
+        print_r(array_slice($a,-2,1));
+        
+        输出：Array ( [0] => Horse )
+
+
+- 例子 3 preserve 参数设置为 true：
+
+        $a=array(0=>"Dog",1=>"Cat",2=>"Horse",3=>"Bird");
+        print_r(array_slice($a,1,2,true));
+        
+        输出：Array ( [1] => Cat [2] => Horse )
+
+
+- 例子 4 带有字符串键：
+
+        $a=array("a"=>"Dog","b"=>"Cat","c"=>"Horse","d"=>"Bird");
+        print_r(array_slice($a,1,2));
+        
+        输出：Array ( [b] => Cat [c] => Horse )
 
 
 
 -------------------------------------------------------------------
+## PHP-redis中文文档 
 
+- phpredis是php的一个扩展，效率是相当高有链表排序功能，对创建内存级的模块业务关系很有用;以下是redis官方提供的命令使用技巧:
+
+- 下载地址如下：
+    
+    https://github.com/owlient/phpredis（支持redis 2.0.4）
+
+
+- 构造函数  
+ 
+        参数
+        host: string，服务地址
+        port: int,端口号
+        timeout: float,链接时长 (可选, 默认为 0 ，不限链接时间)
+        注: 在redis.conf中也有时间，默认为300
+        pconnect, popen 不会主动关闭的链接
+        setOption 设置redis模式
+        getOption 查看redis设置的模式
+        ping 查看连接状态
+        
+- 函数库
+
+        get 得到某个key的值（string值）
+        如果该key不存在，return false
+        
+        set 写入key 和 value（string值）
+        如果写入成功，return ture
+        
+        setex 带生存时间的写入值
+        $redis->setex('key', 3600, 'value'); // sets key → value, with 1h TTL.
+        
+        setnx 判断是否重复的，写入值
+        $redis->setnx('key', 'value');
+        $redis->setnx('key', 'value');
+        
+        delete  删除指定key的值
+        返回已经删除key的个数（长整数）
+        $redis->delete('key1', 'key2');
+        $redis->delete(array('key3', 'key4', 'key5'));
+        
+        ttl
+        得到一个key的生存时间
+        
+        persist
+        移除生存时间到期的key
+        如果key到期 true 如果不到期 false
+        
+        mset （redis版本1.1以上才可以用）
+        同时给多个key赋值
+        $redis->mset(array('key0' => 'value0', 'key1' => 'value1'));
+        
+    
+    multi, exec, discard
+    进入或者退出事务模式
+    参数可选Redis::MULTI或Redis::PIPELINE. 默认是 Redis::MULTI
+    Redis::MULTI：将多个操作当成一个事务执行
+    Redis::PIPELINE:让（多条）执行命令简单的，更加快速的发送给服务器，但是没有任何原子性的保证
+    discard:删除一个事务
+    返回值
+    multi()，返回一个redis对象，并进入multi-mode模式，一旦进入multi-mode模式，以后调用的所有方法都会返回相同的对象，只到exec(）方法被调用。
+    
+    watch, unwatch （代码测试后，不能达到所说的效果）
+    监测一个key的值是否被其它的程序更改。如果这个key在watch 和 exec （方法）间被修改，这个 MULTI/EXEC 事务的执行将失败（return false）
+    unwatch  取消被这个程序监测的所有key
+    参数，一对key的列表
+    $redis->watch('x');
+    
+    $ret = $redis->multi() ->incr('x') ->exec();
+    
+    
+    subscribe *
+    方法回调。注意，该方法可能在未来里发生改变
+    
+    publish *
+    发表内容到某一个通道。注意，该方法可能在未来里发生改变
+    
+    exists
+    判断key是否存在。存在 true 不在 false
+    
+    incr, incrBy
+    key中的值进行自增1，如果填写了第二个参数，者自增第二个参数所填的值
+    $redis->incr('key1');
+    $redis->incrBy('key1', 10);
+    
+    decr, decrBy
+    做减法，使用方法同incr
+    
+    getMultiple
+    传参
+    由key组成的数组
+    返回参数
+    如果key存在返回value，不存在返回false
+    $redis->set('key1', 'value1'); $redis->set('key2', 'value2'); $redis->set('key3', 'value3'); $redis->getMultiple(array('key1', 'key2', 'key3'));
+    $redis->lRem('key1', 'A', 2);
+    $redis->lRange('key1', 0, -1);
+    
+    list相关操作
+    lPush
+    $redis->lPush(key, value);
+    在名称为key的list左边（头）添加一个值为value的 元素
+    
+    rPush
+    $redis->rPush(key, value);
+    在名称为key的list右边（尾）添加一个值为value的 元素
+    
+    lPushx/rPushx
+    $redis->lPushx(key, value);
+    在名称为key的list左边(头)/右边（尾）添加一个值为value的元素,如果value已经存在，则不添加
+    
+    lPop/rPop
+    $redis->lPop('key');
+    输出名称为key的list左(头)起/右（尾）起的第一个元素，删除该元素
+    
+    blPop/brPop
+    $redis->blPop('key1', 'key2', 10);
+    lpop命令的block版本。即当timeout为0时，若遇到名称为key i的list不存在或该list为空，则命令结束。如果timeout>0，则遇到上述情况时，等待timeout秒，如果问题没有解决，则对keyi+1开始的list执行pop操作
+    
+    lSize
+    $redis->lSize('key');
+    返回名称为key的list有多少个元素
+    
+    lIndex, lGet
+    $redis->lGet('key', 0);
+    返回名称为key的list中index位置的元素
+    
+    lSet
+    $redis->lSet('key', 0, 'X');
+    给名称为key的list中index位置的元素赋值为value
+    
+    lRange, lGetRange
+    $redis->lRange('key1', 0, -1);
+    返回名称为key的list中start至end之间的元素（end为 -1 ，返回所有）
+    
+    lTrim, listTrim
+    $redis->lTrim('key', start, end);
+    截取名称为key的list，保留start至end之间的元素
+    
+    lRem, lRemove
+    $redis->lRem('key', 'A', 2);
+    删除count个名称为key的list中值为value的元素。count为0，删除所有值为value的元素，count>0从头至尾删除count个值为value的元素，count<0从尾到头删除|count|个值为value的元素
+    
+    lInsert
+    在名称为为key的list中，找到值为pivot 的value，并根据参数Redis::BEFORE | Redis::AFTER，来确定，newvalue 是放在 pivot 的前面，或者后面。如果key不存在，不会插入，如果 pivot不存在，return -1
+    $redis->delete('key1'); $redis->lInsert('key1', Redis::AFTER, 'A', 'X'); $redis->lPush('key1', 'A'); $redis->lPush('key1', 'B'); $redis->lPush('key1', 'C'); $redis->lInsert('key1', Redis::BEFORE, 'C', 'X');
+    $redis->lRange('key1', 0, -1);
+    $redis->lInsert('key1', Redis::AFTER, 'C', 'Y');
+    $redis->lRange('key1', 0, -1);
+    $redis->lInsert('key1', Redis::AFTER, 'W', 'value');
+    
+    rpoplpush
+    返回并删除名称为srckey的list的尾元素，并将该元素添加到名称为dstkey的list的头部
+    $redis->delete('x', 'y');
+    $redis->lPush('x', 'abc'); $redis->lPush('x', 'def'); $redis->lPush('y', '123'); $redis->lPush('y', '456'); // move the last of x to the front of y. var_dump($redis->rpoplpush('x', 'y'));
+    var_dump($redis->lRange('x', 0, -1));
+    var_dump($redis->lRange('y', 0, -1)); 
+    
+    string(3) "abc" 
+    array(1) { [0]=> string(3) "def" } 
+    array(3) { [0]=> string(3) "abc" [1]=> string(3) "456" [2]=> string(3) "123" }
+    
+    SET操作相关
+    sAdd
+    向名称为key的set中添加元素value,如果value存在，不写入，return false
+    $redis->sAdd(key , value);
+    
+    sRem, sRemove
+    删除名称为key的set中的元素value
+    $redis->sAdd('key1' , 'set1');
+    $redis->sAdd('key1' , 'set2');
+    $redis->sAdd('key1' , 'set3');
+    $redis->sRem('key1', 'set2');
+    
+    sMove
+    将value元素从名称为srckey的集合移到名称为dstkey的集合
+    $redis->sMove(seckey, dstkey, value);
+    
+    sIsMember, sContains
+    名称为key的集合中查找是否有value元素，有ture 没有 false
+    $redis->sIsMember(key, value);
+    
+    sCard, sSize
+    返回名称为key的set的元素个数
+    
+    sPop
+    随机返回并删除名称为key的set中一个元素
+    
+    sRandMember
+    随机返回名称为key的set中一个元素，不删除
+    
+    sInter
+    求交集
+    
+    sInterStore
+    求交集并将交集保存到output的集合
+    $redis->sInterStore('output', 'key1', 'key2', 'key3')
+    
+    sUnion
+    求并集
+    $redis->sUnion('s0', 's1', 's2');
+    s0,s1,s2 同时求并集
+    
+    sUnionStore
+    求并集并将并集保存到output的集合
+    $redis->sUnionStore('output', 'key1', 'key2', 'key3')；
+    
+    sDiff
+    求差集
+    
+    sDiffStore
+    求差集并将差集保存到output的集合
+    
+    sMembers, sGetMembers
+    返回名称为key的set的所有元素
+    
+    sort
+    排序，分页等
+    参数
+    'by' => 'some_pattern_*',
+    'limit' => array(0, 1),
+    'get' => 'some_other_pattern_*' or an array of patterns,
+    'sort' => 'asc' or 'desc',
+    'alpha' => TRUE,
+    'store' => 'external-key'
+    例子
+    $redis->delete('s'); $redis->sadd('s', 5); $redis->sadd('s', 4); $redis->sadd('s', 2); $redis->sadd('s', 1); $redis->sadd('s', 3);
+    var_dump($redis->sort('s')); // 1,2,3,4,5
+    var_dump($redis->sort('s', array('sort' => 'desc'))); // 5,4,3,2,1
+    var_dump($redis->sort('s', array('sort' => 'desc', 'store' => 'out'))); // (int)5
+     
+    string命令
+    getSet
+    返回原来key中的值，并将value写入key
+    $redis->set('x', '42');
+    $exValue = $redis->getSet('x', 'lol'); // return '42', replaces x by 'lol'
+    $newValue = $redis->get('x')' // return 'lol'
+    
+    append
+    string，名称为key的string的值在后面加上value
+    $redis->set('key', 'value1');
+    $redis->append('key', 'value2');
+    $redis->get('key');
+    
+    getRange （方法不存在）
+    返回名称为key的string中start至end之间的字符
+    $redis->set('key', 'string value');
+    $redis->getRange('key', 0, 5);
+    $redis->getRange('key', -5, -1);
+    
+    setRange （方法不存在）
+    改变key的string中start至end之间的字符为value
+    $redis->set('key', 'Hello world');
+    $redis->setRange('key', 6, "redis");
+    $redis->get('key');
+    
+    strlen
+    得到key的string的长度
+    $redis->strlen('key');
+    
+    getBit/setBit
+    返回2进制信息
+    
+    zset（sorted set）操作相关
+    zAdd(key, score, member)：向名称为key的zset中添加元素member，score用于排序。如果该元素已经存在，则根据score更新该元素的顺序。
+    $redis->zAdd('key', 1, 'val1');
+    $redis->zAdd('key', 0, 'val0');
+    $redis->zAdd('key', 5, 'val5');
+    $redis->zRange('key', 0, -1); // array(val0, val1, val5)
+    
+    zRange(key, start, end,withscores)：返回名称为key的zset（元素已按score从小到大排序）中的index从start到end的所有元素
+    $redis->zAdd('key1', 0, 'val0');
+    $redis->zAdd('key1', 2, 'val2');
+    $redis->zAdd('key1', 10, 'val10');
+    $redis->zRange('key1', 0, -1); // with scores $redis->zRange('key1', 0, -1, true);
+    
+    zDelete, zRem
+    zRem(key, member) ：删除名称为key的zset中的元素member
+    $redis->zAdd('key', 0, 'val0');
+    $redis->zAdd('key', 2, 'val2');
+    $redis->zAdd('key', 10, 'val10');
+    $redis->zDelete('key', 'val2');
+    $redis->zRange('key', 0, -1); 
+    
+    zRevRange(key, start, end,withscores)：返回名称为key的zset（元素已按score从大到小排序）中的index从start到end的所有元素.withscores: 是否输出socre的值，默认false，不输出
+    $redis->zAdd('key', 0, 'val0');
+    $redis->zAdd('key', 2, 'val2');
+    $redis->zAdd('key', 10, 'val10');
+    $redis->zRevRange('key', 0, -1); // with scores $redis->zRevRange('key', 0, -1, true);
+    
+    zRangeByScore, zRevRangeByScore
+    $redis->zRangeByScore(key, star, end, array(withscores， limit ));
+    返回名称为key的zset中score >= star且score <= end的所有元素
+    
+    zCount
+    $redis->zCount(key, star, end);
+    返回名称为key的zset中score >= star且score <= end的所有元素的个数
+    
+    zRemRangeByScore, zDeleteRangeByScore
+    $redis->zRemRangeByScore('key', star, end);
+    删除名称为key的zset中score >= star且score <= end的所有元素，返回删除个数
+    
+    zSize, zCard
+    返回名称为key的zset的所有元素的个数
+    
+    zScore
+    $redis->zScore(key, val2);
+    返回名称为key的zset中元素val2的score
+    
+    zRank, zRevRank
+    $redis->zRevRank(key, val);
+    返回名称为key的zset（元素已按score从小到大排序）中val元素的rank（即index，从0开始），若没有val元素，返回“null”。zRevRank 是从大到小排序
+    
+    zIncrBy
+    $redis->zIncrBy('key', increment, 'member');
+    如果在名称为key的zset中已经存在元素member，则该元素的score增加increment；否则向集合中添加该元素，其score的值为increment
+    
+    zUnion/zInter
+    参数
+    keyOutput
+    arrayZSetKeys
+    arrayWeights
+    aggregateFunction Either "SUM", "MIN", or "MAX": defines the behaviour to use on duplicate entries during the zUnion.
+    对N个zset求并集和交集，并将最后的集合保存在dstkeyN中。对于集合中每一个元素的score，在进行AGGREGATE运算前，都要乘以对于的WEIGHT参数。如果没有提供WEIGHT，默认为1。默认的AGGREGATE是SUM，即结果集合中元素的score是所有集合对应元素进行SUM运算的值，而MIN和MAX是指，结果集合中元素的score是所有集合对应元素中最小值和最大值。
+    
+    Hash操作
+    hSet
+    $redis->hSet('h', 'key1', 'hello');
+    向名称为h的hash中添加元素key1—>hello
+    
+    hGet
+    $redis->hGet('h', 'key1');
+    返回名称为h的hash中key1对应的value（hello）
+    
+    hLen
+    $redis->hLen('h');
+    返回名称为h的hash中元素个数
+    
+    hDel
+    $redis->hDel('h', 'key1');
+    删除名称为h的hash中键为key1的域
+    
+    hKeys
+    $redis->hKeys('h');
+    返回名称为key的hash中所有键
+    
+    hVals
+    $redis->hVals('h')
+    返回名称为h的hash中所有键对应的value
+    
+    hGetAll
+    $redis->hGetAll('h');
+    返回名称为h的hash中所有的键（field）及其对应的value
+    
+    hExists
+    $redis->hExists('h', 'a');
+    名称为h的hash中是否存在键名字为a的域
+    
+    hIncrBy
+    $redis->hIncrBy('h', 'x', 2);
+    将名称为h的hash中x的value增加2
+    
+    hMset
+    $redis->hMset('user:1', array('name' => 'Joe', 'salary' => 2000));
+    向名称为key的hash中批量添加元素
+    
+    hMGet
+    $redis->hmGet('h', array('field1', 'field2'));
+    返回名称为h的hash中field1,field2对应的value
+    
+    redis 操作相关
+    flushDB
+    清空当前数据库
+    
+    flushAll
+    清空所有数据库
+    
+    randomKey
+    随机返回key空间的一个key
+    $key = $redis->randomKey();
+    
+    select
+    选择一个数据库
+    move
+    转移一个key到另外一个数据库
+    $redis->select(0); // switch to DB 0
+    $redis->set('x', '42'); // write 42 to x
+    $redis->move('x', 1); // move to DB 1
+    $redis->select(1); // switch to DB 1
+    $redis->get('x'); // will return 42
+    
+    rename, renameKey
+    给key重命名
+    $redis->set('x', '42');
+    $redis->rename('x', 'y');
+    $redis->get('y'); // → 42
+    $redis->get('x'); // → `FALSE`
+    
+    renameNx
+    与remane类似，但是，如果重新命名的名字已经存在，不会替换成功
+    
+    setTimeout, expire
+    设定一个key的活动时间（s）
+    $redis->setTimeout('x', 3);
+    
+    expireAt
+    key存活到一个unix时间戳时间
+    $redis->expireAt('x', time() + 3);
+    
+    keys, getKeys
+    返回满足给定pattern的所有key
+    $keyWithUserPrefix = $redis->keys('user*');
+    
+    dbSize
+    查看现在数据库有多少key
+    $count = $redis->dbSize();
+    
+    auth
+    密码认证
+    $redis->auth('foobared');
+    
+    bgrewriteaof
+    使用aof来进行数据库持久化
+    $redis->bgrewriteaof();
+    
+    slaveof
+    选择从服务器
+    $redis->slaveof('10.0.1.7', 6379);
+    
+    save
+    将数据同步保存到磁盘
+    
+    bgsave
+    将数据异步保存到磁盘
+    
+    lastSave
+    返回上次成功将数据保存到磁盘的Unix时戳
+    
+    info
+    返回redis的版本信息等详情
+    
+    
+    
+    type
+    返回key的类型值
+    string: Redis::REDIS_STRING
+    set: Redis::REDIS_SET
+    list: Redis::REDIS_LIST
+    zset: Redis::REDIS_ZSET
+    hash: Redis::REDIS_HASH
+    other: Redis::REDIS_NOT_FOUND
 
 
 -------------------------------------------------------------------
+### MYSQL 
 
+####分组统计金额
+ - ai_balance 统计的字段 
+    
+      SELECT type,sum(ai_balance) as sum FROM users_asset where user_id in($total_ids) and ai_balance > 0 group by type
+
+#### 分组统计并排序
+- amount 统计的字段 ORDER BYamounts 排序的方式 也可以以写为sum(amount)
+
+      SELECT user_id,id,sum(amount) as amounts FROM `xx_orders` WHERE agent_id=201966668 and status=5 GROUP BY user_id ORDER BY amounts DESC
 
 
 -------------------------------------------------------------------
-
+### PHP 创建一个指定长度的指定值的数组
+      
+    //从下标0开始到100,值为0的数组
+     $pad_arr = array_fill(0, 100, 0);
 
 
 

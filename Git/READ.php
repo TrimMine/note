@@ -25,8 +25,12 @@ d0:82:24:8e:d7:f1:bb:9b:33:53:96:93:49:da:9b:e3 schacon@mylaptop.local
 */
 $ cat ~/.ssh/id_rsa.pub
 
+/*----------------------------------------   git 克隆指定的版本  ------------------------------------*/
 
 
+git clone -b v1.0.1 https://github.com/named-data/mini-ndn/
+
+-b表示取特定的分支,v1.0.1指定版本号,后面是github仓库的地址
 
 /*----------------------------------------   git 命令行基本操作  ------------------------------------*/
 /*
@@ -260,3 +264,10 @@ ssh-keygen -t rsa -C "chinesebigcabbage@163.com"
 /*
 git checkout -- 文件名
 git checkout . 全部放弃  添加的文件需要手动删除 
+
+/*----------------------------------------   git .gitignore不生效  ------------------------------------*/
+
+git rm -r --cached .
+git add .
+git commit -m 'update .gitignore'
+

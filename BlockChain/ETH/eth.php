@@ -15,12 +15,16 @@ https://api.etherscan.io/api?module=account&action=balance&address=0x0975CA9F986
 geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jhain.com
 
 nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "*" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
+
 //后台运行并输出到文件
 nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jxym2.cn >> ./eth.log 2>&1 & 
 
 --rpcaddr 0.0.0.0  //全部允许
 --rpccorsdomain api.jicin.com //允许域名
+--datadir  指定块的存储路径
 开启阿里云和宝塔端口
+
+nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "http://115.60.60.173,http://192.168.2.100,http://192.168.2.235" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &
 
 
 香港可用区 B 
