@@ -621,10 +621,6 @@ var_dump之后我们很容易发现，即使取到的空结果集， Eloquent仍
 >        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 >        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
 >        curl_setopt($curl, CURLOPT_TIMEOUT, 10);
->        $headers = [
->            "Content-Type: application/json",
->        ];
->        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers); //设置header
 >        $result = curl_exec($curl);
 >        if (curl_errno($curl)) {
 >            return 'ERROR ' . curl_error($curl);
@@ -1784,7 +1780,17 @@ compsoer包  "phpoffice/phpexcel":"1.8.1"
                $array =array_merge_recursive([$th],$tr);
                    $PHPSheet -> fromArray($array);//数据较大时，不建议使用此方法，建议使用setCellValue()
           }else{
-             $PHPSheet->setCellValue('A1','订单ID')->setCellValue('B1','订单编号')->setCellValue('C1','用户名/收货人')->setCellValue('D1','收货地址')->setCellValue('E1','套餐名称')->setCellValue('F1','订单价格')->setCellValue('G1','订单状态')->setCellValue('H1','商品标题')->setCellValue('I1','商品价格')->setCellValue('J1','商品图片')->setCellValue('K1','商品数量');
+            $PHPSheet->setCellValue('A1','订单ID')
+                ->setCellValue('B1','订单编号')
+                ->setCellValue('C1','用户名/收货人')
+                ->setCellValue('D1','收货地址')
+                ->setCellValue('E1','套餐名称')
+                ->setCellValue('F1','订单价格')
+                ->setCellValue('G1','订单状态')
+                ->setCellValue('H1','商品标题')
+                ->setCellValue('I1','商品价格')
+                ->setCellValue('J1','商品图片')
+                ->setCellValue('K1','商品数量');
           }
     
           #给当前活动sheet填充数据，数据填充是按顺序一行一行填充的，假如想给A1留空，可以直接setCellValue('A1',');
@@ -2180,7 +2186,7 @@ list()
     -m 0  不生成model
     php think crud -t users -c users/users  -m users  --enumradiosuffix=satatus --force=true
     
-    php think menu -c good/rushactivity
+    php think menu -c orders/ordersConfirm
     good/rushactivity/index
     
     状态 类型 不显示字段 上传图片 地址  --enumradiosuffix=title_id 生成后会加载控制title来选择selectpage   -u 1 生成菜单 菜单名为标注释
@@ -2193,7 +2199,7 @@ list()
     
     php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --enumradiosuffix=type --enumradiosuffix=money_type  --enumradiosuffix=is_add --intdatesuffix=accesstime  --intdatesuffix=gonetime --ignorefields=updatetime   
 
-    php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --intdatesuffix=createtime --ignorefields=updatetime   
+    php think crud -t orders_confirm -c ordersconfirm/ordersconfirm  -m ordersconfirm --enumradiosuffix=status -enumradiosuffix=confirm_status  --enumradiosuffix=back_state  --intdatesuffix=createtime   
 
     {:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
 
