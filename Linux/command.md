@@ -16,7 +16,17 @@
     awk '{cnt[$1]++;}END{for(i in cnt){printf("%s\t%s\n", cnt[i], i);}}' access.log.1|sort -n
     
 
--------------------------  ---------------------------
+-------------------------
+### aws使用密码登录
+
+- 亚马逊aws ec2 为了安全起见是禁止密码登录 在创建主机的时候会给出.pem文件 登录也是使用此文件登录
+- 如果想使用密码登录 需要登录上之后设置以下内容 
+  1.先切换到root su root 
+  2.PasswordAuthentication no 改成yes
+  3.PermitRootLogin no 改成yes 此为允许root用户登录 也可以不加 使用其他用户登录 使用过哪个用户登录就修改哪个用户的密码
+  4.passwd root 
+- 注意事项 初次使用aws需要注意他们的初始用户是系统名 比如 centos用户名 就是 centos ubuntu就是ubuntu 
+-------------------------
 ### tail
 
 如果日志在更新，
