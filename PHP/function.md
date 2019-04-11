@@ -2199,7 +2199,7 @@ list()
     
     php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --enumradiosuffix=type --enumradiosuffix=money_type  --enumradiosuffix=is_add --intdatesuffix=accesstime  --intdatesuffix=gonetime --ignorefields=updatetime   
 
-    php think crud -t orders_confirm -c ordersconfirm/ordersconfirm  -m ordersconfirm --enumradiosuffix=status -enumradiosuffix=confirm_status  --enumradiosuffix=back_state  --intdatesuffix=createtime   
+    php think crud -t orders -c orders/timeouts  -m timeouts --enumradiosuffix=status --imagefield=qr_address  --enumradiosuffix=pay_type --enumradiosuffix=notice --enumradiosuffix=back_status  --intdatesuffix=createtime   -f 1
 
     {:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
 

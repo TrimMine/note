@@ -16,7 +16,13 @@
     awk '{cnt[$1]++;}END{for(i in cnt){printf("%s\t%s\n", cnt[i], i);}}' access.log.1|sort -n
     
 
--------------------------  ---------------------------
+-------------------------
+### 登录亚马逊aws方法
+- 创建aws ec2会给一个秘钥文件 
+- `chmod 400 filename.pem` 修改秘钥为不可见才能使用
+- 连接 ssh -i "filename.pem" ubuntu@ec2-54-183-119-93.us-west-1.compute.amazonaws.com
+
+-------------------------
 ### tail
 
 如果日志在更新，
