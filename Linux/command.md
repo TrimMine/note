@@ -33,220 +33,295 @@
   4. `passwd root` 
 - 注意事项 初次使用aws需要注意他们的初始用户是系统名 比如 `centos`用户名 就是 centos `ubuntu`就是ubuntu 
 -------------------------
-### tail
+### tail 命令
 
-如果日志在更新，
-如何实时查看 tail -f /var/log/messages
- 还可以使用 watch -d -n 1 cat /var/log/messages 
- -d表示高亮不同的地方，-n表示多少秒刷新一次。 该指令，不会直接返回命令行，而是实时打印日志文件中新增加的内...
+- 实时查看日志文件
+  
+       tail -f filepath.log
 
-------------------------- netstat ---------------------------
-
-远程连接 ECS 实例。
-运行以下命令查看 TCP 80 是否被监听。
-netstat -an | grep 80
-如果返回以下结果，说明 TCP 80 端口的 Web 服务启动。
-tcp        0      0 0.0.0.0:80                  0.0.0.0:*                   LISTEN
-
-也可以用 nmap 127.0.0.1 来查看对外开放的端口及服务
-yum install -y nmap
--------------------------history---------------------------
-这两种方式虽然能看到执行的命令，但是不能看出执行的时间，我们进行以下操作，让history能显示执行的时间  
-编辑/etc/bashrc文件，添加以下四行： 
-
-HISTFILESIZE=2000  
-HISTSIZE=2000  
-HISTTIMEFORMAT='%F %T '  
-export HISTTIMEFORMAT 
-
-source /etc/bashrc  重新加载文件
--------------------------  sublime gbk 查看中文 ---------------------------
-
-为了解决编码问题，需要安装ConvertToUTF8插件
-
-在下载的时候不能下载 在下面加入即可
-"remote_encoding": "cp1252",
-
--------------------------find---------------------------
-
-查找文件
-find ./ -type f
-
-查找目录
-find ./ -type d
-
-查找名字为test的文件或目录
-find ./ -name test
-
-查找名字符合正则表达式的文件,注意前面的‘.*’(查找到的文件带有目录)
-find ./ -regex .*so.*\.gz
-
-查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令，没有选项-print时文件列表前一行不会显示目录名称)
-find ./ -type d -print -exec ls {} \;
-
--print 递归查询目录
-
-查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令,执行命令前需要确认)
-find ./ -type d -ok ls {} \;
-
-查找目录并列出目录下的文件(将找到的目录添加到ls命令后一次执行，参数过长时会分多次执行)
-
-find ./ -type d -exec ls {} +
-
-      查找所有文件 包含 aaaa的  没有文件名
-      find  ./* -type f  -exec cat {} + | grep aaaa
-
-      查找所有文件包含 s888的文件  含有文件名
-      find ./* -type f -print  | xargs grep "s888." 
-      find ./* -type f   | xargs grep "@eval($_POST" 
-
-      从根目录开始查找所有扩展名为.log的文本文件，并找出包含”ERROR”的行
-      find / -type f -name "*.log" | xargs grep "ERROR"  
-      
-      grep
-      grep -lr 'string' /etc/   进入子目录在所有文件中搜索字符串
-      -i，乎略大小写
-      -l，找出含有这个字符串的文件
-      -r，不放过子目录
+ - 还可以使用 
     
-      find /www/* -iname “*.php” | xargs grep -H -n "eval(base64_decode"
+        watch -d -n 1 cat /var/log/messages 
+
+        -d 表示高亮不同的地方
+        -n 表示多少秒刷新一次。 
+
+-------------------------
+### netstat
+
+##### 主要用于查看端口
+
+- 查看 TCP 80 是否被监听。
+    
+       netstat -an | grep 80
+
+       返回以下结果，说明 TCP 80 端口的 Web 服务启动。
+
+       tcp        0      0 0.0.0.0:80      0.0.0.0:*                   LISTEN
+
+-  也可以使用 nmap 来查看对外开放的端口及服务
+        
+        nmap 127.0.0.1
+
+        #安装nmap
+        yum install -y nmap
+
+-----------------------------
+### history
+- 让history能显示执行的时间  
+1. 编辑/etc/bashrc文件，添加以下四行： 
+
+        HISTFILESIZE=2000  
+        HISTSIZE=2000  
+        HISTTIMEFORMAT='%F %T '  
+        export HISTTIMEFORMAT 
+
+ 2. `source /etc/bashrc`  重新加载文件即生效
+
+---------------------------
+###   sublime gbk 查看中文 
+ - 为了解决编码问题，需要安装ConvertToUTF8插件
+
+ - 在下载的时候不能下载 在下面加入即可
+`"remote_encoding": "cp1252",`
+
+----------------------------------------------------
+### find
+- 查找文件
+  
+      find ./ -type f
+
+- 查找目录
+
+      find ./ -type d
+
+- 查找名字为test的文件或目录
+        
+      find ./ -name test
+
+- 查找名字符合正则表达式的文件,注意前面的‘.*’(查找到的文件带有目录)
+
+      find ./ -regex .*so.*\.gz
+
+- 查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令，没有选项-print时文件列表前一行不会显示目录名称)
+
+      find ./ -type d -print -exec ls {} \;
+
+- 递归查询目录 `-print`
+
+- 查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令,执行命令前需要确认)
+
+      find ./ -type d -ok ls {} \;
+
+- 查找目录并列出目录下的文件(将找到的目录添加到ls命令后一次执行，参数过长时会分多次执行)
+>      find ./ -type d -exec ls {} +
+>
+>      #查找所有文件 包含 aaaa的  没有文件名
+>      find  ./* -type f  -exec cat {} + | grep aaaa
+>
+>      #查找所有文件包含 s888的文件  含有文件名
+>      find ./* -type f -print  | xargs grep "s888." 
+>      find ./* -type f   | xargs grep "@eval($_POST" 
+>
+>      #从根目录开始查找所有扩展名为.log的文本文件，并找出包含”ERROR”的行
+>      find / -type f -name "*.log" | xargs grep "ERROR"  
+>
+###### 配合grep遍历查询
+ >     grep -lr 'string' /etc/   进入子目录在所有文件中搜索字符串
+ >     -i，乎略大小写
+ >     -l，找出含有这个字符串的文件
+ >     -r，不放过子目录
+ >   
+ >     find /www/* -iname “*.php” | xargs grep -H -n "eval(base64_decode"
 
 
-find ./* -type f   | xargs grep "余额提现" 
 
-查找文件名匹配*.c的文件
-find ./ -name \*.c
+- 查找文件名匹配*.c的文件
 
-打印test文件名后，打印test文件的内容
-find ./ -name test -print -exec cat {} \;
+      find ./ -name \*.c
 
-不打印test文件名，只打印test文件的内容
-find ./ -name test -exec cat {} \;
+- 打印test文件名后，打印test文件的内容
 
-查找文件更新日时在距现在时刻二天以内的文件
-find ./ -mtime -2
+      find ./ -name test -print -exec cat {} \;
 
-查找文件更新日时在距现在时刻二天以上的文件
-find ./ -mtime +2
+- 不打印test文件名，只打印test文件的内容
 
-查找文件更新日时在距现在时刻一天以上二天以内的文件
-find ./ -mtime 2
+      find ./ -name test -exec cat {} \;
 
-查找文件更新日时在距现在时刻二分以内的文件
-find ./ -mmin -2
+- 查找文件更新日时在距现在时刻二天以内的文件
 
-查找文件更新日时在距现在时刻二分以上的文件
-find ./ -mmin +2
+      find ./ -mtime -2
 
-查找文件更新日时在距现在时刻一分以上二分以内的文件
-find ./ -mmin 2
+- 查找文件更新日时在距现在时刻二天以上的文件
 
-查找文件更新时间比文件abc的内容更新时间新的文件
-find ./ -newer abc
+      find ./ -mtime +2
 
-查找文件访问时间比文件abc的内容更新时间新的文件
-find ./ -anewer abc
+- 查找文件更新日时在距现在时刻一天以上二天以内的文件
+    
+      find ./ -mtime 2
 
-查找空文件或空目录
-find ./ -empty
+- 查找文件更新日时在距现在时刻二分以内的文件
+      
+      find ./ -mmin -2
 
-查找空文件并删除
-find ./ -empty -type f -print -delete
+- 查找文件更新日时在距现在时刻二分以上的文件
 
-查找权限为644的文件或目录(需完全符合)
-find ./ -perm 664
+      find ./ -mmin +2
 
-查找用户/组权限为读写，其他用户权限为读(其他权限不限)的文件或目录
-find ./ -perm -664
+- 查找文件更新日时在距现在时刻一分以上二分以内的文件
 
-查找用户有写权限或者组用户有写权限的文件或目录
-find ./ -perm /220
-find ./ -perm /u+w,g+w
-find ./ -perm /u=w,g=w
+      find ./ -mmin 2
 
-查找所有者权限有读权限的目录或文件
-find ./ -perm -u=r
+- 查找文件更新时间比文件abc的内容更新时间新的文件
 
-查找用户组权限有读权限的目录或文件
-find ./ -perm -g=r
+      find ./ -newer abc
 
-查找其它用户权限有读权限的目录或文件
-find ./ -perm -o=r
+- 查找文件访问时间比文件abc的内容更新时间新的文件
 
-查找所有者为lzj的文件或目录
-find ./ -user lzj
+      find ./ -anewer abc
 
-查找组名为gname的文件或目录
-find ./ -group gname
+- 查找空文件或空目录
 
-查找文件的用户ID不存在的文件
-find ./ -nouser
+      find ./ -empty
 
-查找文件的组ID不存在的文件
-find ./ -nogroup
+- 查找空文件并删除
 
-查找有执行权限但没有可读权限的文件
-find ./ -executable \! -readable
+      find ./ -empty -type f -print -delete
 
-查找文件size小于10个字节的文件或目录
-find ./ -size -10c
+- 查找权限为644的文件或目录(需完全符合)
 
-查找文件size等于10个字节的文件或目录
-find ./ -size 10c
+      find ./ -perm 664
 
-查找文件size大于10个字节的文件或目录
-find ./ -size +10c
+- 查找用户/组权限为读写，其他用户权限为读(其他权限不限)的文件或目录
 
-查找文件size小于10k的文件或目录
-find ./ -size -10k
+      find ./ -perm -664
 
-查找文件size小于10M的文件或目录
-find ./ -size -10M
+- 查找用户有写权限或者组用户有写权限的文件或目录
 
-查找文件size小于10G的文件或目录
-find ./ -size -10G
+      find ./ -perm /220
+      find ./ -perm /u+w,g+w
+      find ./ -perm /u=w,g=w
 
--------------------------   chattr  --------------------------
+- 查找所有者权限有读权限的目录或文件
 
-chattr命令的用法：chattr [ -RVf ] [ -v version ] [ mode ] files…
-最关键的是在[mode]部分，[mode]部分是由+-=和[ASacDdIijsTtu]这些字符组合的，这部分是用来控制文件的
+      find ./ -perm -u=r
+
+- 查找用户组权限有读权限的目录或文件
+
+      find ./ -perm -g=r
+
+- 查找其它用户权限有读权限的目录或文件
+
+      find ./ -perm -o=r
+
+- 查找所有者为lzj的文件或目录
+
+      find ./ -user lzj
+
+- 查找组名为gname的文件或目录
+
+      find ./ -group gname
+
+- 查找文件的用户ID不存在的文件
+
+      find ./ -nouser
+
+- 查找文件的组ID不存在的文件
+
+      find ./ -nogroup
+
+- 查找有执行权限但没有可读权限的文件
+
+      find ./ -executable \! -readable
+
+- 查找文件size小于10个字节的文件或目录
+
+      find ./ -size -10c
+
+- 查找文件size等于10个字节的文件或目录
+
+      find ./ -size 10c
+
+- 查找文件size大于10个字节的文件或目录
+
+      find ./ -size +10c
+
+- 查找文件size小于10k的文件或目录
+
+      find ./ -size -10k
+
+- 查找文件size小于10M的文件或目录
+
+      find ./ -size -10M
+
+- 查找文件size小于10G的文件或目录
+
+      find ./ -size -10G
+
+-------------------------
+### chattr
+- chattr命令的用法：`chattr [ -RVf ] [ -v version ] [ mode ] files…`
+- 最关键的是在[mode]部分，[mode]部分是由+-=和[ASacDdIijsTtu]这些字符组合的，这部分是用来控制文件的
 属性。
 
-+ ：在原有参数设定基础上，追加参数。
-- ：在原有参数设定基础上，移除参数。
-= ：更新为指定参数设定。
-A：文件或目录的 atime (access time)不可被修改(modified), 可以有效预防例如手提电脑磁盘I/O错误的发生。
-S：硬盘I/O同步选项，功能类似sync。
-a：即append，设定该参数后，只能向文件中添加数据，而不能删除，多用于服务器日志文件安全，只有root才能设定这个属性。
-c：即compresse，设定文件是否经压缩后再存储。读取时需要经过自动解压操作。
-d：即no dump，设定文件不能成为dump程序的备份目标。
-i：设定文件不能被删除、改名、设定链接关系，同时不能写入或新增内容。i参数对于文件 系统的安全设置有很大帮助。
-j：即journal，设定此参数使得当通过mount参数：data=ordered 或者 data=writeback 挂 载的文件系统，文件在写入时会先被记录(在journal中)。如果filesystem被设定参数为 data=journal，则该参数自动失效。
-s：保密性地删除文件或目录，即硬盘空间被全部收回。
-u：与s相反，当设定为u时，数据内容其实还存在磁盘中，可以用于undeletion。
-各参数选项中常用到的是a和i。a选项强制只可添加不可删除，多用于日志系统的安全设定。而i是更为严格的安全设定，只有superuser (root) 或具有CAP_LINUX_IMMUTABLE处理能力（标识）的进程能够施加该选项。
+      
+       - ：在原有参数设定基础上，移除参数。
+      
+       = ：更新为指定参数设定。
+      
+       + ：在原有参数设定基础上，追加参数。
+      
+       A：文件或目录的 atime (access time)不可被修改(modified), 可以有效预防例如手提电脑磁盘I/O错误的发生。
+      
+       S：硬盘I/O同步选项，功能类似sync。
+      
+       a：即append，设定该参数后，只能向文件中添加数据，而不能删除，多用于服务器日志文件安全，只有root才能设定这个属性。
+      
+       c：即compresse，设定文件是否经压缩后再存储。读取时需要经过自动解压操作。
+      
+       d：即no dump，设定文件不能成为dump程序的备份目标。
+      
+       i：设定文件不能被删除、改名、设定链接关系，同时不能写入或新增内容。i参数对于文件 系统的安全设置有很大帮助。
+      
+       j：即journal，设定此参数使得当通过mount参数：data=ordered 或者 data=writeback 挂 载的文件系统，文件在写入时会先被记录(在journal中)。如果filesystem被设定参数为 data=journal，则该参数自动失效。
+      
+       s：保密性地删除文件或目录，即硬盘空间被全部收回。
+      
+       u：与s相反，当设定为u时，数据内容其实还存在磁盘中，可以用于undeletion。
+        
+###### 各参数选项中常用到的是a和i。
 
-应用举例：
+      - a选项强制只可添加不可删除，多用于日志系统的安全设定
+      - i是更为严格的安全设定，只有superuser (root) 或具有CAP_LINUX_IMMUTABLE处理能力（标识）的进程能够施加该选项。
 
-1、用chattr命令防止系统中某个关键文件被修改：
-# chattr +i /etc/resolv.conf
+##### 应用举例：
 
-然后用mv /etc/resolv.conf等命令操作于该文件，都是得到Operation not permitted 的结果。vim编辑该文件时会提示W10: Warning: Changing a readonly file错误。要想修改此文件就要把i属性去掉： chattr -i /etc/resolv.conf
+1. 用chattr命令防止系统中某个关键文件被修改：
 
-# lsattr /etc/resolv.conf
-会显示如下属性
-----i-------- /etc/resolv.conf
+        chattr +i /etc/resolv.conf
 
-2、让某个文件只能往里面追加数据，但不能删除，适用于各种日志文件：
-# chattr +a /var/log/messages
+        然后用mv /etc/resolv.conf等命令操作于该文件，都是得到Operation not permitted 的结果。
+        vim编辑该文件时会提示W10: Warning: Changing a readonly file错误。要想修改此文件就要把i属性去掉： 
+        chattr -i /etc/resolv.conf
+
+2. lsattr /etc/resolv.conf
+
+        会显示如下属性
+        ----i-------- /etc/resolv.conf
+
+3. 让某个文件只能往里面追加数据，但不能删除，适用于各种日志文件：
+
+        chattr +a /var/log/messages
 
 
------------------------- nmcli --------------------------
-要检查网络连接，使用“ sudo nmcli d ”命令。
+------------------------
+### nmcli
 
-如果断开连接，使用“ sudo nmtui ” - >编辑连接，选择您的网络接口并选择“自动连接”选项（按空格键），然后选择确定。
+- 要检查网络连接，使用 `sudo nmcli d` 命令。
 
-“sudo reboot now”登录后，执行“ping www.google.com”。
+- 如果断开连接，使用 `sudo nmtui` 编辑连接，选择您的网络接口并选择“自动连接”选项（按空格键），然后选择确定。
+
+- `sudo reboot now` 登录后，执行“ping www.google.com”。
 
 
 -------------------------- Linux 配置静态ip -------------------------
