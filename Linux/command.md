@@ -2,19 +2,19 @@
 
 
 #### awk
-    awk sort
+```sh
+$ awk sort
     
-    $1表示以空格为分割符的第一个匹配项，也就是文件中的ip地址。使用sort对结果排序，uniq -c进行技术，最后sort -n是以“数字”来排序，针对统计后的访问次数来排序
+#$1表示以空格为分割符的第一个匹配项，也就是文件中的ip地址。使用sort对结果排序，uniq -c进行技术，最后sort -n是以“数字”来排序，针对统计后的访问次数来排序
     
-    awk '{print $1}' access.log.1 |sort|uniq -c|sort -n
+$ awk '{print $1}' access.log.1 |sort|uniq -c|sort -n
     
+$ awk for     
     
-    awk for     
+#默认变量为0，对每一行的$1作为key，cnt数组++，实现ip的计数。计数结束后END。然后把结果打印出来，最后sort -n以“数字”排序。
     
-    默认变量为0，对每一行的$1作为key，cnt数组++，实现ip的计数。计数结束后END。然后把结果打印出来，最后sort -n以“数字”排序。
-    
-    awk '{cnt[$1]++;}END{for(i in cnt){printf("%s\t%s\n", cnt[i], i);}}' access.log.1|sort -n
-    
+$ awk '{cnt[$1]++;}END{for(i in cnt){printf("%s\t%s\n", cnt[i], i);}}' access.log.1|sort -n
+```  
 
 -------------------------
 ### 登录亚马逊aws方法
@@ -79,7 +79,7 @@
  2. `source /etc/bashrc`  重新加载文件即生效
 
 ---------------------------
-###   sublime gbk 查看中文 
+####   sublime gbk 查看中文 
  - 为了解决编码问题，需要安装ConvertToUTF8插件
 
  - 在下载的时候不能下载 在下面加入即可
@@ -323,19 +323,19 @@
 
 - `sudo reboot now` 登录后，执行“ping www.google.com”。
 
+ -------------------------
+### Linux 配置静态ip
 
--------------------------- Linux 配置静态ip -------------------------
+一. 设置静态ip
+1. 立即临时生效，重启后配置丢失
+```sh
+$ ifconfig ens33 192.168.0.10 netmask 255.255.255.0
+$ ifconfig ens33 up
+```
 
-
-1、立即临时生效，重启后配置丢失
-
-ifconfig ens33 192.168.0.10 netmask 255.255.255.0
-ifconfig ens33 up
-
-
-2、重启后生效，重启电脑，IP不会丢失  /etc/sysconfig/network-scripts/ifcfg-ens33
+2. 重启后生效，重启电脑，IP不会丢失  /etc/sysconfig/network-scripts/ifcfg-ens33
 //虚拟机根据情况使用NET模式 
-
+```
 DEVICE=ens33
 BOOTPROTO=static
 TYPE=Ethernet
@@ -349,74 +349,68 @@ ONBOOT=yes
 DNS1=8.8.8.8
 DNS2=8.8.8.4
 
-
+```
 //如果此处不设置dns无法ping通   name or service not known
 
 
-2.此处也要设置  DNS配置文件  /etc/resolv.conf 
-
+二. 此处也要设置  DNS配置文件  /etc/resolv.conf 
+```
 nameserver 8.8.8.8
 nameserver 8.8.4.4
+```
 
-
-3.hostname设置  /etc/sysconfig/network
-
+三. hostname设置  /etc/sysconfig/network
+```
 NETWORKING=yes
 HOSTNAME=localhost.localdomain
 GATWAY=192.168.24.2
-
-
--------------------------- 网络配置文件  -------------------------
-
-
-
-
-网络配置
-/etc/sysconfig/network-scripts/sifcfg-ens33
-
-输入ifconfig -a 可以查看当前网卡配置的IP地址
-
-
-如果还不行找到 
-/etc/sysconfig/network 配置文件如下图 (如果没有需要添加一个默认网关上去)
-
+```
+-------------------------
 	
 
--------------------------- journalctl查看网络信息  -------------------------
+### journalctl查看网络信息 
 
-journalctl -xe  或 systemctl status network.service 
+`journalctl -xe  或 systemctl status network.service `
 
 在虚拟机的环境中，重启网络，命令为
+```sh
 　　service NetworkManager stop
 
 　　service network restart
 
 　　service NetworkManager start
+```
 
-
------------------------- .swp --------------------
+### .swp是什么文件
 编辑文件异常退出 出现.swp文件 
 .文件名.swp
 
------------------------- linux 配置虚拟主机 -------------------
+-------------------
 
-设置dns服务器用于域名解析和上网，但是对于某些特殊的需求我们需要让某个地址解析到特定的地址，可以通过编辑 /etc/hosts文件来实现。类型和windows下的主机头一样
+### linux 配置虚拟主机 
 
-/etc/hosts 修改完就能生效
+      设置dns服务器用于域名解析和上网，但是对于某些特殊的需求我们需要让某个地址解析到特定的地址  
+      可以通过编辑 /etc/hosts文件来实现。类型和windows下的主机头一样
 
-127.0.0.1  swoole.host
+      /etc/hosts 修改完就能生效
 
------------------------- linux du -------------------
+      127.0.0.1  swoole.host
 
-1.输出当前目录下各个子目录所使用的空间
+-------------------
+
+####  du 用法
+```sh
+#1.输出当前目录下各个子目录所使用的空间 常用
 du -h  --max-depth=1
 
-2.按照空间大小排序
+#2.按照空间大小排序
 du|sort -nr|more
 
-3.显示几个文件或目录各自占用磁盘空间的大小，还统计它们的总和
+#3.显示几个文件或目录各自占用磁盘空间的大小，还统计它们的总和
 du -c log30.tar.gz log31.tar.gz
-
+```
+###### 参数
+``` sh
 --max-depth=<目录层数> 超过指定层数的目录后，予以忽略
 
 -a或-all  显示目录中个别文件的大小。   
@@ -448,11 +442,11 @@ du -c log30.tar.gz log31.tar.gz
 -H或--si  与-h参数相同，但是K，M，G是以1000为换算单位。   
 
 -l或--count-links   重复计算硬件链接的文件。
-
-
------------------------- linux rsync -------------------
-
-rsync --help | grep delete
+```
+-------------------
+####  rsync 快速删除
+``` sh
+$ rsync --help | grep delete
     --del                                an alias for --delete-during
     --delete                          delete extraneous files from destination dirs
     --delete-before            receiver deletes before transfer, not during
@@ -462,23 +456,25 @@ rsync --help | grep delete
     --delete-excluded        also delete excluded files from destination dirs
     --ignore-errors            delete even if there are I/O errors
     --max-delete=NUM    don't delete more than NUM files
-
+```
 
 清空目录或文件，如下： 
-1、先建立一个空目录
-
-mkdir /data/blank 
-2、用rsync删除目标目录
-
-rsync --delete-before -d -a -H -v --progress --stats /data/blank/ /var/edatacache/
-或者
-rsync --delete-before -d /data/blank/ /var/edatacache/
-
-
+1. 先建立一个空目录
+```sh
+$ mkdir /data/blank 
+```
+2. 用rsync删除目标目录
+```sh
+$ rsync --delete-before -d -a -H -v --progress --stats /data/blank/ /var/edatacache/
+#或者
+$ rsync --delete-before -d /data/blank/ /var/edatacache/
+```
 这样/var/edatacache目录就被快速的清空了。
 
 
-选项说明：
+```
+选项说明:
+
 –delete-before 接收者在传输之前进行删除操作
 –progress          在传输时显示传输过程
 -a                      归档模式，表示以递归方式传输文件，并保持所有文件属性
@@ -486,21 +482,25 @@ rsync --delete-before -d /data/blank/ /var/edatacache/
 -v                      详细输出模式
 –stats                给出某些文件的传输状态
 -d                      transfer directories without recursing
+```
 
+3. 也可以用来删除大文件
 
-3、也可以用来删除大文件
-假如我们在/root/下有一个几十G甚至上百G的文件data，现在我们要删除它
-一、创建一个空文件
-    touch /root/empty
-二、用rsync清空/root/data文件
-    rsync --delete-before -d --progess --stats /root/empty /root/data
+###### 假如我们在/root/下有一个几十G甚至上百G的文件data，现在我们要删除它
+```sh
+# 创建一个空文件
+$ touch /root/empty
+# 用rsync清空/root/data文件
+$ rsync --delete-before -d --progess --stats /root/empty /root/data
+```
+------------------------
+### linux vim 命令 
 
------------------------- linux vim 命令 ------------------------
+查找字符串等 `:/名称`
 
-查找字符串等   :/ 名称
-
------------------------- linux ls  命令 ------------------------
-
+------------------------
+### linux ls  命令 
+```sh
 ls  列出文件及目录
 
 -l 参数 以详细格式列表
@@ -533,35 +533,36 @@ tools/
 深蓝色---->代表目录
 浅蓝色----->代表链接文件
 灰色---->代表其它的一些文件
-
------------------------- linux rwx ------------------------
-
+```
+### linux rwx 文件权限说明
+```sh
 
 421 421 421
 rwx rwx rwx
 读写执
 
 ------------------------ linux 查看mysql状态 ------------------------
-mysql进程
+#mysql进程
 ps -ef | grep mysql
 
-mysql状态
+#mysql状态
 service mysql status
 
 journalctl -xe 错误信息
 
-查看数据版本信息
- cat /www/server/mysql/version.pl
+#查看数据版本信息
+cat /www/server/mysql/version.pl
 
-宝塔数据库日志 在
+#宝塔数据库日志 在
 /www/server/data/用户名.err  文件
 
-要保证 data  和 mysql 所属组都是 mysql
+#要保证 data  和 mysql 所属组都是 mysql
 chown -R mysql.mysql /www/server/data/
 chown -R mysql.mysql /www/server/mysql/
-
------------------------- linux chmod ------------------------
-
+```
+------------------------
+### linux chmod 修改文件权限
+```sh
 chmod 改变文件或目录的权限
 
 chmod 755 abc：赋予abc权限rwxr-xr-x
@@ -571,13 +572,14 @@ chmod u=rwx，g=rx，o=rx abc：同上u=用户权限，g=组权限，o=不同组
 chmod u-x，g+w abc：给abc去除用户执行的权限，增加组写的权限
 
 chmod a+r abc：给所有用户添加读的权限
+```
+------------------------
 
------------------------- linux ssh连接时间 保持服务器连接 ------------------------
+### linux ssh连接时间 保持服务器连接 
 
-1:
-修改/etc/ssh/sshd_config配置文件
-在这个配置文件里，我们需要关注的配置选项有3个，分别是：
-
+1. 修改/etc/ssh/sshd_config配置文件,在这个配置文件里，我们需要关注的配置选项有3个，分别是：
+```sh
+ 
 TCPKeepAlive yes
 
 ClientAliveInterval 0
@@ -594,7 +596,7 @@ ClientAliveCountMax 3
 
 发送连接后如果客户端没有响应，多少次没有响应后断开连接。默认是3次。
 
-第一个TCPKeepAlive默认值是yes，因此不用修改。需要修改的是下面的两个值，一般情况下的设置是：
+第一个 TCPKeepAlive默认值是yes，因此不用修改。需要修改的是下面的两个值，一般情况下的设置是：
 
 ClientAliveInterval  60
 
@@ -603,6 +605,7 @@ ClientAliveCountMax  60
 即60s向客户端发送一次数据包，失败60次以后才会断开连接。也就是说如果什么都不操作，长达一个小时的时间才会断开连接。如果你觉得这个时间太短了，你还可以把第二个参数的值改成更大的值，比如说120，240这样的
 
 上和下面这两种情况，不管是修改客户端的配置，还是修改服务端的配置，在修改完成后，都需要重启sshd进程，让对应的配置生效
+```
 
 然后重启ssh服务使生效：service sshd reload 
 或者  /bin/systemctl reload sshd.service
@@ -659,11 +662,11 @@ iptables命令行方式：---------------------------------------
        4.查看端口是否开放：/sbin/iptables -L -n
 
        查看端口是否开放：sudo netstat -tnlp | grep 21 如果是linsten状态则是已开启
-    
+
       开启全部 入方向
-      iptables -P INPUT ACCEPT   
+      iptables -P INPUT ACCEPT
       开启全部 入方向
-      iptables -P OUTPUT ACCEPT  
+      iptables -P OUTPUT ACCEPT
       开启部分端口段
 
       -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 700:800 -j ACCEPT
@@ -675,16 +678,16 @@ iptables命令行方式：---------------------------------------
       三、 700: 表示700以及以上所有端
 
       开启关闭 iptables
-      service iptables stop 
+      service iptables stop
 
 Centos7 firewall -------------------------------------
 
       systemctl stop firewalld.service    服务名字叫做firewalld 不是 iptables (iptables只是centos7中只是命令没有服务)
-      
+
 
       配置文件 /etc/firewalld/
-      
-      端口规则文件 /etc/firewalld/zones/ 
+
+      端口规则文件 /etc/firewalld/zones/
 
       查看版本： firewall-cmd --version
 
@@ -714,7 +717,7 @@ Centos7 firewall -------------------------------------
       firewall-cmd --list-all  查看所有
 
       iptables -L
-       
+
 
 
 
@@ -723,22 +726,22 @@ Centos7 firewall -------------------------------------
       firewall-cmd --permanent --zone=public --add-port=80/tcp
 
       firewall-cmd --permanent --zone=public --add-port=80-90/tcp   //端口段
-      
+
       firewall-cmd --reload
-  
+
       当然，firewalld.service需要设为开机自启动。
 
       删除端口
-      
+
       firewall-cmd --zone=public --remove-port=80/tcp --permanent
-  
+
 
       3、如何自定义添加端口
 
       用户可以通过修改配置文件的方式添加端口，也可以通过命令的方式添加端口，注意，修改的内容会在/etc/firewalld/ 目录下的配置文件中还体现。
 
       1、命令的方式添加端口
-      firewall-cmd --permanent --add-port=9527/tcp 
+      firewall-cmd --permanent --add-port=9527/tcp
       参数介绍：
 
       1、firewall-cmd：是Linux提供的操作firewall的一个工具；
@@ -754,8 +757,8 @@ Centos7 firewall -------------------------------------
       --zone=public：指定的zone为public；
 
       如果–zone=dmz 这样设置的话，会在dmz.xml文件中新增一条。
-    
-      
+
+
      4、修改配置文件的方式添加端口
 
       <rule family="ipv4">
@@ -763,8 +766,8 @@ Centos7 firewall -------------------------------------
       <port protocol="tcp" port="10050-10051"/> 协议类型  指定端口
       <accept/> 表示接受
       </rule>
-  
-      对应命令行 
+
+      对应命令行
 
       firewall-cmd --permanent --zone=public --add-rich-rule="rule family="ipv4"  source address="192.168.0.4/24" service name="http" accept"
 
@@ -779,17 +782,17 @@ Centos7 firewall -------------------------------------
 
       firewall-cmd --get-services
 
-      查看所有打开的端口： 
+      查看所有打开的端口：
 
       firewall-cmd --zone=public --list-ports
 
-      更新防火墙规则： 
+      更新防火墙规则：
 
       firewall-cmd --reload
 
 
 出现Failed to start firewalld.service: Unit firewalld.service is masked
-尝试卸载 
+尝试卸载
 systemctl unmask firewalld.service
 再开启
 systemctl status firewalld
@@ -888,15 +891,15 @@ find / -name 软件包
 yum remove 软件包 移除软件包
 
 需要安装底层编译软件
-   yum install openssl-devel  opensll 错误 
+   yum install openssl-devel  opensll 错误
 
 error: curl/curl.h: No such file or directory
    yum install libcurl-dev libcurl-devel
 
 entos安装git
 make[1]: *** [perl.mak] Error 2
-make: *** [perl/perl.mak] Error 2 
-  
+make: *** [perl/perl.mak] Error 2
+
 yum install perl-ExtUtils-MakeMaker package 解决
 
 which: no autoreconf in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin)
@@ -981,7 +984,7 @@ grep -F '*' /etc/profile
 for i in /etc/profile.d/*.sh ; do
 
 4.
-（1.）grep -F YOURSTRING -R path 
+（1.）grep -F YOURSTRING -R path
 
 功能：用grep搜索文档中的字符串
 
@@ -1000,15 +1003,15 @@ grep 精确匹配
 
 一、该shell的作用主要是实现监控某个程序崩溃之后就自动重启该进程。
 [html] view plain copy
-#!/bin/bash  
-  
-while true  
-do   
-    procnum=` ps -ef|grep "test"|grep -v grep|wc -l`  
-   if [ $procnum -eq 0 ]; then  
-       /home/test&  
-   fi  
-   sleep 
+#!/bin/bash
+
+while true
+do
+    procnum=` ps -ef|grep "test"|grep -v grep|wc -l`
+   if [ $procnum -eq 0 ]; then
+       /home/test&
+   fi
+   sleep
 
    -eq意思是等于0，用于判断该test是否还在运行状态。监控/home/test这个程序是否运行。
 
@@ -1023,12 +1026,12 @@ chmod 777 run_start.sh
 
 1）编辑出错文件
         vi run_start.sh
- 
+
 2）查看该格式（报错文件格式是DOS）
         :set ff
 3）修改格式
         :set ff=unix
- 
+
 4）保存退出
         :wq!
 
@@ -1069,7 +1072,7 @@ groups user
 查找到结果后，如何退出查找呢？输入:noh命令 取消搜索。
 
 ------------------------ linux 发送邮件  ------------------------
-1.yum install -y mailx 
+1.yum install -y mailx
 
 2.vim /etc/mail.rc
 
@@ -1085,8 +1088,8 @@ set smtp-auth=login 默认
  或
  mail -s 'localbt1' chinesebigcabbage@163.com < 1.txt
 
-echo '111' 和 cat 1.txt 为邮件内容  
-mail -s 'localbt' 为邮件标题  
+echo '111' 和 cat 1.txt 为邮件内容
+mail -s 'localbt' 为邮件标题
 chinesebigcabbage@163.com 收件人
 
 当邮件内容无法识别或者为中文的时候 会转为附件的形式分发出
@@ -1118,7 +1121,7 @@ scp local_file remote_user@host:remote_folder
 复制local_folder 到远程remote_folder（需要加参数 -r 递归）
 
 scp –r local_folder remote_user@host:remote_folder
-scp -r local_folder remote_ip:remote_folder 
+scp -r local_folder remote_ip:remote_folder
 没有指定用户名后续会输入 用户名和密码 指定后只会输入密码
 
 以上命令反过来写就是远程复制到本地
@@ -1213,7 +1216,7 @@ tar -zcvf ./filename.tar.gz ./* 压缩本文件夹下的所有
 
 压缩
 
-tar -cvf jpg.tar *.jpg //将目录里所有jpg文件打包成tar.jpg 
+tar -cvf jpg.tar *.jpg //将目录里所有jpg文件打包成tar.jpg
 
 tar -czf jpg.tar.gz *.jpg   //将目录里所有jpg文件打包成jpg.tar后，并且将其用gzip压缩，生成一个gzip压缩过的包，命名为jpg.tar.gz
 
@@ -1272,7 +1275,7 @@ ls -al 可以查看到 软连指向的路径  pecl -> /www/server/php/72/bin/pec
 
 添加php永久命令
 # vi /etc/profile
-#export PATH=/www/server/php/70/bin:$PATH 
+#export PATH=/www/server/php/70/bin:$PATH
 #source profile
 如果需要立即生效的话，可以执行# source profile命令。
 
@@ -1281,27 +1284,27 @@ ls -al 可以查看到 软连指向的路径  pecl -> /www/server/php/72/bin/pec
 
 ------------------------ linux  修改添加PATH的三种方法 ------------------------
 
-备注:如果有多个目录下有相同的命令 以靠前的命令优先起作用  
+备注:如果有多个目录下有相同的命令 以靠前的命令优先起作用
 输入 type 命令可检测是哪个命令生效
 type php
 php is hashed (/www/server/php/72/bin/php)
 
 一:修改添加PATH的三种方法
-1.#PATH=$PATH:/etc/apache/bin 
+1.#PATH=$PATH:/etc/apache/bin
 
-使用这种方法,只对当前会话有效，也就是说每当登出或注销系统以后，PATH 设置就会失效 
+使用这种方法,只对当前会话有效，也就是说每当登出或注销系统以后，PATH 设置就会失效
 
-2.#vi /etc/profile 
+2.#vi /etc/profile
 
-在适当位置添加 PATH=$PATH:/etc/apache/bin (注意：= 即等号两边不能有任何空格) 
+在适当位置添加 PATH=$PATH:/etc/apache/bin (注意：= 即等号两边不能有任何空格)
 
-这种方法最好,除非你手动强制修改PATH的值,否则将不会被改变 
+这种方法最好,除非你手动强制修改PATH的值,否则将不会被改变
 
-3.#vi ~/.bash_profile 
+3.#vi ~/.bash_profile
 
-修改PATH行,把/etc/apache/bin添加进去 
+修改PATH行,把/etc/apache/bin添加进去
 
-这种方法是针对用户起作用的 
+这种方法是针对用户起作用的
 
 
 ------------------------ linux  PATH的优先级  ------------------------
@@ -1331,7 +1334,7 @@ php is hashed (/www/server/php/72/bin/php)
 
 
 简单说PATH就是一组路径的字符串变量，当你输入的命令不带任何路径时，LINUX会在PATH记录的路径中查找该命令。有的话则执行，不存在则提示命令找不到。比如在根目录/下可以输入命令ls,在/usr目录下也可以输入ls,但其实ls命令根本不在这个两个目录下，当你输入ls命令时LINUX会去/bin,/usr/bin,/sbin等目录寻找该命令。而PATH就是定义/bin:/sbin:/usr/bin等这些路劲的变量，其中冒号为目录间的分割符。
-如何自定义路径： 
+如何自定义路径：
 假设你新编译安装了一个apache在/usr/local/apache下，你希望每次启动的时候不用敲一大串字符（# /usr/local/apache/bin/apachectl start）才能使用它，而是直接像ls一样在任何地方都直接输入类似这样（# apachectl start）的简短命令。这时，你就需要修改环境变量PATH了，准确的说就是给PATH增加一个值/usr/local/apache/bin。将/usr/local/apache/bin添加到PATH中有三种方法：
 
 1、直接在命令行中设置PATH
@@ -1351,14 +1354,14 @@ php is hashed (/www/server/php/72/bin/php)
 让这次的修改生效。
 注：这种方法只对当前用户起作用的,其他用户该修改无效。
 
- 
 
-去除自定义路径： 
+
+去除自定义路径：
 当你发现新增路径/usr/local/apache/bin没用或不需要时，你可以在以前修改的/etc/profile或~/.bash_profile文件中删除你曾今自定义的路径。
 
-如果配置 PATH配置错误了  并且执行了 source /etc/profile 
+如果配置 PATH配置错误了  并且执行了 source /etc/profile
 可以直接在命令行执行
-export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin    
+export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
 然后再把配置文件改了
 
 修改之前最好 cp 一份
@@ -1370,17 +1373,17 @@ Linux Vi 删除全部内容，删除某行到结尾，删除某段内容 的方�
 原创 2010年11月24日 14:51:00 标签：linux 91108
 1.打开文件
 
-vi filename  
+vi filename
 2.转到文件结尾
-G  
+G
 或转到第9行
-9G  
+9G
 3.删除所有内容(先用G转到文件尾) ，使用：
 
-:1,.d  
+:1,.d
 或者删除第9行到第200行的内容(先用200G转到第200行) ，使用
-:9,.d  
- 
+:9,.d
+
 
 删除说明：这是在vi中 ，“.”当前行 ，“1,.”表示从第一行到当前行 ，“d”删除
 
@@ -1406,9 +1409,9 @@ ps 列出系统中正在运行的进程；
 　　kill 发送信号给一个或多个进程（经常用来杀死一个进程）；
 　　jobs 列出当前shell环境中已启动的任务状态，若未指定jobsid，则显示所有活动的任务状态信息；如果报告了一个任务的终止(即任务的状态被标记为Terminated)，shell 从当前的shell环境已知的列表中删除任务的进程标识；
 　　bg 将进程搬到后台运行（Background）；
-　　fg 将进程搬到前台运行（Foreground）； 
+　　fg 将进程搬到前台运行（Foreground）；
 
-　　将job转移到后台运行 
+　　将job转移到后台运行
 　　如果你经常在X图形下工作，你可能有这样的经历：通过终端命令运行一个GUI程序，GUI界面出来了，但是你的终端还停留在原地，你不能在shell中继续执行其他命令了，除非将GUI程序关掉。
 
 　　为了使程序执行后终端还能继续接受命令，你可以将进程移到后台运行，使用如下命令运行程序： #假设要运行xmms
@@ -1503,10 +1506,10 @@ cat /etc/fstab 查看挂载的磁盘
 
 ------------------------- linux 查看版本信息 ---------------------------
 
-uname -a 详细 -r 内核版本 -s 操作系统 
+uname -a 详细 -r 内核版本 -s 操作系统
 
 lsb_release -a 查看系统发行信息  -r 发行版本
-      
+
 ------------------------- linux nice ---------------------------
 
 nice -10 调整进程优先级
@@ -1516,7 +1519,7 @@ renice  -10  调整正在进行的进程优先级
 at  时间
 at  now + 1 minutes 执行事件
 
-jobs 查看后台进行的进程 
+jobs 查看后台进行的进程
 
 ------------------------- linux  vmstat  ---------------------------
 
@@ -1524,7 +1527,7 @@ vmstat命令是最常见的Linux/Unix监控工具，可以展现给定时间间�
 
 运行示例
 一般vmstat工具的使用是通过两个数字参数来完成的，第一个参数是采样的时间间隔数，单位是秒，第二个参数是采样的次数，如:
- 
+
 root@vm-199:~# vmstat 2 1
 procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----
  r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa
@@ -1566,7 +1569,7 @@ du -h | sort -hr | head(或tail) -20  文件的大小排序 只显示20行
 > ls --sort=time -la # 等价于> ls -alt
 > ls -alc # 按创建时间排序
 > ls -alu # 按访问时间排序
- 
+
 # 以上均可使用-r实现逆序排序
 > ls -alrt # 按修改时间排序
 > ls --sort=time -lra # 等价于> ls -alrt
@@ -1576,7 +1579,7 @@ du -h | sort -hr | head(或tail) -20  文件的大小排序 只显示20行
 ------------------------- linux  某个文件里面是否包含字符串 ---------------------------
 
 
-1：搜索某个文件里面是否包含字符串，使用 
+1：搜索某个文件里面是否包含字符串，使用
 
 grep "查找的文本"  文件名
 grep "查找的文本"  ./* 本目录全部文件
@@ -1590,22 +1593,22 @@ grep "查找的文本"  ./* 本目录全部文件
 
 ------------------------- linux  恢复删的的文件  ---------------------------
 
-在误删文件之后要马上停止系统的访问,暂停系统运行,防止新建的文件占用已被删除文件的inode号 
+在误删文件之后要马上停止系统的访问,暂停系统运行,防止新建的文件占用已被删除文件的inode号
 
-1.查看系统文件格式 
+1.查看系统文件格式
   lsb_release -a
 
 2.查看被删除文件所在分区
   df /被删除文件所在目录
 
 3.利用debugfs
-  debugfs 
+  debugfs
 
 4.打开所在分区
   open /dev/vda1
 
 5.查看被删除文件
- ls -d /被删除目录  其中<12121>中是被删除的文件 
+ ls -d /被删除目录  其中<12121>中是被删除的文件
 
 6.显示有<>尖括号的就是我们要找的文件Inode 号 执行
  logdump –i  <19662057>
@@ -1613,7 +1616,7 @@ grep "查找的文本"  ./* 本目录全部文件
 Inode 1026632 is at group 125, block 4097109, offset 896
 Journal starts at block 28332, transaction 4220648
 Found sequence 4217367 (not 4221502) at block 3461: end of journal.
-8.退出debugfs 
+8.退出debugfs
 dd if/dev/vda1 of=/被删目录/文件名 bs=offset(号码) count=1 skip=block(号码)
 
 进入目录查看是否成功
@@ -1626,13 +1629,13 @@ dd if/dev/vda1 of=/被删目录/文件名 bs=offset(号码) count=1 skip=block(�
 
 虚拟主机就是利用虚拟化的技术，将一台服务器划分出一定大小的空间，每个空间都给予单独的 FTP 权限和 Web 访问权限，多个用户共同平均使用这台服务器的硬件资源。不同配置的虚拟主机主要是在磁盘空间、数据库大小、流量上面的区别。虚拟主机也有可以分为独享的虚拟主机，和共享的虚拟主机。顾名思义，两者之间的区别在于服务器资源的独享和共享。网站主机、空间、都是一个意思。这一类的主机用户的权限很低，没有远程桌面，只有FTP权限供用户上传文档等操作。优势是比较价格便宜。
 
- 
+
 
 2、VPS
 
 先说一下vps，Virtual Private Server 虚拟专用服务器,一般是将一个独立服务器通过虚拟化技术虚拟成多个虚拟专用服务器。与虚拟主机不同的是，你拥有的是一台虚拟的服务器，类似于Windows上的虚拟机一样，虽然是虚拟的，但是使用起来，和使用客户机没有什么区别。同理，VPS可以使用远程桌面登录对服务器进行维护操作。
 
- 
+
 
 3、ECS云服务器
 
@@ -1646,28 +1649,28 @@ lsof -i :80  查看80端口占用的程序
 lsof -i 查看所有 lsof -i -p -n
 nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
 
-查看 lsof -i :80 
+查看 lsof -i :80
 kill -9 PID
 kill -9 PID
 
 service nginx start
 
 
-如果以上方法 kill不能杀死程序 
+如果以上方法 kill不能杀死程序
 可使用命令关闭占用80端口的程序
 
 sudo fuser -k 80/tcp
 
 ------------------------- linux  fuser功能  ---------------------------
 
-fuser 可以显示出当前哪个程序在使用磁盘上的某个文件、挂载点、甚至网络端口，并给出程序进程的详细信息. 
-fuser显示使用指定文件或者文件系统的进程ID.默认情况下每个文件名后面跟一个字母表示访问类型。 
-访问类型如下： 
-c 代表当前目录 
-e 将此文件作为程序的可执行对象使用 
-f 打开的文件。默认不显示。 
-F 打开的文件，用于写操作。默认不显示。 
-r 根目录。 
+fuser 可以显示出当前哪个程序在使用磁盘上的某个文件、挂载点、甚至网络端口，并给出程序进程的详细信息.
+fuser显示使用指定文件或者文件系统的进程ID.默认情况下每个文件名后面跟一个字母表示访问类型。
+访问类型如下：
+c 代表当前目录
+e 将此文件作为程序的可执行对象使用
+f 打开的文件。默认不显示。
+F 打开的文件，用于写操作。默认不显示。
+r 根目录。
 m 映射文件或者共享库。
 
 
@@ -1687,25 +1690,25 @@ fuser –k –i /path/to/your/filename
 
 
 s 将此文件作为共享库（或其他可装载对象）使用
-当指定的文件没有被访问，或者出现错误的时候，fuser会返回非零。 
-为了查看使用tcp和udp套接字的进程，需要-n选项并指定名称空间。默认IpV4和IpV6都会显示。套接字可以是本地的或者是远程的端口，和远程的地址。所有的域是可选的，但是其前面的','必须存在。如下： 
-[lcl_port][,[rmt_host][,[rmt_port]]] 
-对于ip地址和port，名称和数字表示都可以使用。 
-fuser只把PID输出到标准输出，其他的都输出到标准错误输出。 
+当指定的文件没有被访问，或者出现错误的时候，fuser会返回非零。
+为了查看使用tcp和udp套接字的进程，需要-n选项并指定名称空间。默认IpV4和IpV6都会显示。套接字可以是本地的或者是远程的端口，和远程的地址。所有的域是可选的，但是其前面的','必须存在。如下：
+[lcl_port][,[rmt_host][,[rmt_port]]]
+对于ip地址和port，名称和数字表示都可以使用。
+fuser只把PID输出到标准输出，其他的都输出到标准错误输出。
 常用选项
--a 显示所有命令行中指定的文件，默认情况下被访问的文件才会被显示。 
--c 和-m一样，用于POSIX兼容。 
--k 杀掉访问文件的进程。如果没有指定-signal就会发送SIGKILL信号。 
--i 杀掉进程之前询问用户，如果没有-k这个选项会被忽略。 
--l 列出所有已知的信号名称。 
--m name 指定一个挂载文件系统上的文件或者被挂载的块设备（名称name）。这样所有访问这个文件或者文件系统的进程都会被列出来。如果指定的是一个目录会自动转换成"name/",并使用所有挂载在那个目录下面的文件系统。 
--n space 指定一个不同的命名空间(space).这里支持不同的空间文件(文件名，此处默认)、tcp(本地tcp端口)、udp(本地udp端口)。对于端口， 可以指定端口号或者名称，如果不会引起歧义那么可以使用简单表示的形式，例如：name/space (即形如:80/tcp之类的表示)。 
--s 静默模式，这时候-u,-v会被忽略。-a不能和-s一起使用。 
--signal 使用指定的信号，而不是用SIGKILL来杀掉进程。可以通过名称或者号码来表示信号(例如-HUP,-1),这个选项要和-k一起使用，否则会被忽略。 
--u 在每个PID后面添加进程拥有者的用户名称。 
--v 详细模式。输出似ps命令的输出，包含PID,USER,COMMAND等许多域,如果是内核访问的那么PID为kernel. -V 输出版本号。 
--4 使用IPV4套接字,不能和-6一起应用，只在-n的tcp和udp的命名存在时不被忽略。 
--6 使用IPV6套接字,不能和-4一起应用，只在-n的tcp和udp的命名存在时不被忽略。 
+-a 显示所有命令行中指定的文件，默认情况下被访问的文件才会被显示。
+-c 和-m一样，用于POSIX兼容。
+-k 杀掉访问文件的进程。如果没有指定-signal就会发送SIGKILL信号。
+-i 杀掉进程之前询问用户，如果没有-k这个选项会被忽略。
+-l 列出所有已知的信号名称。
+-m name 指定一个挂载文件系统上的文件或者被挂载的块设备（名称name）。这样所有访问这个文件或者文件系统的进程都会被列出来。如果指定的是一个目录会自动转换成"name/",并使用所有挂载在那个目录下面的文件系统。
+-n space 指定一个不同的命名空间(space).这里支持不同的空间文件(文件名，此处默认)、tcp(本地tcp端口)、udp(本地udp端口)。对于端口， 可以指定端口号或者名称，如果不会引起歧义那么可以使用简单表示的形式，例如：name/space (即形如:80/tcp之类的表示)。
+-s 静默模式，这时候-u,-v会被忽略。-a不能和-s一起使用。
+-signal 使用指定的信号，而不是用SIGKILL来杀掉进程。可以通过名称或者号码来表示信号(例如-HUP,-1),这个选项要和-k一起使用，否则会被忽略。
+-u 在每个PID后面添加进程拥有者的用户名称。
+-v 详细模式。输出似ps命令的输出，包含PID,USER,COMMAND等许多域,如果是内核访问的那么PID为kernel. -V 输出版本号。
+-4 使用IPV4套接字,不能和-6一起应用，只在-n的tcp和udp的命名存在时不被忽略。
+-6 使用IPV6套接字,不能和-4一起应用，只在-n的tcp和udp的命名存在时不被忽略。
 - 重置所有的选项，把信号设置为SIGKILL.
 
 
@@ -1749,9 +1752,9 @@ location / {
 }
 
 3.laravel5
-location / {  
-  try_files $uri $uri/ /index.php$is_args$query_string;  
-}  
+location / {
+  try_files $uri $uri/ /index.php$is_args$query_string;
+}
 
 4.vue前端
 location ~* \.(eot|otf|ttf|woff)$ {
@@ -1764,7 +1767,7 @@ if (!-e $request_filename){
 }
 }
 
-5.apache 
+5.apache
 <IfModule mod_rewrite.c>
   Options +FollowSymlinks
   RewriteEngine On
@@ -1874,7 +1877,7 @@ kill -9 -1
 ------------------------- linux  killall 选项---------------------------
 
 killall -l
-killall -V  
+killall -V
 DESCRIPTION (描述)
 killall 发送一条信号给所有运行任意指定命令的进程. 如果没有指定信号名, 则发送SIGTERM.。
 信号可以以名字 (如 -HUP ) 或者数字 (如 -1 ) 的方式指定. 信号 0 (检查进程是否存在)只能以数字方式指定。
@@ -1989,9 +1992,9 @@ who 也可以查看登录用户
    如上踢出用户的命令为： pkill -kill -t pts/1
 
    只有root用户才能踢人，至少我测试的是这样的。如果同时有二个人用root用户登录，任何其中一个可以   踢掉另一个。任何用户都可以踢掉自己-_-
-   如何踢掉用终端登陆的用户，如： 
+   如何踢掉用终端登陆的用户，如：
    root     pts/0    :0.0             10:01    0.00s 0.03s 0.00s w
-   
+
    首先用命令查看pts/0的进程号，命令如下：
    [root@Wang ~]# ps -ef | grep pts/0
 
@@ -2022,8 +2025,8 @@ ps e 列出程序时，显示每个程序所使用的环境变量。
 ps f 用ASCII字符显示树状结构，表达程序间的相互关系
 -e : 在命令执行后显示环境
 　　-f : 完整显示输出
-•        标为 C 的列是由 CPU 用于计算执行优先级的因子。 
-•        STIME 是指进程的启动时间。 
+•        标为 C 的列是由 CPU 用于计算执行优先级的因子。
+•        STIME 是指进程的启动时间。
 •        问号表示这些进程不属于任何 TTY，因为它们是由系统启动的。
 
 
@@ -2037,75 +2040,75 @@ ps f 用ASCII字符显示树状结构，表达程序间的相互关系
 PPID 是父进程的标识号。对于 Oracle 进程，这里的标识号为 1 — 它是 init 进程（所有进程的父进程）的 id，因为在本系统中安装的 Oracle 是作为登录进程的一部分而启动的
 4) CPU 调度情况 （C）
 即是是由 CPU 用于计算执行优先级的因子。
-5) 进程启动的时间 （STIME） 
-6) 进程共占用CPU的时间（TIME） 
-7) 启动进程的命令 （CMD） 
+5) 进程启动的时间 （STIME）
+6) 进程共占用CPU的时间（TIME）
+7) 启动进程的命令 （CMD）
 8）问号表示这些进程不属于任何 TTY，因为它们是由系统启动的。
 
-使用PS命令分析系统性能的方法主要有： 
-1) 首先，根据用户ID寻找由同一用户执行的许多相似任务，这些任务很可能是因为用户运行的某个脚本程序在后台启动多个进程而造成的。 
-2) 接下来，检查TIME域中各进程累计占用CPU的时间，如果有某个进程累计占用了大量的CPU时间，通常说明该进程可能陷入了无限循环，或该京城的某写逻辑出了错 
-3) 找到那些已陷入死锁的进程ID后，就可以使用kill命令强制终止该进程了。 
+使用PS命令分析系统性能的方法主要有：
+1) 首先，根据用户ID寻找由同一用户执行的许多相似任务，这些任务很可能是因为用户运行的某个脚本程序在后台启动多个进程而造成的。
+2) 接下来，检查TIME域中各进程累计占用CPU的时间，如果有某个进程累计占用了大量的CPU时间，通常说明该进程可能陷入了无限循环，或该京城的某写逻辑出了错
+3) 找到那些已陷入死锁的进程ID后，就可以使用kill命令强制终止该进程了。
 
 
 ------------------------- linux  ps 五种进程状态 ---------------------------
 
-linux上进程有5种状态: 
-1. 运行(正在运行或在运行队列中等待) 
-2. 中断(休眠中, 受阻, 在等待某个条件的形成或接受到信号) 
-3. 不可中断(收到信号不唤醒和不可运行, 进程必须等待直到有中断发生) 
-4. 僵死(进程已终止, 但进程描述符存在, 直到父进程调用wait4()系统调用后释放) 
+linux上进程有5种状态:
+1. 运行(正在运行或在运行队列中等待)
+2. 中断(休眠中, 受阻, 在等待某个条件的形成或接受到信号)
+3. 不可中断(收到信号不唤醒和不可运行, 进程必须等待直到有中断发生)
+4. 僵死(进程已终止, 但进程描述符存在, 直到父进程调用wait4()系统调用后释放)
 5. 停止(进程收到SIGSTOP, SIGSTP, SIGTIN, SIGTOU信号后停止运行运行)
 
 
-ps工具标识进程的5种状态码: 
-D 不可中断 uninterruptible sleep (usually IO) 
-R 运行 runnable (on run queue) 
-S 中断 sleeping 
-T 停止 traced or stopped 
+ps工具标识进程的5种状态码:
+D 不可中断 uninterruptible sleep (usually IO)
+R 运行 runnable (on run queue)
+S 中断 sleeping
+T 停止 traced or stopped
 Z 僵死 a defunct (”zombie”) process
 
 
 
 ------------------------- linux  ps au(x) 输出格式 :： ---------------------------
 
-名称：ps 
-使用权限：所有使用者 
-使用方式：ps [options] [--help] 
-说明：显示瞬间行程 (process) 的动态 
-参数： 
-ps 的参数非常多, 在此仅列出几个常用的参数并大略介绍含义 
--A 列出所有的行程 
--w 显示加宽可以显示较多的资讯 
--au 显示较详细的资讯 
+名称：ps
+使用权限：所有使用者
+使用方式：ps [options] [--help]
+说明：显示瞬间行程 (process) 的动态
+参数：
+ps 的参数非常多, 在此仅列出几个常用的参数并大略介绍含义
+-A 列出所有的行程
+-w 显示加宽可以显示较多的资讯
+-au 显示较详细的资讯
 -aux 显示所有包含其他使用者的行程
 
-USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND 
-USER: 行程拥有者 
-PID: pid 
-%CPU: 占用的 CPU 使用率 
-%MEM: 占用的记忆体使用率 
-VSZ: 占用的虚拟记忆体大小 
-RSS: 占用的记忆体大小 
-TTY: 终端的次要装置号码 (minor device number of tty) 
-STAT: 该行程的状态: 
-D: 不可中断的静止 
-R: 正在执行中 
-S: 静止状态 
-T: 暂停执行 
-Z: 不存在但暂时无法消除 
-W: 没有足够的记忆体分页可分配 
-<: 高优先序的行程 
-N: 低优先序的行程 
-L: 有记忆体分页分配并锁在记忆体内 (即时系统或捱A I/O) 
-START: 行程开始时间 
-TIME: 执行的时间 
+USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
+USER: 行程拥有者
+PID: pid
+%CPU: 占用的 CPU 使用率
+%MEM: 占用的记忆体使用率
+VSZ: 占用的虚拟记忆体大小
+RSS: 占用的记忆体大小
+TTY: 终端的次要装置号码 (minor device number of tty)
+STAT: 该行程的状态:
+D: 不可中断的静止
+R: 正在执行中
+S: 静止状态
+T: 暂停执行
+Z: 不存在但暂时无法消除
+W: 没有足够的记忆体分页可分配
+<: 高优先序的行程
+N: 低优先序的行程
+L: 有记忆体分页分配并锁在记忆体内 (即时系统或捱A I/O)
+START: 行程开始时间
+TIME: 执行的时间
 COMMAND:所执行的指令
 
 ------------------------- linux  ps 具体命令解释如下： ---------------------------
 
 
-具体命令解释如下： 
+具体命令解释如下：
 　　1）ps a 显示现行终端机下的所有程序，包括其他用户的程序。
 
 　　2）ps -A 显示所有程序。
@@ -2149,90 +2152,90 @@ mpstat -P ALL  和  sar -P ALL
 https://blog.csdn.net/x_i_y_u_e/article/details/38708481
 
 
-Ps 只为您提供当前进程的快照。要即时查看最活跃的进程，可使用 top。 
+Ps 只为您提供当前进程的快照。要即时查看最活跃的进程，可使用 top。
 
-Top 实时地提供进程信息。它还拥有交互式的状态，允许用户输入命令，如 n 后面跟有 5 或 10 等数字。其结果是指示 top 显示 5 或 10 个最活跃的进程。 Top 持续运行，直到您按 "q" 退出 top 为止。 
-Top中的几个隐含参数： 
-top中按1键和F键的参数： 
-按1键可以等到多个cpu的情况 
-按F(f:当前状态，可以按相应的字母键做top的定制输出)后得参数： 
-对F键和f键的区别： 
-如果进入F键区可以做进程显示的排序，如果进入f键区的话则可以选择显示的多个项目: 
-* A: PID        = Process Id                //进程ID          
-  b: PPID       = Parent Process Pid        //父进程ID          
-  c: RUSER      = Real user name            //真正的(Real)所属用户名称          
-  d: UID        = User Id                   //用户ID          
-  e: USER       = User Name                 //用户名称          
-  f: GROUP      = Group Name             //组名称 
-  g: TTY        = Controlling Tty           //控制          
-  h: PR         = Priority                  //优先权          
-  i: NI         = Nice value                //优先级得值(负数代表较高的优先级,正数是较低的优先级.0标志改优先级的值是不会被调整的)          
-  j: #C         = Last used cpu (SMP)       //随后使用的cpu比率          
-  k: %CPU       = CPU usage                 //cpu使用比率          
-  l: TIME       = CPU Time                  //cpu占用时间          
-  m: TIME+      = CPU Time, hundredths     //cpu%比 
-  n: %MEM       = Memory usage (RES)        //内存使用率 
-  o: VIRT       = Virtual Image (kb)        //虚拟镜像(VIRT = SWAP + RES:所有进程使用的虚拟内存值,包括所有的代码,数据,共享库已经被swapped out的) 
-  p: SWAP       = Swapped size (kb)     //交换空间大小(所有虚拟内存中的镜像) 
-  q: RES        = Resident size (kb)        //已经使用了的常驻内存(Resident size):RES = CODE + DATA 
-  r: CODE       = Code size (kb)            //分配给执行代码的物理内存 
-  s: DATA       = Data+Stack size (kb)      //data+stack:物理内存中非存放代码的空间,用于存放数据 
-  t: SHR        = Shared Mem size (kb)      //共享内存大小.放映了一个task的潜在可以供别人使用的内存的大小 
-  u: nFLT       = Page Fault count          //内存叶错误的数量 
-  v: nDRT       = Dirty Pages count         //脏页的数量 
-  w: S          = Process Status            //进程状态:( R )为运行或可执行的,( S )为该程序正在睡眠中,( T )正在侦测或者是停止了,( Z )僵尸程序 
-  x: COMMAND    = Command name/line         //进程启动命令行参数 
-  y: WCHAN      = Sleeping in Function      //在睡眠中 
-  z: Flags      = Task Flags <sched.h>      //任务标志 
-Note1: 
-If a selected sort field can't be  shown due to screen width or your  field order, the '<' and '>' keys    
-will be unavailable until a field  within viewable range is chosen.      
-                                              
-Note2:                                        
-Field sorting uses internal values,  not those in column display.  Thus,  the TTY & WCHAN fields will violate  strict ASCII collating sequence.   (shame on you if WCHAN is chosen)    
-                                              
-Current Fields:  AEHIOQTWKNMbcdfgjplrsuvyzX  for window 1:Def 
-Toggle fields via field letter, type any other key to return 
-* A: PID        = Process Id 
-* E: USER       = User Name 
-* H: PR         = Priority 
-* I: NI         = Nice value 
-* O: VIRT       = Virtual Image (kb) 
-* Q: RES        = Resident size (kb) 
-* T: SHR        = Shared Mem size (kb) 
-* W: S          = Process Status 
-* K: %CPU       = CPU usage 
-* N: %MEM       = Memory usage (RES) 
-* M: TIME+      = CPU Time, hundredths 
-  b: PPID       = Parent Process Pid 
-  c: RUSER      = Real user name 
-  d: UID        = User Id 
-  f: GROUP      = Group Name 
-  g: TTY        = Controlling Tty 
-  j: #C         = Last used cpu (SMP) 
-  p: SWAP       = Swapped size (kb) 
-  l: TIME       = CPU Time 
-  r: CODE       = Code size (kb) 
-  s: DATA       = Data+Stack size (kb) 
-  u: nFLT       = Page Fault count 
-  v: nDRT       = Dirty Pages count 
-  y: WCHAN      = Sleeping in Function 
-  z: Flags      = Task Flags <sched.h> 
-* X: COMMAND    = Command name/line 
+Top 实时地提供进程信息。它还拥有交互式的状态，允许用户输入命令，如 n 后面跟有 5 或 10 等数字。其结果是指示 top 显示 5 或 10 个最活跃的进程。 Top 持续运行，直到您按 "q" 退出 top 为止。
+Top中的几个隐含参数：
+top中按1键和F键的参数：
+按1键可以等到多个cpu的情况
+按F(f:当前状态，可以按相应的字母键做top的定制输出)后得参数：
+对F键和f键的区别：
+如果进入F键区可以做进程显示的排序，如果进入f键区的话则可以选择显示的多个项目:
+* A: PID        = Process Id                //进程ID
+  b: PPID       = Parent Process Pid        //父进程ID
+  c: RUSER      = Real user name            //真正的(Real)所属用户名称
+  d: UID        = User Id                   //用户ID
+  e: USER       = User Name                 //用户名称
+  f: GROUP      = Group Name             //组名称
+  g: TTY        = Controlling Tty           //控制
+  h: PR         = Priority                  //优先权
+  i: NI         = Nice value                //优先级得值(负数代表较高的优先级,正数是较低的优先级.0标志改优先级的值是不会被调整的)
+  j: #C         = Last used cpu (SMP)       //随后使用的cpu比率
+  k: %CPU       = CPU usage                 //cpu使用比率
+  l: TIME       = CPU Time                  //cpu占用时间
+  m: TIME+      = CPU Time, hundredths     //cpu%比
+  n: %MEM       = Memory usage (RES)        //内存使用率
+  o: VIRT       = Virtual Image (kb)        //虚拟镜像(VIRT = SWAP + RES:所有进程使用的虚拟内存值,包括所有的代码,数据,共享库已经被swapped out的)
+  p: SWAP       = Swapped size (kb)     //交换空间大小(所有虚拟内存中的镜像)
+  q: RES        = Resident size (kb)        //已经使用了的常驻内存(Resident size):RES = CODE + DATA
+  r: CODE       = Code size (kb)            //分配给执行代码的物理内存
+  s: DATA       = Data+Stack size (kb)      //data+stack:物理内存中非存放代码的空间,用于存放数据
+  t: SHR        = Shared Mem size (kb)      //共享内存大小.放映了一个task的潜在可以供别人使用的内存的大小
+  u: nFLT       = Page Fault count          //内存叶错误的数量
+  v: nDRT       = Dirty Pages count         //脏页的数量
+  w: S          = Process Status            //进程状态:( R )为运行或可执行的,( S )为该程序正在睡眠中,( T )正在侦测或者是停止了,( Z )僵尸程序
+  x: COMMAND    = Command name/line         //进程启动命令行参数
+  y: WCHAN      = Sleeping in Function      //在睡眠中
+  z: Flags      = Task Flags <sched.h>      //任务标志
+Note1:
+If a selected sort field can't be  shown due to screen width or your  field order, the '<' and '>' keys
+will be unavailable until a field  within viewable range is chosen.
 
-Flags field: 
-  0x00000001  PF_ALIGNWARN 
-  0x00000002  PF_STARTING 
-  0x00000004  PF_EXITING 
-  0x00000040  PF_FORKNOEXEC 
-  0x00000100  PF_SUPERPRIV 
-  0x00000200  PF_DUMPCORE 
-  0x00000400  PF_SIGNALED 
-  0x00000800  PF_MEMALLOC 
-  0x00002000  PF_FREE_PAGES (2.5) 
-  0x00008000  debug flag (2.5) 
-  0x00024000  special threads (2.5) 
-  0x001D0000  special states (2.5) 
+Note2:
+Field sorting uses internal values,  not those in column display.  Thus,  the TTY & WCHAN fields will violate  strict ASCII collating sequence.   (shame on you if WCHAN is chosen)
+
+Current Fields:  AEHIOQTWKNMbcdfgjplrsuvyzX  for window 1:Def
+Toggle fields via field letter, type any other key to return
+* A: PID        = Process Id
+* E: USER       = User Name
+* H: PR         = Priority
+* I: NI         = Nice value
+* O: VIRT       = Virtual Image (kb)
+* Q: RES        = Resident size (kb)
+* T: SHR        = Shared Mem size (kb)
+* W: S          = Process Status
+* K: %CPU       = CPU usage
+* N: %MEM       = Memory usage (RES)
+* M: TIME+      = CPU Time, hundredths
+  b: PPID       = Parent Process Pid
+  c: RUSER      = Real user name
+  d: UID        = User Id
+  f: GROUP      = Group Name
+  g: TTY        = Controlling Tty
+  j: #C         = Last used cpu (SMP)
+  p: SWAP       = Swapped size (kb)
+  l: TIME       = CPU Time
+  r: CODE       = Code size (kb)
+  s: DATA       = Data+Stack size (kb)
+  u: nFLT       = Page Fault count
+  v: nDRT       = Dirty Pages count
+  y: WCHAN      = Sleeping in Function
+  z: Flags      = Task Flags <sched.h>
+* X: COMMAND    = Command name/line
+
+Flags field:
+  0x00000001  PF_ALIGNWARN
+  0x00000002  PF_STARTING
+  0x00000004  PF_EXITING
+  0x00000040  PF_FORKNOEXEC
+  0x00000100  PF_SUPERPRIV
+  0x00000200  PF_DUMPCORE
+  0x00000400  PF_SIGNALED
+  0x00000800  PF_MEMALLOC
+  0x00002000  PF_FREE_PAGES (2.5)
+  0x00008000  debug flag (2.5)
+  0x00024000  special threads (2.5)
+  0x001D0000  special states (2.5)
   0x00100000  PF_USEDFPU (thru 2.4)
 
 
@@ -2246,12 +2249,12 @@ Flags field:
 
 一月份＝JAN.   Jan.=January
 二月份＝FEB.   Feb.=February
-三月份＝MAR.   Mar.=March 
-四月份＝APR.   Apr.=April 
+三月份＝MAR.   Mar.=March
+四月份＝APR.   Apr.=April
 五月份＝MAY    May=May
 六月份＝JUN.   Jun.=June
 七月份＝JUL.   Jul.=July
-八月份＝AUG.   Aug.=August 
+八月份＝AUG.   Aug.=August
 九月份＝SEP.   Sept.=September
 十月份＝OCT.   Oct.=October
 十一月份＝NOV. Nov.=November
@@ -2259,23 +2262,23 @@ Flags field:
 
 
 
-星期一： Mon.=Monday 
-星期二： Tues.=Tuesday 
-星期三： Wed.=Wednesday 
-星期四： Thur.=Thursday 
-星期五： Fri.=Friday 
-星期六： Sat.=Saturday 
+星期一： Mon.=Monday
+星期二： Tues.=Tuesday
+星期三： Wed.=Wednesday
+星期四： Thur.=Thursday
+星期五： Fri.=Friday
+星期六： Sat.=Saturday
 星期天： Sun.=Sunday
 
 ------------------------- linux  shell 命令 ---------------------------
 
 
 -e filename 如果 filename存在，则为真
--d filename 如果 filename为目录，则为真 
+-d filename 如果 filename为目录，则为真
 -f filename 如果 filename为常规文件，则为真
 -L filename 如果 filename为符号链接，则为真
--r filename 如果 filename可读，则为真 
--w filename 如果 filename可写，则为真 
+-r filename 如果 filename可读，则为真
+-w filename 如果 filename可写，则为真
 -x filename 如果 filename可执行，则为真
 -s filename 如果文件长度不为0，则为真
 -h filename 如果文件是软链接，则为真
@@ -2292,13 +2295,13 @@ filename1 -ot filename2 如果 filename1比 filename2旧，则为真。
 
 
 ------------------------ linux 源码安装  ------------------------
- 
+
  安装前需要提前安装 gcc 和 autoconfig
 sudo ./configure --prefix=/www/...  指定到文件夹下   使用 ./configure --help 查看具体参数设置
 示例如下
 (sudo ./configure --prefix=/usr/local/php7 \
 --enable-fpm \
---with-config-file-path=/usr/local/php7/etc \  
+--with-config-file-path=/usr/local/php7/etc \
 --with-iconv=/usr/local/lib/libiconv \)
 sudo make
 sudo make install
@@ -2312,7 +2315,7 @@ $ ./configure --with-php-config=你的php路径/php/bin/php-config --with-png-di
 $ make
 $ make install
 
-加入php.ini  extension=gd 
+加入php.ini  extension=gd
 
 ------------------------ linux pgrep  ------------------------
 
@@ -2348,7 +2351,7 @@ bash -version 查看系统shell版本
 cat /bin/*sh  查看所有的shell
 
 
-查看 python 
+查看 python
 
 python -V  查看Python 版本
 
@@ -2583,7 +2586,7 @@ https://download.pureftpd.org/pure-ftpd/releases/
 出现类似configure: error: Your MySQL client libraries aren't properly installed 的错误,请将mysql目录下的 include/mysql下的mysql.h文件以及lib/mysql下的全部文件,连接(直接复制过去或许也可)到 /usr/lib 目录下
 
 
-mkdir -p  /www/server/ftp/pure-ftpd/ 递归建立文件夹  
+mkdir -p  /www/server/ftp/pure-ftpd/ 递归建立文件夹
 
 ------------------------ linux  ftp   ------------------------
 ftp 需要主动模式和被动模式
@@ -2592,10 +2595,10 @@ ftp 需要主动模式和被动模式
 pure-ftpd.conf 文件中  (此处为pure-ftpd软件)
 PassivePortRange          39000 40000
 
-被动和主动都需要 21  
-20是主动模式传输数据用的 
+被动和主动都需要 21
+20是主动模式传输数据用的
 
-他们都需要先通过21端口连接认证服务器 
+他们都需要先通过21端口连接认证服务器
 由客户端发起 当由公网ip直接发起的 而不是路由器后的ip发起的为主动模式
 主动传输通过20端口 被动通过设置的被动端口传输 端口号不得小于1024
 在传输完成后需要再通过21端口进行一次认证
@@ -2618,17 +2621,17 @@ Centos7发布有一段时间了，最近使用中也发现一些问题，从Cent
 
 yum install net-tools
 
-另外centos7引入了systemctl对服务管理，这个的确还是没原来的service好使，php默认5.4, apache默认2.4，此外 Mariadb代替了mysql 
+另外centos7引入了systemctl对服务管理，这个的确还是没原来的service好使，php默认5.4, apache默认2.4，此外 Mariadb代替了mysql
 
 netstat  comman not find
-安装 
+安装
 yum install net-tools
 
 
 
 
 Linux的netstat查看端口是否开放见解（0.0.0.0与127.0.0.1的区别）
- 
+
 
 linux运维都需要对端口开放查看  netstat 就是对端口信息的查看
 
@@ -2639,13 +2642,13 @@ p 查看端口挂的程序
 复制代码
 [root@iz2ze5is23zeo1ipvn65aiz ~]# netstat -nltp
 Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
-tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      3346/nginx: master  
-tcp        0      0 127.0.0.1:8081          0.0.0.0:*               LISTEN      2493/docker-proxy-c 
-tcp        0      0 127.0.0.1:8082          0.0.0.0:*               LISTEN      5529/docker-proxy-c 
-tcp        0      0 127.0.0.1:8083          0.0.0.0:*               LISTEN      17762/docker-proxy- 
-tcp        0      0 127.0.0.1:8084          0.0.0.0:*               LISTEN      2743/docker-proxy-c 
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      2155/sshd    
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      3346/nginx: master
+tcp        0      0 127.0.0.1:8081          0.0.0.0:*               LISTEN      2493/docker-proxy-c
+tcp        0      0 127.0.0.1:8082          0.0.0.0:*               LISTEN      5529/docker-proxy-c
+tcp        0      0 127.0.0.1:8083          0.0.0.0:*               LISTEN      17762/docker-proxy-
+tcp        0      0 127.0.0.1:8084          0.0.0.0:*               LISTEN      2743/docker-proxy-c
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      2155/sshd
 复制代码
 看到 查询的有Local、Address、Foregin、Program name
 
@@ -2653,7 +2656,7 @@ Local ：访问端口的方式，0.0.0.0 是对外开放端口，说明80端口�
 
 Address：端口
 
-Foregin Address：对外开放，一般都为0.0.0.0：* 
+Foregin Address：对外开放，一般都为0.0.0.0：*
 
 Program name：此端口是那个程序在用，程序挂载此端口
 
@@ -2675,9 +2678,9 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 
 1.申请的时候要带www的域名  TrustAsia DV SSL CA - G5  第一个证书  会默认申请不带www的证书
 
-申请此证书不许要目录和域名对应  
+申请此证书不许要目录和域名对应
 
-2.申请免费 let's encrypt 证书 网站目录名必须和域名对应 且域名已经解析到该服务器 
+2.申请免费 let's encrypt 证书 网站目录名必须和域名对应 且域名已经解析到该服务器
 
 否则会报错 域名未解析
 
@@ -2714,7 +2717,7 @@ CPU信息
 硬盘使用情况
 服务器负载状况
 其它参数
- 
+
 
 1.获取CPU的详细情况
 
@@ -2722,7 +2725,7 @@ CPU信息
 [root@VM_41_84_centos ~]# cat /proc/cpuinfo
 
 显示所有逻辑cpu信息 16核则有16个  0-15
- 
+
 
 判断依据:
 
@@ -2747,7 +2750,7 @@ CPU信息
 
 配置服务器的应用时，以逻辑CPU个数为准
 
- 
+
 
 2.获去服务器内存使用情况
 
@@ -2755,7 +2758,7 @@ CPU信息
 Mem:          996M       928M        67M        44K       217M       357M
 -/+ buffers/cache:       353M       642M
 Swap:         1.5G       120M       1.3G
- 
+
 
 total: 内存总量
 used: 已使用
@@ -2767,21 +2770,21 @@ shared: 多进程共享的内存总量
 
 　　
 
- 
 
- 
+
+
 
 3.查看服务器硬盘使用情况
 
 查看硬盘以及分区信息: fdisk -l
 查看文件系统的磁盘空间占用情况: df -h
- 
+
 
 [root@VM_41_84_centos ~]# df -h
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/vda1        20G   13G  6.2G  67% /
 /dev/vdb1        20G  936M   18G   5% /mydata
- 
+
 
 3. 查看硬盘的I/O性能: iostat -d -x -k 10 2  (-d显示磁盘状态,-x显示跟io相关的扩张数据,-k以KB为单位，10表示每隔10秒刷新一次，2表示刷新2次，默认一直刷新)
 
@@ -2825,9 +2828,9 @@ svctm: 平均每次设备I/O操作时间ms
 
 await 取决于svctm，最好低于5ms,如果大于5ms说明I/O压力大,可以考虑更换响应速度更快的硬盘.
 
-     
 
- 
+
+
 
 4.查看服务器平均负载
 
@@ -2835,7 +2838,7 @@ await 取决于svctm，最好低于5ms,如果大于5ms说明I/O压力大,可以�
 
 [root@VM_41_84_centos /]# uptime
  00:09:20 up 5 days,  3:27,  1 user,  load average: 0.03, 0.04, 0.03
- 
+
 
 　　
 
@@ -2871,20 +2874,20 @@ Cpu3  : 96.3%us,  0.7%sy,  0.0%ni,  3.0%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
 Mem:   8061216k total,  7888384k used,   172832k free,    32780k buffers
 Swap:  8191996k total,    30492k used,  8161504k free,   433564k cached
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND                                                        
- 4448 tomcat    20   0  9.9g 6.7g  13m S 386.6 87.5  89:37.39 jsvc    　　　　　　#我艹，四核CPU，所以这里超过了100%，即4个cpu累加                                                       
-12098 root      20   0 15032 1248  928 R  0.7  0.0   0:00.54 top                                                             
-    1 root      20   0 19356  944  772 S  0.0  0.0   0:05.19 init                                                            
-    2 root      20   0     0    0    0 S  0.0  0.0   0:00.32 kthreadd                                                        
-    3 root      RT   0     0    0    0 S  0.0  0.0  16:00.68 migration/0                                                     
-    4 root      20   0     0    0    0 S  0.0  0.0  11:02.28 ksoftirqd/0                                                     
-    5 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 stopper/0                                                       
-    6 root      RT   0     0    0    0 S  0.0  0.0   1:10.46 watchdog/0                                                      
-    7 root      RT   0     0    0    0 S  0.0  0.0  30:16.65 migration/1  
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 4448 tomcat    20   0  9.9g 6.7g  13m S 386.6 87.5  89:37.39 jsvc    　　　　　　#我艹，四核CPU，所以这里超过了100%，即4个cpu累加
+12098 root      20   0 15032 1248  928 R  0.7  0.0   0:00.54 top
+    1 root      20   0 19356  944  772 S  0.0  0.0   0:05.19 init
+    2 root      20   0     0    0    0 S  0.0  0.0   0:00.32 kthreadd
+    3 root      RT   0     0    0    0 S  0.0  0.0  16:00.68 migration/0
+    4 root      20   0     0    0    0 S  0.0  0.0  11:02.28 ksoftirqd/0
+    5 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 stopper/0
+    6 root      RT   0     0    0    0 S  0.0  0.0   1:10.46 watchdog/0
+    7 root      RT   0     0    0    0 S  0.0  0.0  30:16.65 migration/1
 复制代码
- 
 
- 
+
+
 
 vmstat监控Linux系统的整体性能　　
 
@@ -2903,16 +2906,16 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 [root@ovz-core-tbf-01 ~]# vmstat 1 8
 procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
  r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
- 4  0  30492 176080  33252 433844    0    0     1     7    0    0  3  1 96  0  0    
- 4  0  30492 176072  33252 433844    0    0     0     0 3879  270 93  0  7  0  0    
- 4  0  30492 176072  33252 433844    0    0     0     0 4103  161 100  0  0  0  0    
- 4  0  30492 176072  33252 433844    0    0     0     0 4081  137 100  0  0  0  0    
- 4  0  30492 176072  33252 433844    0    0     0     0 3724  239 90  0 10  0  0    
- 4  0  30492 176072  33260 433840    0    0     0    28 3895  252 94  0  6  0  0    
- 7  0  30492 175776  33260 433844    0    0     0     0 4114  220 100  0  0  0  0    
- 5  0  30492 175452  33260 433844    0    0     0     0 4121  181 100  1  0  0  0    
+ 4  0  30492 176080  33252 433844    0    0     1     7    0    0  3  1 96  0  0
+ 4  0  30492 176072  33252 433844    0    0     0     0 3879  270 93  0  7  0  0
+ 4  0  30492 176072  33252 433844    0    0     0     0 4103  161 100  0  0  0  0
+ 4  0  30492 176072  33252 433844    0    0     0     0 4081  137 100  0  0  0  0
+ 4  0  30492 176072  33252 433844    0    0     0     0 3724  239 90  0 10  0  0
+ 4  0  30492 176072  33260 433840    0    0     0    28 3895  252 94  0  6  0  0
+ 7  0  30492 175776  33260 433844    0    0     0     0 4114  220 100  0  0  0  0
+ 5  0  30492 175452  33260 433844    0    0     0     0 4121  181 100  1  0  0  0
 复制代码
- 
+
 
 参数介绍:
 
@@ -2941,7 +2944,7 @@ cs: 每秒的环境上下文切换数
 us: cpu使用时间
 sy: cpu系统使用时间
 id: 闲置时间
- 
+
 
 标准情况下r和b的值应为:r<5,b约为0.
 
@@ -2949,9 +2952,9 @@ id: 闲置时间
 
 如果us+sy>85,系统性能糟糕.
 
- 
 
- 
+
+
 
 5.其他信息
 
@@ -2963,7 +2966,7 @@ id: 闲置时间
 [root@VM_41_84_centos /]# file /sbin/init   或 file /lib/systemd/systemd
 /sbin/init: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
 [root@VM_41_84_centos /]#
- 
+
 
 　查看服务器发行版相关信息
 
@@ -2976,7 +2979,7 @@ Release:    6.8
 Codename:    Final
 [root@VM_41_84_centos /]#
 复制代码
- 
+
 
 　查看系统已经载入的相关模块
 
@@ -3033,7 +3036,7 @@ dm_mod                102467  14 dm_thin_pool,dm_persistent_data,dm_bufio,dm_mir
 复制代码
 查看PCI设备信息
 
- 
+
 
 [root@VM_41_84_centos /]# lspci
 00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)
@@ -3057,8 +3060,8 @@ dm_mod                102467  14 dm_thin_pool,dm_persistent_data,dm_bufio,dm_mir
 
 相应的通过ls 查看时也有三个时间：
 
-• modification time（mtime，修改时间）：当该文件的“内容数据”更改时，就会更新这个时间。内容数据指的是文件的内容，而不是文件的属性。 
-• status time（ctime，状态时间）：当该文件的”状态（status）”改变时，就会更新这个时间，举例来说，更改了权限与属性，就会更新这个时间。 
+• modification time（mtime，修改时间）：当该文件的“内容数据”更改时，就会更新这个时间。内容数据指的是文件的内容，而不是文件的属性。
+• status time（ctime，状态时间）：当该文件的”状态（status）”改变时，就会更新这个时间，举例来说，更改了权限与属性，就会更新这个时间。
 • access time（atime，存取时间）：当“取用文件内容”时，就会更新这个读取时间。举例来说，使用cat去读取 ~/.bashrc，就会更新atime了。
 
 
@@ -3096,8 +3099,8 @@ Change: 2011-11-29 16:03:08.000000000 +0800
 
 相应的通过ls 查看时也有三个时间：
 
-• modification time（mtime，修改时间）：当该文件的“内容数据”更改时，就会更新这个时间。内容数据指的是文件的内容，而不是文件的属性。 
-• status time（ctime，状态时间）：当该文件的”状态（status）”改变时，就会更新这个时间，举例来说，更改了权限与属性，就会更新这个时间。 
+• modification time（mtime，修改时间）：当该文件的“内容数据”更改时，就会更新这个时间。内容数据指的是文件的内容，而不是文件的属性。
+• status time（ctime，状态时间）：当该文件的”状态（status）”改变时，就会更新这个时间，举例来说，更改了权限与属性，就会更新这个时间。
 • access time（atime，存取时间）：当“取用文件内容”时，就会更新这个读取时间。举例来说，使用cat去读取 ~/.bashrc，就会更新atime了。
 
 [root@web10 ~]# ls -l --time=ctime install.log
@@ -3180,7 +3183,7 @@ curl -sSL https://get.daocloud.io/docker | sh
 yum install docker
 
 
-service docker start 
+service docker start
 
 docker -v
 
@@ -3212,19 +3215,19 @@ LinuxShell中删除文件中某一行的方法 (2014-08-21 18:24:13)转载▼
 
   补充说明：
 
-  sed -i "s/oldString/newString/g"  `grep oldString -rl /path`    
+  sed -i "s/oldString/newString/g"  `grep oldString -rl /path`
   对多个文件的处理可能不支持，需要用 xargs, 搞定。
   变种如下：
-  
+
   grep oldString -rl /path | xargs sed -i "s/oldString/newString/g"
-  grep ".ewtouch." -rl /www/wwwroot/cdhr4.ewtouch.com/ | xargs sed -i "s/.ewtouch./.yunjiangxin./g"
+  grep "宝盈富足" -rl /mnt/fuzuapi.ewtouch.com/ | xargs sed -i "s/宝盈富足/演示案例/g"
 
-
+grep "fuzuweb.yunjiangxin.com" -rl /mnt/fuzuweb.ewtouch.com/ | xargs sed -i "s/fuzuweb.yunjiangxin.com/fuzuapi.yunjiangxin.com/g"
 ------------------------ linux  php遍历文件夹  ------------------------
 
 function read_all ($dir){
    if(!is_dir($dir)) return false;
-     
+
    $handle = opendir($dir);
    if($handle){
          while(($fl = readdir($handle)) !== false){
@@ -3235,14 +3238,14 @@ function read_all ($dir){
                  read_all($temp);
              }else{
                  if($fl!='.' && $fl != '..'){
- 
+
                      echo '文件：'.$temp.'<br>';
                  }
              }
          }
     }
  }
- 
+
 
 
 <?php
@@ -3257,8 +3260,8 @@ echo $str = str_replace("\r\n","<br />",$str);
 
 
 //找到之后赋值替换 并写入
-$f='a.html'; 
-file_put_contents($f,str_replace('[我的电脑]','PHP学习',file_get_contents($f))); 
+$f='a.html';
+file_put_contents($f,str_replace('[我的电脑]','PHP学习',file_get_contents($f)));
 
 
 
@@ -3276,8 +3279,8 @@ ps -aux | sort -k4nr | head -10     查看  %MEM
 ps -aux | sort -k3nr | head -10     查看  %CPU
 
 1
-*命令详解： 
-1. head：-N可以指定显示的行数，默认显示10行。 
+*命令详解：
+1. head：-N可以指定显示的行数，默认显示10行。
 2. ps：参数a指代all——所有的进程，u指代userid——执行该进程的用户id，x指代显示所有程序，不以终端机来区分。ps -aux的输出格式如下：
 
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
@@ -3405,7 +3408,7 @@ $rdesktop -u administrator -p ****** -a 16 -r sound:local 192.168.1.1
 查看Linux发行版
 
 lsb_release
-找不到lsb_release 这个命令 可以用 
+找不到lsb_release 这个命令 可以用
 
 cat /etc/redhat-release
 
@@ -3463,16 +3466,16 @@ top -b -n 60 -d 60 > /home/server.log
 1 第一行： 跟uptime 一样，分别是当前时间13:48 系统运行时间3 days 当前登录用户数1user 系统负载load average:，即任务队列的平均长度
 2 第二、三行为进程和CPU的信息。当有多个CPU时，这些内容可能会超过两行
 Tasks: 96 total 进程总数
-1 running 正在运行的进程数 
+1 running 正在运行的进程数
 95 sleeping 睡眠的进程数
 0 stopped 停止的进程数
 0 zombie 僵尸进程数
 
 Cpu(s): 0.0% us 用户空间占用CPU百分比 查看CPU使用率
-1.0% sy 内核空间占用CPU百分比 
-0.0% ni 用户进程空间内改变过优先级的进程占用CPU百分比 
+1.0% sy 内核空间占用CPU百分比
+0.0% ni 用户进程空间内改变过优先级的进程占用CPU百分比
 100.0% id 空闲CPU百分比
-0.0% wa 等待输入输出的CPU时间百分比 
+0.0% wa 等待输入输出的CPU时间百分比
 0.0% hi
 0.0% si
 0.0% st
@@ -3490,16 +3493,16 @@ Swap: 1015800k total 交换区总量
 该数值即为这些内容已存在于内存中的交换区的大小。
 相应的内存再次被换出时可不必再对交换区写入。
 
-4 进程信息区 
-PID 进程ID PPID 父进程ID 
+4 进程信息区
+PID 进程ID PPID 父进程ID
 PR 优先级
 NI nice值 负值表示高优先级，正值表示低优先级
-VIRT 进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES 
+VIRT 进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES
 RES 进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA
-SHR 共享内存大小，单位kb 
+SHR 共享内存大小，单位kb
 S 进程状态 D=不可中断的睡眠状态R=运行 S=睡眠 T=跟踪/停止 Z=僵尸进程
 %CPU 上次更新到现在的CPU时间占用百分比
-%MEM 进程使用的物理内存百分比 
+%MEM 进程使用的物理内存百分比
 TIME+ 进程使用的CPU时间总计，单位1/100秒
 
 
@@ -3550,9 +3553,9 @@ cmd命令  nslookup进入命令输入
 
 ------------------------ linux AWS亚马逊服务器 ------------------------
 
-EC2 没有中国区域 可选择东京(在右上角)  选择配置的时候注意加磁盘空间 默认8G  
+EC2 没有中国区域 可选择东京(在右上角)  选择配置的时候注意加磁盘空间 默认8G
 
-CDN cloudFront  服务  加速静态资源  
+CDN cloudFront  服务  加速静态资源
 第一个origin domain 是源地址用于获取资源 解析到原服务器地址
 第二个 Alternate Domain Names (CNAMEs) 填写域名可用于域名转接相当于系统生成的域名被替换为此域名  解析的时候也是将cname值解析到此域名上
 
@@ -3563,7 +3566,7 @@ CDN cloudFront  服务  加速静态资源
 
 ------------------------ linux 在AWS亚马逊服务器上搭建负载均衡 ------------------------
 
-redis 授权对安全组访问 
+redis 授权对安全组访问
 
 https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/nodes-connecting.html  测试是否连接成功   需要 gcc 和 redis-cli 包
 
@@ -3571,4 +3574,299 @@ https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/nodes-connecting.htm
 
 https://www.cnblogs.com/kongzhongqijing/p/6867960.html redis-cli 命令操作
 
------------------------- linux 查看是否
+------------------------ linux 查看是否被ddos ------------------------
+
+
+netstat -anp |grep 'tcp\|udp' | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n
+
+
+登录到你的服务器以root用户执行下面的命令，使用它你可以检查你的服务器是在DDOS攻击与否：
+
+netstat -anp |grep 'tcp\|udp' | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n
+
+该命令将显示已登录的是连接到服务器的最大数量的IP的列表。
+
+DDOS变得更为复杂，因为攻击者在使用更少的连接，更多数量IP的攻击服务器的情况下，你得到的连接数量较少，即使你的服务器被攻击了。有一点很重要，你应该检查当前你的服务器活跃的连接信息，执行以下命令：
+
+netstat -n | grep :80 |wc -l
+
+上面的命令将显示所有打开你的服务器的活跃连接。
+
+您也可以使用如下命令：
+
+netstat -n | grep :80 | grep SYN |wc -l
+
+从第一个命令有效连接的结果会有所不同，但如果它显示连接超过500，那么将肯定有问题。
+
+如果第二个命令的结果是100或以上，那么服务器可能被同步攻击。
+
+一旦你获得了攻击你的服务器的IP列表，你可以很容易地阻止它。
+
+同构下面的命令来阻止IP或任何其他特定的IP：
+
+route add ipaddress reject
+
+一旦你在服务器上组织了一个特定IP的访问，你可以检查对它的阻止豆腐有效。
+
+通过使用下面的命令：
+
+route -n |grep IPaddress
+
+您还可以通过使用下面的命令，用iptables封锁指定的IP。
+
+iptables -A INPUT 1 -s IPADRESS -j DROP/REJECT
+
+service iptables restart
+
+service iptables save
+
+上面的命令执行后，停止httpd连接，重启httpd服务。
+
+使用下面的命令：
+
+killall -KILL httpd
+
+service httpd startss
+
+------------------------ linux 制作SSH登录远程服务器的Shell脚本 ------------------------
+
+
+下载 expect
+mac brew install expect
+linux sudo apt-get install expect
+
+
+//不要忘记第一行expect的真实路径安装完成查看下 which expect
+
+#!/usr/bin/expect -f
+# 设置ssh连接的用户名
+set user root
+# 设置ssh连接的host地址
+set host 10.211.55.4
+# 设置ssh连接的port端口号
+set port 22
+# 设置ssh连接的登录密码
+set password admin123
+# 设置ssh连接的超时时间
+set timeout -1
+
+spawn ssh $user@$host -p $port
+expect "*password:"
+# 提交密码
+send "$password\r"
+# 控制权移交
+interact
+
+
+保存后加入执行权限
+chmod +x login.sh
+执行
+./login.sh
+
+---------------------
+
+本文来自 birdben 的CSDN 博客 ，全文地址请点击：https://blog.csdn.net/birdben/article/details/52166960?utm_source=copy
+
+
+------------------------ linux 制作SSH登录远程服务器的Shell脚本  ------------------------
+(注意! 阿里云的ssd方法一和方法二都不符合 方法三符合 最好以服务器商提供的参数为准)
+
+
+方法一
+
+判断cat /sys/block/(*)名字/queue/rotational的返回值（其中*为你的硬盘设备名称，例如sda,vda等等），
+如果返回1则表示磁盘可旋转，那么就是HDD了；反之，如果返回0，则表示磁盘不可以旋转，那么就有可能是SSD了。
+
+cat /sys/block/磁盘名(vda,vdb等)/queue/rotational
+1
+
+方法二
+
+使用lsblk命令进行判断，参数-d表示显示设备名称，参数-o表示仅显示特定的列。
+
+[root@izc2mjnp7hy36fz ~]# lsblk -d -o name,rota
+NAME ROTA
+vda     1
+vdb     1
+这种方法的优势在于它只列出了你要看的内容，结果比较简洁明了。还是那个规则，ROTA是1的表示可以旋转，反之则不能旋转
+
+方法三
+
+可以通过fdisk命令查看，参数-l表示列出磁盘详情。在输出结果中，以Disk开头的行表示磁盘简介，下面是一些详细参数，我们可以试着在这些参数中寻找一些HDD特有的关键字，比如：”heads”（磁头），”track”（磁道）和”cylinders”（柱面）。
+下面分别是HDD和SSD的输出结果，HDD拷贝自网络。
+
+
+Disk /dev/sda: 120.0 GB, 120034123776 bytes
+255 heads, 63 sectors/track, 14593 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x00074f7d123456
+
+
+[cheshi@cheshi-laptop2 ~]$ sudo fdisk -l
+Disk /dev/nvme0n1: 238.5 GiB, 256060514304 bytes, 500118192 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0xad91c214
+......
+[cheshi@cheshi-laptop2 ~]$123456789
+
+
+其他方法
+
+可以使用第三方工具判断，比如smartctl，这些工具的结果展示比较直观，但是需要单独安装。
+
+---------------------
+作者：Charles_Shih
+来源：CSDN
+原文：https://blog.csdn.net/sch0120/article/details/77725658?utm_source=copy
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+
+------------------------------------------expect 自动化登录------------------------------------------
+
+#!/usr/local/bin/expect -f
+# 设置ssh连接的用户名
+set user [lindex $argv 0]
+# 设置ssh连接的host地址
+set host [lindex $argv 1]
+# 设置ssh连接的port端口号
+set port [lindex $argv 2]
+# 设置ssh连接的登录密码
+set password [lindex $argv 3]
+# 设置ssh连接的超时时间
+set timeout -1
+
+spawn ssh $user@$host -p $port
+expect "*password:"
+# 提交密码
+send "$password\r"
+
+# 控制权移交
+interact
+
+执行自动化任务通常 expect eof 结尾 而登录终端 一般用 interact
+
+安装expect
+
+[root@xuegod60 ~]# yum -yinstall expect
+
+也可以通过源码包的方式进行安装
+
+源码下载链接
+
+http://jaist.dl.sourceforge.net/project/tcl/Tcl/8.6.4/tcl8.6.4-src.tar.gz
+
+http://sourceforge.net/projects/expect/files/Expect/5.45/expect5.45.tar.gz/download
+
+
+expect中最关键的四个命令是send,expect,spawn,interact。
+
+send：用于向进程发送字符串
+expect：从进程接收字符串
+spawn：启动新的进程
+interact：允许用户交互
+
+使用expect创建脚本的方法
+
+1）定义脚本执行的shell
+#!/usr/bin/expect
+
+这里定义的是expect可执行文件的链接路径（或真实路径），功能类似于bash等shell功能
+
+2）set timeout 30
+设置超时时间，单位是秒，如果设为timeout -1 意为永不超时
+
+3）spawn
+spawn 是进入expect环境后才能执行的内部命令，不能直接在默认的shell环境中进行执行
+
+主要功能：传递交互指令
+
+4）expect
+这里的expect同样是expect的内部命令
+主要功能：判断输出结果是否包含某项字符串，没有则立即返回，否则就等待一段时间后返回，等待时间通过timeout进行设置
+
+5）send
+执行交互动作，将交互要执行的动作进行输入给交互指令
+命令字符串结尾要加上"r"，如果出现异常等待的状态可以进行核查
+
+6）interact
+执行完后保持交互状态，把控制权交给控制台
+如果不加这一项，交互完成会自动退出
+
+7）exp_continue
+继续执行接下来的交互操作
+
+8）$argv
+expect 脚本可以接受从bash传递过来的参数，可以使用 [lindex $argv n]获得，n从0开始，分别表示第一个，第二个，第三个……参数
+
+------------------------------------------htop 系统工具------------------------------------------
+
+
+
+可以很直观的看服务器的状态
+mac brew install htop
+yum install htop
+apt-get install htop
+
+---------------------------------shell 读取文件内容，然后把内容赋值给变量然后进行字符串处理-----------------------
+
+
+实现：
+
+dataline=$(cat /root/data/data.txt)
+
+echo $dataline
+
+
+---------------------------------linux  centos登录出现错误 -----------------------
+
+bash: warning: setlocale: LC_CTYPE: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_COLLATE: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_MESSAGES: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_NUMERIC: cannot change locale (en_US.UTF-8): No such file or directory
+bash: warning: setlocale: LC_TIME: cannot change locale (en_US.UTF-8): No such file or directory
+
+输入locale发现上面报错
+
+centos 7没有百度以上一堆人抄袭的文章说的 /etc/sysconfig/i18n 这个文件
+
+输入whereis locale 找到 /etc/locale.conf
+编辑文件
+LANG=en_US.UTF-8 改为 LANG=zh_CN.UTF-8 重新登录即可
+
+--------------------------------- linux 系统命令make.clean的用法讲解 -----------------------
+
+
+
+转自卡饭教程https://www.kafan.cn/edu/6506196.html
+
+makefile定义了一系列的规则来指定，哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至于进行更复杂的功能操作，因为 makefile就像一个Shell脚本一样，其中也可以执行操作系统的命令。
+makefile带来的好处就是--“自动化编译”,一旦写好，只需要一个make命令，整个工程完全自动编译，极大的提高了软件开发的效率。make是一个命令工具，是一个解释makefile中指令的命令工具，一般来说，大多数的IDE都有这个命令，比如：Delphi的make,Visual C++的nmake,Linux下GNU的make.可见，makefile都成为了一种在工程方面的编译方法。
+make
+根据Makefile文件编译源代码、连接、生成目标文件、可执行文件。
+
+make clean
+清除上次的make命令所产生的object文件（后缀为“.o”的文件）及可执行文件。
+
+make install
+将编译成功的可执行文件安装到系统目录中，一般为/usr/local/bin目录。
+make dist
+产生发布软件包文件（即distribution package）。这个命令将会将可执行文件及相关文件打包成一个tar.gz压缩的文件用来作为发布软件的软件包。
+它会在当前目录下生成一个名字类似“PACKAGE-VERSION.tar.gz”的文件。PACKAGE和VERSION,是我们在configure.in中定义的AM_INIT_AUTOMAKE（PACKAGE, VERSION）。
+make distcheck
+生成发布软件包并对其进行测试检查，以确定发布包的正确性。这个操作将自动把压缩包文件解开，然后执行configure命令，并且执行make,来确认编译不出现错误，最后提示你软件包已经准备好，可以发布了。
+make distclean
+类似make clean,但同时也将configure生成的文件全部删除掉，包括Makefile文件。
+
+
+--------------------------------- linux vim vi 编辑二进制文件 -----------------------
+
+vi -b 或vim -b 告诉系统打开的是二进制文件
+
+vim 输入 %!xxd 转换 vi 输入 %xxd 转换
+修改完成之后在上面命令的基础上加入 -r 然后wq保存退出
+
