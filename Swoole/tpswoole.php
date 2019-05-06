@@ -206,6 +206,8 @@ new Websocket();
 //以上代码之后还需要修改 think下的request.php 
 //两行注释和加了一句话 #EDIT内容
 
+class Request{
+
 /**
      * 获取当前请求URL的pathinfo信息（含URL后缀）
      * @access public
@@ -268,6 +270,7 @@ new Websocket();
  
         return $this->path;
     }
+}
 
 /*    
 http://bingxiong.vip/2018/04/tp5-support-swoole/

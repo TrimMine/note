@@ -53,4 +53,4 @@ function strFilter($str){
     $str = str_replace('？', '', $str);
     return trim($str);
 }
-    echo strFilter('-1554++')
+    echo strFilter('-1554++');

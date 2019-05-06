@@ -228,6 +228,7 @@ class GIFEncoderController extends Controller
 
 
 
+class TestUse{
 
 
 
@@ -291,3 +292,4 @@ class GIFEncoderController extends Controller
         Header('Content-type:image/gif'); 
         echo $gif->GetAnimation();
      }
+    }

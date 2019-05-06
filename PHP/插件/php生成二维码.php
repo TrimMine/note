@@ -1,6 +1,7 @@
 <?php 
-        
-#我的二维码
+class qrcode{
+
+    #我的二维码
     public function index()
     {
         $userinfo = UsersModel::where(['id' => self::$user_id])->find();
@@ -164,3 +165,4 @@
     }
       
 
+}  
