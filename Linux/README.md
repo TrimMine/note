@@ -628,40 +628,51 @@ ssh -o "ServerAliveInterval 60"  ip_address
 ip_address指的是对应的服务器IP，这种情况下，会临时将这个链接设置为60*60=3600秒的时间不会出现超时断开的情况。比较适用于公网服务器，不需要修改公网服务器配置
 
 
-
------------------------- linux 安装swoole运行phpize错误 ------------------------
-
-
-如果在安装php扩展的时候出现如题的错误：只需到php的安装目录下如：cd /usr/local/php/php-7.0.4/ext/openssl 执行命令：  cp ./config0.m4 ./config.m4 即可解决
+------------------------
+### linux 安装swoole运行phpize错误 
 
 
-转换证书 cer pem
-openssl x509 -inform DER -in allinpay-pds.cer  -out allinpay-pds.pem
+- 如果在安装php扩展的时候出现如题的错误：只需到php的安装目录下如：
+      
+      cd /usr/local/php/php-7.0.4/ext/openssl 
+      cp ./config0.m4 ./config.m4 
+      即可解决
 
------------------------- linux 安装swoole config------------------------
 
-configure: error: Cannot find php-config. Please use --with-php-config=PATH
-一般出现这个错误说明你执行 ./configure 时  --with-php-config 这个参数配置路径错误导致的。
-查找:
-find / -name  php-config
-修改为：
-./configure --with-php-config=/usr/local/php/bin/php-config
+- 转换证书 cer pem
+
+      openssl x509 -inform DER -in allinpay-pds.cer  -out allinpay-pds.pem
+------------------------
+### linux 安装swoole config
+
+- configure: error: Cannot find php-config. Please use --with-php-config=PATH
+
+- 一般出现这个错误说明你执行 `./configure` 时  `--with-php-config` 这个参数配置路径错误导致的。
+- 查找:
+      
+      find / -name  php-config
+- 修改为：
+      
+      ./configure --with-php-config=/usr/local/php/bin/php-config
+
 就可以解决问题
-上面的 /usr/local/php/ 是你的 php 安装路径
------------------------- linux 开放端口------------------------
-Centos7以前 可以用iptables命令 Centos以后用firewall
 
-iptables命令行方式：---------------------------------------
+- 上面的 /usr/local/php/ 是你的 php 安装路径
+------------------------ 
+### linux 开放端口
+- Centos7以前 可以用iptables命令 Centos以后用firewall
+
+- iptables命令行方式：
 
        1. 开放端口命令： /sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 
-       2.保存：/etc/rc.d/init.d/iptables save
+       2. 保存：/etc/rc.d/init.d/iptables save
 
-       3.重启服务：/etc/init.d/iptables restart
+       3. 重启服务：/etc/init.d/iptables restart
 
-       4.查看端口是否开放：/sbin/iptables -L -n
+       4. 查看端口是否开放：/sbin/iptables -L -n
 
-       查看端口是否开放：sudo netstat -tnlp | grep 21 如果是linsten状态则是已开启
+          查看端口是否开放：sudo netstat -tnlp | grep 21 如果是linsten状态则是已开启
 
       开启全部 入方向
       iptables -P INPUT ACCEPT
@@ -680,7 +691,7 @@ iptables命令行方式：---------------------------------------
       开启关闭 iptables
       service iptables stop
 
-Centos7 firewall -------------------------------------
+Centos7 firewall 
 
       systemctl stop firewalld.service    服务名字叫做firewalld 不是 iptables (iptables只是centos7中只是命令没有服务)
 
@@ -798,162 +809,152 @@ systemctl unmask firewalld.service
 systemctl status firewalld
 
 
------------------------- linux 服务器拒绝允许名单  ------------------------
+------------------------ 
+### linux 服务器拒绝允许名单  
 
-允许名单:/etc/hosts.allow
+ - 允许名单: `/etc/hosts.allow`
 
-拒绝名单:/etc/hosts.deny
+ - 拒绝名单: `/etc/hosts.deny`
 
 
-编辑允许规则：
+- 编辑允许规则：
 
-[root@linuxprobe ~]# vim /etc/hosts.allow
-httpd:192.168.10.
-拒绝其他所有的主机：
+      vim /etc/hosts.allow
+      #允许主机  
+      httpd:192.168.10.
+- 拒绝其他所有的主机：
 
-[root@linuxprobe ~]# vim /etc/hosts.deny
-httpd:*
------------------------- linux tail -F 查看动态内容显示行号------------------------
+      vim /etc/hosts.deny
+      httpd:*
+------------------------ 
+### linux tail -F 查看动态内容显示行号
 
 命令:
-tail -F   FileName | nl
+     
+      tail -F   FileName | nl
+
+------------------------ 
+### linux systemctl 查看服务状态和操作
+
+
+查看
+      
+      systemctl status sshd.service
+
+启动
+      
+      systemctl start sshd.service
+
+重启
+      
+      systemctl restart sshd.service
+
+自启
+      
+      systemctl enable sshd.service
+
+
+------------------------ 
+### linux 查看对应端口证书  
+
+      openssl s_client -showcerts -connect smtp.qq.com:455
+      openssl s_client -showcerts -connect smtp.qq.com:587
 
 
 
-cat /etc/* | grep 文件名
-
-ls  file  file  file  ....
------------------------- linux 查看服务状态  ------------------------
-
-查看：systemctl status sshd.service
-
-启动：systemctl start sshd.service
-
-重启：systemctl restart sshd.service
-
-自启：systemctl enable sshd.service
-
-
------------------------- linux 查看对应端口证书  ------------------------
- openssl s_client -showcerts -connect smtp.qq.com:455
- openssl s_client -showcerts -connect smtp.qq.com:587
-
-
-
------------------------- linux 查看日志文件保存  ------------------------
+------------------------ 
+### linux 查看日志文件保存  
 
 一般日志都在 /var/log/名字(例如:maillog)
 或者在 /tmp/log/
 
------------------------- linux 检查配置  ------------------------
+------------------------ 
+### linux 检查配置  chkconfig命令
 
-chkconfig sendmail on
+      chkconfig sendmail on
 
---add：增加所指定的系统服务，让chkconfig指令得以管理它，并同时在系统启动的叙述文件内增加相关数据；
---del：删除所指定的系统服务，不再由chkconfig指令管理，并同时在系统启动的叙述文件内删除相关数据；
---level<等级代号>：指定读系统服务要在哪一个执行等级中开启或关毕。
+      --add：增加所指定的系统服务，让chkconfig指令得以管理它，并同时在系统启动的叙述文件内增加相关数据；
+      --del：删除所指定的系统服务，不再由chkconfig指令管理，并同时在系统启动的叙述文件内删除相关数据；
+      --level<等级代号>：指定读系统服务要在哪一个执行等级中开启或关毕。
 
-等级代号列表：
+      等级代号列表：
 
-等级0表示：表示关机
-等级1表示：单用户模式
-等级2表示：无网络连接的多用户命令行模式
-等级3表示：有网络连接的多用户命令行模式
-等级4表示：不可用
-等级5表示：带图形界面的多用户模式
-等级6表示：重新启动
-
-
-chkconfig --list             #列出所有的系统服务。
-chkconfig --add httpd        #增加httpd服务。
-chkconfig --del httpd        #删除httpd服务。
-chkconfig --level httpd 2345 on        #设置httpd在运行级别为2、3、4、5的情况下都是on（开启）的状态。
-chkconfig --list               #列出系统所有的服务启动情况。
-chkconfig --list mysqld        #列出mysqld服务设置情况。
-chkconfig --level 35 mysqld on #设定mysqld在等级3和5为开机运行服务，--level 35表示操作只在等级3和5执行，on表示启动，off表示关闭。
-chkconfig mysqld on            #设定mysqld在各等级为on，“各等级”包括2、3、4、5等级。
+      等级0表示：表示关机
+      等级1表示：单用户模式
+      等级2表示：无网络连接的多用户命令行模式
+      等级3表示：有网络连接的多用户命令行模式
+      等级4表示：不可用
+      等级5表示：带图形界面的多用户模式
+      等级6表示：重新启动
 
 
------------------------- linux 查找软件位置  ------------------------
+      chkconfig --list             #列出所有的系统服务。
+      chkconfig --add httpd        #增加httpd服务。
+      chkconfig --del httpd        #删除httpd服务。
+      chkconfig --level httpd 2345 on        #设置httpd在运行级别为2、3、4、5的情况下都是on（开启）的状态。
+      chkconfig --list               #列出系统所有的服务启动情况。
+      chkconfig --list mysqld        #列出mysqld服务设置情况。
+      chkconfig --level 35 mysqld on #设定mysqld在等级3和5为开机运行服务，--level 35表示操作只在等级3和5执行，on表示启动，off表示关闭。
+      chkconfig mysqld on            #设定mysqld在各等级为on，“各等级”包括2、3、4、5等级。
 
-whereis oracle  都可以查找文件安装路径
 
-which oracle   都可以查找文件运行路径
-//列出所有被安装的软件包
-rpm -qa | grep 软件包
-rpm -qa  软件包
+------------------------ 
+### linux 查找软件位置  
 
-rpm -q 包名  如果输出包名则已被安装
-find / -name 软件包
+`whereis oracle`  可以查找文件安装路径
 
-用yum命令yum search  软件包
+`which oracle`    可以查找文件运行路径
 
-yum remove 软件包 移除软件包
+- 列出所有被安装的软件包
 
-需要安装底层编译软件
-   yum install openssl-devel  opensll 错误
+      rpm -qa | grep 软件包
+      rpm -qa  软件包
 
-error: curl/curl.h: No such file or directory
-   yum install libcurl-dev libcurl-devel
+- `rpm -q 包名`  如果输出包名则已被安装
+- `find / -name 软件包`
 
-entos安装git
-make[1]: *** [perl.mak] Error 2
-make: *** [perl/perl.mak] Error 2
+- 用yum命令
+      
+      yum search  软件包
 
-yum install perl-ExtUtils-MakeMaker package 解决
+- `yum remove 软件包` 移除软件包
 
-which: no autoreconf in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin)
-configuration failed, please install autoconf first
+------------------------
+### linux 配置邮件服务器testsaslauthd可用于代理认证 testsaslauthd输入报错  NO "authentication failed"
 
- yum install autoconf automake libtool
-
-rpm 等包方式的话,就要查其中的数据库了,比如 rpm -q 进行查询.
--q <== 查询(查询本机已经安装的包时不需要版本名称)
--qi #查询被安装的包的详细信息(information)
--qa | grep dhcp <== 列出所有被安装的rpm package
--qc 列出配置文件(/etc下的文件)
--qd 列出帮助文件(man)
--ql dhcp <== 查询指定 rpm 包中的文件列表
--qf /bin/ls <== 查询哪个库里包含了 ls 文件(注意，需要安装了 /bin/ls 后才能查到)
--qp < rpm package name> <== 根据rpm包查询(.rpm 文件),可以接其他参数(如i查详细信息，l查文件列表 等)
--qR 列出需要的依赖套件
-
------------------------- linux 配置邮件服务器testsaslauthd可用于代理认证 testsaslauthd输入报错  NO "authentication failed"------------------------
-
-/usr/sbin/testsaslauthd –u user –p ‘password’
+`/usr/sbin/testsaslauthd –u user –p ‘password’`
 这时总是出错：0: NO "authentication failed"
 该怎么办呢？
-其实很简单：vi /etc/sysconfig/saslauthd
-#MECH=pam
+其实很简单：`vi /etc/sysconfig/saslauthd`
+`#MECH=pam`
 改成：
-MECH=shadow
-FLAGS=
-然后重启saslauthd: service saslauthd restart
-再来测试 /usr/sbin/testsaslauthd –u myuserid –p ‘mypassword’  //这里的账号和密码要换成你的linux 的用户名和密码
+`MECH=shadow`
+`FLAGS=`
+然后重启saslauthd: `service saslauthd restart`
+再来测试 `/usr/sbin/testsaslauthd –u myuserid –p ‘mypassword’`  //这里的账号和密码要换成你的linux 的用户名和密码
 0: OK "Success."
 终于成功了。
 
 
 
------------------------- linux  iptables ------------------------
 
-iptables -I INPUT -p tcp --dport 25 -j ACCEPT
-
------------------------- linux  crontab ------------------------
-
+------------------------ 
+### linux  crontab 
+```sh
  crontab -l 表示列出所有的定时任务
  crontab -r 表示删除用户的定时任务，当执行此命令后，所有用户下面的定时任务会
-
------------------------- linux  grep ------------------------
-
-[root@www ~]# grep [-acinv] [--color=auto] '搜寻字符串' filename
+```
+------------------------ 
+### linux  grep命令 转
+```sh
+grep [-acinv] [--color=auto] '搜寻字符串' filename
 选项与参数：
 -a ：将 binary 文件以 text 文件的方式搜寻数据
 -c ：计算找到 '搜寻字符串' 的次数
 -i ：忽略大小写的不同，所以大小写视为相同
 -n ：顺便输出行号
 -v ：反向选择，亦即显示出没有 '搜寻字符串' 内容的那一行！
---color=auto ：可以将找到的关键词部分加上颜色的显示喔！
+--color=auto ：可以将找到的关键词部分加上颜色的显示
 
 grep与正规表达式
 
@@ -998,107 +999,72 @@ for i in /etc/profile.d/*.sh ; do
 grep 精确匹配
 
 用grep -w "abc" 或者是grep "\<abc\>"都可以实现
+```
+------------------------ 
 
------------------------- linux  shell ------------------------
+### linux  查看用户属组和用户 id uid 
+```sh
+$ id  user
 
-一、该shell的作用主要是实现监控某个程序崩溃之后就自动重启该进程。
-[html] view plain copy
-#!/bin/bash
-
-while true
-do
-    procnum=` ps -ef|grep "test"|grep -v grep|wc -l`
-   if [ $procnum -eq 0 ]; then
-       /home/test&
-   fi
-   sleep
-
-   -eq意思是等于0，用于判断该test是否还在运行状态。监控/home/test这个程序是否运行。
-
-二、由于该程序是window上的编写的，我们将它（名字用run._start.sh）拷贝到linux下之后需要对它赋予操作的权限
-
-chmod 777 run_start.sh
-
-   ./run_start.sh &
-
-记得加上&，要不然得窗口退了，该脚本也退出了。
-三、发现运行的时候有错误“-bash: ./run_start.sh: /bin/bash^M: bad interpreter: 没有那个文件或目录” ，根据提示，我以为没有这个shell没有安装，所以找不到“/bin/bash”，其实理解错误了，是linux上无法识别window的doc格式。以后记住了，如果遇到这bad interpreter的错误，一定要将字符做一下转换，方法如下：
-
-1）编辑出错文件
-        vi run_start.sh
-
-2）查看该格式（报错文件格式是DOS）
-        :set ff
-3）修改格式
-        :set ff=unix
-
-4）保存退出
-        :wq!
-
-四、再重新运行脚本，可以看到正常了
-
-五、设置开机自动启动脚本
-
-  使用命令 vi  /etc/rc.local 在文件末尾添加这一行        /home/test.sh&
+$ groups user
+```
+------------------------ 
+### linux  vi中查找字符内容的方法
 
 
+1. 命令模式下输入“/字符串”，例如“/Section 3”。
 
------------------------- linux  查看用户属组和用户 id uid ------------------------
-
-id  user
-
-groups user
-
------------------------- linux  vi中查找字符内容的方法------------------------
-
-
-1、命令模式下输入“/字符串”，例如“/Section 3”。
-
-2、如果查找下一个，按“n”即可。
+2. 如果查找下一个，按“n”即可。
 
 要自当前光标位置向上搜索，请使用以下命令：
 
-/pattern Enter
+      /pattern Enter
 
 其中，pattern表示要搜索的特定字符序列。
 
 要自当前光标位置向下搜索，请使用以下命令：
 
-?pattern Enter
+      ?pattern Enter
 
 按下 Enter键后，vi 将搜索指定的pattern，并将光标定位在 pattern的第一个字符处。例如，要向上搜索 place一词，请键入 ：
 
 
-查找到结果后，如何退出查找呢？输入:noh命令 取消搜索。
+查找到结果后，如何退出查找呢？输入`:noh`命令 取消搜索。
 
------------------------- linux 发送邮件  ------------------------
-1.yum install -y mailx
+------------------------ 
+### linux 发送邮件  
+1. `yum install -y mailx`
 
-2.vim /etc/mail.rc
-
+2. `vim /etc/mail.rc`
+```sh
 set from=****@qq.com 邮箱账号 务必和邮箱号一直
 set smtp=smtp.qq.com
 set smtp-auth-user=****@qq.com 邮箱账号 务必和邮箱号一直
 set smtp-auth-password= 客户端授权码
 set smtp-auth=login 默认
+```
+- 发送邮件
+```sh
+$ echo '111' | mail -s 'localbt1' chinesebigcabbage@163.com
+$ cat 1.txt  | mail -s 'localbt' chinesebigcabbage@163.com
+或者
+$ mail -s 'localbt1' chinesebigcabbage@163.com < 1.txt
 
- 发送邮件
- echo '111' | mail -s 'localbt1' chinesebigcabbage@163.com
- cat 1.txt  | mail -s 'localbt' chinesebigcabbage@163.com
- 或
- mail -s 'localbt1' chinesebigcabbage@163.com < 1.txt
-
+#注释
 echo '111' 和 cat 1.txt 为邮件内容
 mail -s 'localbt' 为邮件标题
 chinesebigcabbage@163.com 收件人
+```
 
-当邮件内容无法识别或者为中文的时候 会转为附件的形式分发出
+- 当邮件内容无法识别或者为中文的时候 会转为附件的形式分发出
 
-qq邮箱不会出现此信息 网易可能会
-如遇：554 DT:SPM 发送的邮件内容包含了未被网易许可的信息，或违背了网易的反垃圾服务条款，可以自己邮箱发给自己！
-163的配置同理 只要打开邮箱的SMTP服务 获取授权码就能使用
+- qq邮箱不会出现此信息 网易可能会
 
------------------------- linux  命令行上传下载文件 ------------------------
+       如遇：554 DT:SPM 发送的邮件内容包含了未被网易许可的信息，或违背了网易的反垃圾服务条款，可以自己邮箱发给自己！
+- 163的配置同理 只要打开邮箱的SMTP服务 获取授权码就能使用
+
+------------------------ 
+### linux  命令行上传下载文件 ------------------------
 1.sftp
 建立连接：sftp user@host
 
