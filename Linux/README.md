@@ -15,6 +15,67 @@ $ awk for
     
 $ awk '{cnt[$1]++;}END{for(i in cnt){printf("%s\t%s\n", cnt[i], i);}}' access.log.1|sort -n
 ```  
+### tail -f 时匹配字符串显示颜色
+
+- 单个颜色匹配改变
+```sh
+$ tail -f ./site.log | perl -pe 's/(Served eth_signTransaction)/\e[1;31m$1\e[0m/g'
+```
+`Served eth_signTransaction` 为字符串 多个用 | 分隔
+`\e[1;31m$1\e[0m`  `31m`为颜色 `$1`为第一个颜色
+- 多个颜色匹配改变
+```sh
+$ tail -f ./site.log | perl -pe 's/(Served eth_signTransaction)|(authentication needed: password or unlock)/\e[1;31m$1\e[0m\e[1;32m$2\e[0m/g'
+
+$ tail -f ./site.log | perl -pe 's/(Served eth_signTransaction)|(authentication needed: password or unlock)|(Failed account unlock attempt)/\e[1;31m$1\e[0m\e[1;32m$2\e[0m\e[1;33m$1\e[0m/g'
+
+```
+- 颜色列举
+```
+30m：黑 
+31m：红 
+32m：绿 
+33m：黄 
+34m：蓝 
+35m：紫 
+36m：青 
+37m：白
+
+背景颜色设置：40-47 黑、红、绿、黄、蓝、紫、青、白 
+40：黑 
+41：红 
+42：绿 
+43：黄 
+44：蓝 
+45：紫 
+46：青 
+47：白
+- 例子:
+  - 黄字，高亮加粗显示 
+[1;33m 
+  - 红底黄字，高亮加粗显示 
+[1;41;33m
+```
+(文字资料来源CSND博客-天命ming)[https://blog.csdn.net/qq_27686779/article/details/81180254]
+
+### Linux 死循环
+
+```sh
+#!/bin/bash
+
+while(true)
+do
+  echo 1;
+done
+
+```
+
+### pm2启动一个项目
+
+```sh
+$ pm2 start "脚本或可执行文件名" --name "别名" -- start .
+```
+
 
 -------------------------
 ### 登录亚马逊aws方法
