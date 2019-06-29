@@ -361,3 +361,7 @@ walletprocesspsbt "psbt" ( sign "sighashtype" bip32derivs )
 
 
 
+
+
+//curl --user  bbc:bbc2018@@ --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "help", "params": [] }' -H 'content-type: text/plain;' http://47.75.114.22:8332/
+bitcoin-cli -rpcuser=bbc -rpcpassword=bbc2018@@ -rpcconnect=0.0.0.0 -rpcport=8333  getblockchaininfo

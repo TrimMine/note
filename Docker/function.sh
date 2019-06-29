@@ -159,7 +159,7 @@ docker pull centos:7.2.1511
 docker 开启范围端口可以这样写 -p 35000-36000:35000-36000  如果镜像名称一致后面可以跟镜像的标志 默认是 latest
 docker run -i -t -d --name bt-pure -p 20:20 -p 21:21 -p 80:80 -p 8080:8080  -p 8081:8081 -p 8332:8332 -p 8545:8545  -p 443:443 -p 888:888 -p 3306:3306 -p 8888:8888 --privileged=true -v /Users/cabbage/Code/jbs:/www/wwwroot chinesebigcabbage/bt-pure:latest  
 
-docker run -i -t -d --name bt-v6 -p 20:20 -p 21:21 -p 22:22 -p 80:80 -p 8080:8080  -p 8081:8081 -p 8332:8332 -p 8545:8545  -p 443:443 -p 888:888 -p 3306:3306 -p 8888:8888 -p 9500-9520:9500-9520  -p 39000-39500:39000-39500 --privileged=true -v /Users/cabbage/Code/jbs:/www/wwwroot chinesebigcabbage/bt-v6:2018-12-v6
+docker run -i -t -d --name bt-v7 -p 20:20 -p 21:21 -p 22:22 -p 80:80 -p 8080:8080  -p 8081:8081 -p 8332:8332 -p 8545:8545 -p 3000-3100:3000-3100 -p 443:443 -p 888:888 -p 3306:3306 -p 8888:8888 -p 9500-9520:9500-9520  -p 39000-39500:39000-39500 --privileged=true -v /Users/cabbage/Code/items:/www/wwwroot chinesebigcabbage/bt-v7:2019-5-31
 
 此处安装的镜像为centos安装宝塔后的镜像 如果有ftp服务需要修改 ftp被动模式的端口范围
 3.查看容器id，并进入容器

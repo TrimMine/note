@@ -956,7 +956,7 @@ systemctl status firewalld
       chkconfig --list               #列出系统所有的服务启动情况。
       chkconfig --list mysqld        #列出mysqld服务设置情况。
       chkconfig --level 35 mysqld on #设定mysqld在等级3和5为开机运行服务，--level 35表示操作只在等级3和5执行，on表示启动，off表示关闭。
-      chkconfig mysqld on            #设定mysqld在各等级为on，“各等级”包括2、3、4、5等级。
+      chkconfig `mysqld` on            #设定mysqld在各等级为on，“各等级”包括2、3、4、5等级。
 
 
 ------------------------ 
@@ -981,6 +981,27 @@ systemctl status firewalld
 - `yum remove 软件包` 移除软件包
 
 ------------------------
+### Docker 容器中自启动宝塔应用
+```sh
+#!/bin/bash
+bt=`/etc/init.d/bt status | grep "already running" |wc -l`
+if [ $bt -ne 2 ]
+then
+/etc/init.d/bt start
+fi
+nginx=`ps -ef |grep -w nginx |grep -v grep| grep root | wc -l`
+if [ $nginx -ne 1 ]
+then
+/etc/init.d/nginx start
+fi
+mysql=`ps -ef |grep -w nginx |grep -v grep| grep root | wc -l`
+if [ $mysql -ne 1 ]
+then
+ /etc/init.d/mysqld start
+fi
+```
+------------------------
+
 ### linux 配置邮件服务器testsaslauthd可用于代理认证 testsaslauthd输入报错  NO "authentication failed"
 
 `/usr/sbin/testsaslauthd –u user –p ‘password’`
