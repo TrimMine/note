@@ -575,6 +575,7 @@ mysql 5.6
 3. `select  User,authentication_string,Host from user;`
 4.` GRANT ALL PRIVILEGES ON *.* TO `root`@`%` IDENTIFIED BY '123456';` 
 	这里的123456为你给新增权限用户设置的密码，%代表所有主机，也可以具体到你的主机ip地址
+   123456这个密码和你本机原来的root密码不一样 不要弄混了 登录mysql命令行还需要那个root密码
 5. `flush privileges;`          这一步一定要做，不然无法成功！ 这句表示从mysql数据库的grant表中重新加载权限数据
                              因为MySQL把权限都放在了cache中，所以在做完更改后需要重新加载。
 6. `select  User,authentication_string,Host from user`  再次查看  发现多了一个用户，该用户所有的主机都可以访问，此时再次用sqlyog访问连接成功！

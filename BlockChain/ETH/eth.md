@@ -1,6 +1,5 @@
-<?php
-/*
-//以太坊官网地址接口 获取余额 参数 address
+
+### 以太坊官网地址接口 获取余额 参数 address
 https://api.etherscan.io/api?module=account&action=balance&address=0x0975CA9F986EeE35F5CbbA2d672ad9bc8D2a0844&tag=latest&apikey=GZQ3UXNYP6BSAA9HFGZHYNY6PRMK8PRDU2
 
 
@@ -11,12 +10,12 @@ https://api.etherscan.io/api?module=account&action=balance&address=0x0975CA9F986
 001028999999790000 如果不到18位在第一位向前补0到18位
 0.001028999999790000
 
-//启动命令
+#### 启动命令
 geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jhain.com
 
 nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "*" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
 
-//后台运行并输出到文件
+#### 后台运行并输出到文件
 nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jxym2.cn >> ./eth.log 2>&1 & 
 
 --rpcaddr 0.0.0.0  //全部允许
@@ -49,8 +48,8 @@ personal_importRawKey([keydata, passphrase])
 返回账户地址
 
 
------------------------------- 如何获取节点 ID 信息和端口号 ------------------------------
-
+###  如何获取节点 ID 信息和端口号 
+```
 # 连接到正在运行的 geth 节点上并进入命令行界面
 geth attach
 
@@ -64,7 +63,6 @@ admin.nodeInfo.ports.listener
 
 # 退出命令行界面
 exit
-
 添加节点
 > admin.addPeer("enode://d8f4c028b96eeb53dcd87448962599cc14686d94e341e3d3ff51a9d313fa822bb434f5227c2b5f6b74da26fb82b291e79b23535a9d7e998701d21f1201c9287d@47.52.16.149:30303")
 true #返回true
@@ -80,8 +78,9 @@ true #返回true
 
  基链钱包节点
 "enode://d8f4c028b96eeb53dcd87448962599cc14686d94e341e3d3ff51a9d313fa822bb434f5227c2b5f6b74da26fb82b291e79b23535a9d7e998701d21f1201c9287d@47.52.16.149:30303",
+```
 
------------------------------- 稳定静态节点信息 ------------------------------
+### 稳定静态节点信息 
 
 星火节点提供的稳定静态节点信息
 https://ethfans.org/wikis/%E6%98%9F%E7%81%AB%E8%8A%82%E7%82%B9%E8%AE%A1%E5%88%92%E8%B6%85%E7%BA%A7%E8%8A%82%E7%82%B9%E5%88%97%E8%A1%A8
@@ -180,7 +179,7 @@ https://ethfans.org/wikis/%E6%98%9F%E7%81%AB%E8%8A%82%E7%82%B9%E8%AE%A1%E5%88%92
 
 
 
------------------------------------------- Ethereum geth 同步区块的三种模式 ------------------------------------------
+### Ethereum geth 同步区块的三种模式 
 https://blog.csdn.net/guokaikevin/article/details/79254785 链接
 
 Ethereum（以太坊）当前交易多，截止当前（2018-02-04）已经有5029238个区块，区块大小在150G左右。
@@ -206,7 +205,7 @@ geth –light
 作者按照fast模式，在4核8G，SSD硬盘的云主机上，差不多2天时间就完成了以太坊区块的同步。
 
 
------------------------------------------- eth.syncing ------------------------------------------
+### eth.syncing 
 https://blog.csdn.net/wo541075754/article/details/79649208 转自
 
 eth.syncing
@@ -219,7 +218,7 @@ eth.syncing
 }
 
 Syncing方法的源代码很简单，注释说明也已经很清楚了。通过这段源代码我们可以得知一下信息： 
-- 当然CurrentBlock大于等于HighestBlock时返回false，这也正是通常所说的同步完成之后，再执行eth.syncing()函数会返回false的原因。 
+- 当CurrentBlock大于等于HighestBlock时返回false，这也正是通常所说的同步完成之后，再执行eth.syncing()函数会返回false的原因。 
 - startingBlock：开始同步的起始区块编号； 
 - currentBlock：当前正在导入的区块编号； 
 - highestBlock：通过所链接的节点获得的当前最高的区块高度； 
@@ -227,13 +226,13 @@ Syncing方法的源代码很简单，注释说明也已经很清楚了。通过�
 - knownStates：当前已知的待拉取的总状态条目数；
 
 
------------------------------------------- eth 安装 ------------------------------------------
+### eth 安装 
 
-1.github 克隆源码
+1. github 克隆源码
 git clone https://github.com/ethereum/go-ethereum 
-2.安装golang
+2. 安装golang
 yum install golang
-3.执行命令  (进入源码目录)
+3. 执行命令  (进入源码目录)
 make geth 或 make all
 
 

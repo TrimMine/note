@@ -1,7 +1,4 @@
-<?php
-/*
------------------------------- BTC安装  ------------------------------
-
+### BTC安装  
 
 我的服务器是 centos  ubantu和debian 参考官方文档 https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md
 可安装的库 
@@ -108,7 +105,9 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
     官方: https://bitcoin.org/en/full-node#configuring-dhcp
     其他: https://www.jianshu.com/p/63cc72b27e72
 
----------- bitcoin-cli 在启动bitcoind客户端的时候，如何设置启动参数，常见的有以下的  ----------------
+----
+
+### bitcoin-cli 在启动bitcoind客户端的时候，如何设置启动参数，常见的有以下的  
 
 
 -rpcuser=<用户名>  JSON-RPC 连接使用的用户名
@@ -188,18 +187,18 @@ rpcallowip=172.31.190.55
 rpcport=8332
 
             
-----------------------------------------PDCC 节点6启动命令  ------------------------------------
+### PDCC 节点6启动命令  
 
 
 prexd -conf=/root/.PDCC/predix.conf -daemon
 
-----------------------------------------PDCC php 节点  ------------------------------------
+### PDCC php 节点  
 
 
 composer require denpa/php-bitcoinrpc
 
 
--------------------- bitcoin-cli 当配置用户名和密码的时候需要加参数才能进行查询-------------------------
+### bitcoin-cli 当配置用户名和密码的时候需要加参数才能进行查询
 
 bitcoin-cli -rpcuser=REPLACED -rpcpassword=REPLACED -rpcconnect=127.0.0.1 -rpcport=8332 -datadir=/data/btc getblockchaininfo
 
@@ -207,14 +206,14 @@ bitcoin-cli -rpcuser=user -rpcpassword=user -rpcconnect=0.0.0.0 -rpcport=8332 st
 
 
 
------------------------------- bitcoin-cli 使用的为最新版本时会提示有些命令已经删除   ------------------------------
+### bitcoin-cli 使用的为最新版本时会提示有些命令已经删除   
 
 getaccountaddress is deprecated and will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts
 
 在配置文件加入 deprecatedrpc=accounts
 或在启动命令后 -deprecatedrpc=accounts
 
------------------------------- bitcoin-cli 参数  ------------------------------
+### bitcoin-cli 参数  
 
 == Blockchain ==
 getbestblockhash
@@ -365,3 +364,59 @@ walletprocesspsbt "psbt" ( sign "sighashtype" bip32derivs )
 
 //curl --user  bbc:bbc2018@@ --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "help", "params": [] }' -H 'content-type: text/plain;' http://47.75.114.22:8332/
 bitcoin-cli -rpcuser=bbc -rpcpassword=bbc2018@@ -rpcconnect=0.0.0.0 -rpcport=8333  getblockchaininfo
+
+
+----
+
+### rpc服务启动选项
+
+RPC服务器选项：
+
+  -休息
+       接受公共REST请求（默认值：0）
+
+  -rpcallowip = <IP>
+       允许来自指定源的JSON-RPC连接。适用于<ip>的是
+       单个IP（例如1.2.3.4），网络/网络掩码（例如，
+       1.2.3.4/255.255.255.0）或网络/ CIDR（例如1.2.3.4/24）。这个
+       选项可以多次指定
+
+  -rpcauth = <userpw>
+       JSON-RPC连接的用户名和散列密码。场
+       <userpw>的格式为：<USERNAME>：<SALT> $ <HASH>。一个
+       canonical python脚本包含在share / rpcauth中。客户端
+       然后通常使用
+       rpcuser = <USERNAME> / rpcpassword = <PASSWORD>参数对。这个
+       选项可以多次指定
+
+  -rpcbind = <地址> [：端口]
+       绑定到给定地址以侦听JSON-RPC连接。这个选项是
+       除非-rpcallowip也被传递，否则将被忽略。端口是可选的
+       覆盖-rpcport。使用[host]：IPv6的端口表示法。这个
+       可以多次指定选项（默认值：127.0.0.1和
+       :: 1即localhost，或者如果指定了-rpcallowip，
+       0.0.0.0和::即所有地址）
+
+  -rpccookiefile = <LOC>
+       身份验证cookie的位置。相对路径将以a为前缀
+       特定于网络的数据库位置。 （默认：数据目录）
+
+  -rpcpassword = <PW>
+       JSON-RPC连接的密码
+
+  -rpcport = <端口>
+       在<port>上侦听JSON-RPC连接（默认值：8332或testnet：
+       18332）
+
+  -rpcserialversion
+       设置返回的原始事务或块十六进制的序列化
+       非详细模式，非segwit（0）或segwit（1）（默认值：1）
+
+-rpcthreads=<N>
+        设置服务RPC调用的线程数（默认值：4）
+
+  -rpcuser= <用户>
+        JSON-RPC连接的用户名
+
+  -server
+        接受命令行和JSON-RPC命令
