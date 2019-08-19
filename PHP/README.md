@@ -2018,8 +2018,7 @@ compsoer包  "phpoffice/phpexcel":"1.8.1"
     $pic->compressImg('1.jpg');
     var_dump($pic);
 
-
-php
+```
 -------------------------------------------------------------------
 
 ### PHP  函数回溯 生成过程  

@@ -192,7 +192,7 @@ rpcport=8332
 
 prexd -conf=/root/.PDCC/predix.conf -daemon
 
-### PDCC php 节点  
+### php 包  
 
 
 composer require denpa/php-bitcoinrpc

@@ -737,7 +737,7 @@ ip_address指的是对应的服务器IP，这种情况下，会临时将这个�
 
       开启全部 入方向
       iptables -P INPUT ACCEPT
-      开启全部 入方向
+      开启全部 出方向
       iptables -P OUTPUT ACCEPT
       开启部分端口段
 
