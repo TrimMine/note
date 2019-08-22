@@ -11,11 +11,13 @@ https://api.etherscan.io/api?module=account&action=balance&address=0x0975CA9F986
 0.001028999999790000
 
 #### 启动命令
+```sh
 geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jhain.com
 
 nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "*" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
-
+```
 #### 后台运行并输出到文件
+```
 nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jxym2.cn >> ./eth.log 2>&1 & 
 
 --rpcaddr 0.0.0.0  //全部允许
@@ -24,7 +26,7 @@ nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,perso
 开启阿里云和宝塔端口
 
 nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "http://115.60.60.173,http://192.168.2.100,http://192.168.2.235" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &
-
+```
 
 香港可用区 B 
 实例 ： 计算网络增强型 sn1ne / ecs.sn1ne.2xlarge(8vCPU 16GiB)
@@ -82,11 +84,12 @@ true #返回true
 
 ### 稳定静态节点信息 
 
-星火节点提供的稳定静态节点信息
-https://ethfans.org/wikis/%E6%98%9F%E7%81%AB%E8%8A%82%E7%82%B9%E8%AE%A1%E5%88%92%E8%B6%85%E7%BA%A7%E8%8A%82%E7%82%B9%E5%88%97%E8%A1%A8
-
+[星火节点提供的稳定静态节点信息]
+(https://ethfans.org/wikis/%E6%98%9F%E7%81%AB%E8%8A%82%E7%82%B9%E8%AE%A1%E5%88%92%E8%B6%85%E7%BA%A7%E8%8A%82%E7%82%B9%E5%88%97%E8%A1%A8)
+`
 放到存放数据的目录(一般都是~/.ethereum/) 新建 static-nodes.json文件 将里面的数据放入 下面的文件是 2018-8-21日下载 
-
+`
+```sh
 [
  "enode://d8f4c028b96eeb53dcd87448962599cc14686d94e341e3d3ff51a9d313fa822bb434f5227c2b5f6b74da26fb82b291e79b23535a9d7e998701d21f1201c9287d@47.52.16.149:30303",
  "enode://d8f4c028b96eeb53dcd87448962599cc14686d94e341e3d3ff51a9d313fa822bb434f5227c2b5f6b74da26fb82b291e79b23535a9d7e998701d21f1201c9287d@209.9.107.84:30303",
@@ -172,14 +175,10 @@ https://ethfans.org/wikis/%E6%98%9F%E7%81%AB%E8%8A%82%E7%82%B9%E8%AE%A1%E5%88%92
  "enode://f0915704ae4109fccf85903a7eb009b846866ace2d4a59cee198101bf1d3f4138a3289262c95fd6cd93a453bf4c2904a017fa6e3464845a09507308033ec2859@202.103.210.186:30303"
 
 ] 
-
-
-
-
-
-
-
+```
 ### Ethereum geth 同步区块的三种模式 
+
+
 https://blog.csdn.net/guokaikevin/article/details/79254785 链接
 
 Ethereum（以太坊）当前交易多，截止当前（2018-02-04）已经有5029238个区块，区块大小在150G左右。
@@ -235,5 +234,40 @@ yum install golang
 3. 执行命令  (进入源码目录)
 make geth 或 make all
 
+### eth eth_sendTransaction
 
+#### method:
+	`eth_sendTransaction`
+#### params:
+
+```
+{"jsonrpc":"2.0","method":"eth_sendTransaction","params":[{
+  "nonce":"0x15",
+  "from": "0xb6cd75af6594f46374378cf3a7d9cbfc06485994",
+  "to": "0x60be0313411e34e8e2ec7094b27a291d827d9b9c",
+  "gas": "0xea60", 
+  "gasPrice": "0x3b9aca00", 
+  "value": "0x0",  
+  "data": "0xa9059cbb000000000000000000000000696d69b81c6bdf6d46ddb66ee2175df7f9de7c4600000000000000000000000000000000000000000000000ad78ebc5ac6200000"
+}],"id":666}
+
+nonce：交易顺序十六进制。由eth_getTransactionCount获取
+from：转账方地址
+to：代币合约地址
+gas：燃料十六进制。由eth_estimateGas获取
+gasPrice：燃料单价十六进制。由eth_gasPrice获取
+value：由于是发送代币，这里为0
+data：附加的消息。这里由合约中transfer方法，方法参数一(接收方地址)，方法参数二(代币数量)的十六进制组成
+
+```
+##### data的组成
+  data的组成，由：0x + 要调用的合约方法的function signature + 要传递的方法参数，每个参数都为64位(对transfer来说，第一个是接收人的地址去掉0x，第二个是代币数量的16进制表示，去掉前面0x，然后补齐为64位)
+  
+  `data: '0x' + 'a9059cbb' + addPreZero('3b11f5CAB8362807273e1680890A802c5F1B15a8') + addPreZero(web3.utils.toHex(1000000000000000000).substr(2))`
+
+  a9059cbb 固定的 
+  3b11f5CAB8362807273e1680890A802c5F1B15a8 接收人地址
+  1000000000000000000 发送数量 1个 eth单位18位0 
+
+  addPreZero 是补齐0 不够64位的 前面用0补齐到64位
 

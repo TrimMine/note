@@ -281,7 +281,7 @@ $res = Db::query($sql);
 ----------------------------
 
 ### mysql COUNT(*) 和 count(col) 区别件建议
-
+-
 优化总结：
 1.任何情况下SELECT COUNT(*) FROM tablename是最优选择；
 2.尽量减少SELECT COUNT(*) FROM tablename WHERE COL = ‘value’ 这种查询；
@@ -600,6 +600,9 @@ Starting MySQL. ERROR! The server quit without updating PID file (/www/server/da
  
 - 删除 目录下 server/data/下面的pid (a04890ffe464.pid 前缀不一样)  
 - 删除 mysql-bin.index 然后启动 ok
+
+使用 mysqkd status 检查 
+删除 锁 /var/lock/subsys/mysql
 
 ----------------------------
 ### mysql 导入原5.6版本sql文件报错 

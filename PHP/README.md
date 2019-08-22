@@ -2191,7 +2191,7 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     
     php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --enumradiosuffix=type --enumradiosuffix=money_type  --enumradiosuffix=is_add --intdatesuffix=accesstime  --intdatesuffix=gonetime --ignorefields=updatetime   
 
-    php think crud -t user_xrp_log -c user/userlog  -m userlog --enumradiosuffix=type --intdatesuffix=createtime   --ignorefields=updatetime    -u 1
+    php think crud -t users -c users/users  -m userlog --enumradiosuffix=type --intdatesuffix=createtime   --ignorefields=updatetime    -u 1
 
     {:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
 

@@ -16,7 +16,9 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 	
 	没有git 要安装git centos 安装git yum install  git 
 	
-	1- git clone https://github.com/bitcoin/bitcoin.git
+	1- git clone https://github.com/bitcoin/bitcoin.git 
+     使用accounts的用户注意 尽量不要下载0.18版本及以上 因为在这个版本我遇到过 加入  -deprecatedrpc=accounts参数  account有关的api仍然不能使用 克隆的时候选择版本
+     git clone -b 0.17 git clone https://github.com/bitcoin/bitcoin.git 
 
 	2- ./autogen.sh 
 	报错 
@@ -74,15 +76,36 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
     make install
 
     创建软链  可省略看个人喜好
-    ln -s ~/bitcoin/src/bitcoin-cli /usr/bin/btc  
-    ln -s ~/bitcoin/src/bitcoind /usr/bin/btc-start
+    ln -s ~/bitcoin/src/bitcoin-cli /usr/bin/bitcoin-cli
+    ln -s ~/bitcoin/src/bitcoind /usr/bin/bitcoind
 
-    btc-start -daemon #后台启动 如果没有创建软链就使用 bitcoind -daemon 
+    创建配置文件
+    vim bitcoin.conf
+    写入内容
+      server=1
+      rpcuser=user
+      rpcpassword=user
+      rpcport=8332
+      rpcallowip=0.0.0.0/0
+      rpcbind=0.0.0.0:8332
 
-	新建配置文件 -conf=/root/bitcoin.conf 将配置项写入  设置RPC用户名和密码 端口 servcer=1 rpcallowip=0.0.0.0/0
-	切记要写入RPC的配置文件 个别版本遇到过拉取区块同步之后在设置rpc账号和密码不能使用 connect refused 最好拉取之前就设置好
+    启动  
+    bitcoind -conf=/root/bitcoin.conf -daemon
 
-	btc-start -conf=/root/bitcoin.conf -daemon
+    bitcoind -daemon #后台启动 如果没有创建软链就使用 bitcoind -daemon 
+
+  	新建配置文件 -conf=/root/bitcoin.conf 将配置项写入  设置RPC用户名和密码 端口 servcer=1 rpcallowip=0.0.0.0/0 rpcbind=0.0.0.0:8332
+	  切记要写入RPC的配置文件 
+    个别版本遇到过拉取区块同步之后再设置rpc账号和密码不能使用 出现 connect refused 
+    这种情况要仔细看日志  是否使用的是你设置的配置文件
+    2019-08-22T07:59:11Z Default data directory /root/.bitcoin
+    2019-08-22T07:59:11Z Using data directory /root/.bitcoin
+    2019-08-22T07:59:11Z Config file: /root/bitcoin.conf
+    如果是看看日志是不是少设置了东西
+    2019-08-22T08:01:07Z No rpcpassword set - using random cookie authentication.
+    2019-08-22T08:01:07Z Generated RPC authentication cookie /root/.bitcoin/.cookie
+    如果还无法使用尝试删除 /root/.bitcoin/.cookie 检查配置是否有误 然后启动
+
 
    
     可在 ~/.bitcoin/debug.log 查看日志信息
@@ -180,19 +203,16 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 server=1
 rpcuser=user
 rpcpassword=user
-rpcallowip=47.75.42.52
-rpcallowip=47.52.189.164
-rpcallowip=172.31.190.56
-rpcallowip=172.31.190.55
 rpcport=8332
+rpcallowip=0.0.0.0/0
+rpcbind=0.0.0.0:8332
 
             
-### PDCC 节点6启动命令  
+###  节点启动命令  
 
+bitcoind -rpcuser=REPLACED -rpcpassword=REPLACED -server=1 -rpcbind=0.0.0.0:8332 -rpcallowip=0.0.0.0/0 -deprecatedrpc=accounts
 
-prexd -conf=/root/.PDCC/predix.conf -daemon
-
-### php 包  
+### php bitcoin 包  
 
 
 composer require denpa/php-bitcoinrpc
@@ -202,7 +222,8 @@ composer require denpa/php-bitcoinrpc
 
 bitcoin-cli -rpcuser=REPLACED -rpcpassword=REPLACED -rpcconnect=127.0.0.1 -rpcport=8332 -datadir=/data/btc getblockchaininfo
 
-bitcoin-cli -rpcuser=user -rpcpassword=user -rpcconnect=0.0.0.0 -rpcport=8332 start getblockchaininfo
+bitcoin-cli -rpcuser=bvx -rpcpassword=bvx2018  getblockchaininfo
+
 
 
 
@@ -214,6 +235,8 @@ getaccountaddress is deprecated and will be removed in V0.18. To use this comman
 或在启动命令后 -deprecatedrpc=accounts
 
 ### bitcoin-cli 参数  
+
+bitcoin-cli help 参数列表
 
 == Blockchain ==
 getbestblockhash
@@ -363,7 +386,7 @@ walletprocesspsbt "psbt" ( sign "sighashtype" bip32derivs )
 
 
 //curl --user  bbc:bbc2018@@ --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "help", "params": [] }' -H 'content-type: text/plain;' http://47.75.114.22:8332/
-bitcoin-cli -rpcuser=bbc -rpcpassword=bbc2018@@ -rpcconnect=0.0.0.0 -rpcport=8333  getblockchaininfo
+bitcoin-cli -rpcuser=bvx -rpcpassword=bvx2018 -rpcconnect=0.0.0.0 -rpcport=8332  getblockchaininfo
 
 
 ----
@@ -420,3 +443,5 @@ RPC服务器选项：
 
   -server
         接受命令行和JSON-RPC命令
+
+
