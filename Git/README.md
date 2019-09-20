@@ -328,11 +328,5 @@ git checkout -- 文件名
 git checkout . 全部放弃  添加的文件需要手动删除 
 ```
 
-------------------------------------
 
-###   git .gitignore不生效  
-
-    git rm -r --cached .
-    git add .
-    git commit -m 'update .gitignore'
 

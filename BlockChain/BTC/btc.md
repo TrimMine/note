@@ -222,7 +222,7 @@ composer require denpa/php-bitcoinrpc
 
 bitcoin-cli -rpcuser=REPLACED -rpcpassword=REPLACED -rpcconnect=127.0.0.1 -rpcport=8332 -datadir=/data/btc getblockchaininfo
 
-bitcoin-cli -rpcuser=bvx -rpcpassword=bvx2018  getblockchaininfo
+bitcoin-cli -rpcuser=bvx -rpcpassword=bvx2018  getaccounts
 
 
 
