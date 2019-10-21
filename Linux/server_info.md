@@ -1,18 +1,4 @@
 
-ssh -p 6589 root@47.94.86.87
-账号 zcbaota     
-宝塔密码 abhjm3389..//      
-ssh端口   6589 
-密码 Zichen258//..
-访问地址 http://bt.zichends.xyz:56974/site
-
-ssh -p 6589 root@47.94.88.13
-账号      zcbaota2  
-宝塔密码  jkgnaiofna5654.,,//
-访问地址  http://bt2.zichends.xyz:45682/site
-ssh 端口  64354  
-密码      Zichen258..// 
-
 
 1.宝塔域名访问
 2.限制ip登录宝塔

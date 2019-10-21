@@ -96,3 +96,12 @@
 97.technical 技术
 98.contribution 贡献
 99.contributer 贡献者
+100.copy 复制
+101.arm 军队
+102.inflict 使 动词
+103.inflict 加以
+104.luggage 行李
+105.menu 菜单
+106.connect 连接
+107.main 主要的
+108.restaurant 餐厅

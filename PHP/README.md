@@ -79,12 +79,61 @@
              return '密码必须大于6位少于16位的字母或数字';
          }
       }
+      //字母和数字的结合
+      if (!preg_match("/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$/", $param)) {
+          return false;
+      }
 ##### 验证交易密码
         public static function CheckDealPass($str){
           if (!preg_match('/^[0-9]{6}$/',$str)) {
              return '交易密码必须为6位数字';
           }
        }
+#####检查ID号
+       public function check_uid($uid)
+       {
+           if (!is_numeric($uid) || $uid < 0 || !preg_match('/^[0-9]{1,11}$/', $uid)) {
+               return false;
+           }
+           return true;
+       }
+##### 检查賬號
+    public function check_account($param)
+    {
+        if (!preg_match("/^[a-z0-9]{5,20}$/", $param)) {
+            return false;
+        }
+        return true;
+    }
+
+##### 检查账号是否已存在
+    public function check_account_isset($param)
+    {
+        if (db('users')->where('account', $param)->find()) {
+            return false;
+        }
+        return true;
+    }
+
+######  检查新賬號 大小写
+    public function check_new_account($param)
+    {
+        if (!preg_match("/^[a-zA-Z0-9]{3,6}$/", $param)) {
+            return false;
+        }
+
+        return true;
+    }
+
+###### 手机号注册上限  暂定99个
+    public function check_mobile_num($param)
+    {
+        $count = db('users')->where('mobile', $param)->count();
+        if ($count > 0) {
+            return false;
+        }
+        return true;
+    }
 #####  生成随机数
      public static function RandNumber($user_id)
      {
@@ -108,7 +157,76 @@
         return '邮箱格式不正确!';
       }
     }
-    
+##### 检查是否是字母组成
+    public function check_letter($param)
+    {
+        if (!preg_match("/^[a-zA-Z]{3,20}$/", $param)) {
+            return false;
+        }
+
+        return true;
+    }
+
+##### 检查登錄密碼
+    public function check_pass($param)
+    {
+        if (strlen($param) < 6 || strlen($param) > 16) {
+            return false;
+        }
+        return true;
+    }
+
+##### 检查支付密碼
+    public function check_payment($param)
+    {
+        if (strlen($param) != 6 || !preg_match("/^[\d]*$/i", $param) || !is_numeric($param)) {
+            return false;
+        }
+        return true;
+    }
+
+##### 检查推荐码
+    public function check_upCode($param)
+    {
+        if (strlen($param) !== 6) {
+            return false;
+        }
+        if (!$upId = db('users')->where('push_code', $param)->find()) {
+            return false;
+        }
+        return $upId;
+    }
+
+#####  检查推荐码
+    public function check_upPhone($param)
+    {
+        if (!is_numeric($param) || $param < 0 || !preg_match('/^1[3456789]{1}\d{9}$/', $param)) {
+            return false;
+        }
+        if (!$upId = db('users')->where(['mobile' => $param])->find()) {
+            return false;
+        }
+        return $upId;
+    }
+
+##### 检查真实姓名
+    public function check_name($name)
+    {
+        #验证姓名
+        if (!preg_match('/^([\xe4-\xe9][\x80-\xbf]{2}){2,5}$/', $name)) {
+            return false;
+        }
+        return true;
+    }
+
+##### 检查省市县
+    public function check_area($name)
+    {
+        if (!preg_match('/^([\xe4-\xe9][\x80-\xbf]{2}){2,8}$/', $name)) {
+            return false;
+        }
+        return true;
+    }
 -------------------------------------------------------------------
 
 ### PHP preg_match() 匹配  
