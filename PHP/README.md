@@ -1817,7 +1817,7 @@ basename() 函数返回路径中的文件名部分。
 名称  说明
 1. __LINE__  文件中的当前行号。
 
-2. __FILE__  文件的完整路径和文件名。如果用在被包含文件中，则返回被包含的文件名。自 PHP 4.0.2 起，__FILE__ 总是包含一个绝对路径（如果是符号连接，则是解析后的绝对路径），而在此之前的版本有时会包含一个相对路径。
+2. __FILE__  文件的完整路径和文件名。如果用在被包含文件中，则返回被包含的文件名。自 PHP 4.0.2 起，__FILE__ 总是包含一个绝对路径（如果是符号连��，则是解析后的绝对路径），而在此之前的版本有时会包含一个相对路径。
 
 3. __DIR__ 文件所在的目录。如果用在被包括文件中，则返回被包括的文件所在的目录。它等价于 dirname(__FILE__)。除非是根目录，否则目录中名不包括末尾的斜杠。（PHP 5.3.0中新增） =
 
@@ -2309,7 +2309,7 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     
     php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --enumradiosuffix=type --enumradiosuffix=money_type  --enumradiosuffix=is_add --intdatesuffix=accesstime  --intdatesuffix=gonetime --ignorefields=updatetime   
 
-    php think crud -t users -c users/users  -m userlog --enumradiosuffix=type --intdatesuffix=createtime   --ignorefields=updatetime    -u 1
+    php think crud -t users -c users/users  -m users --imagefield=head_img --enumradiosuffix=status --enumradiosuffix=auth_realname --ignorefields=updatetime    -u 1
 
     {:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
 

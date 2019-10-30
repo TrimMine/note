@@ -88,10 +88,12 @@ $ pm2 start "脚本或可执行文件名" --name "别名" -- start .
 
 - 亚马逊aws ec2 为了安全起见是禁止密码登录 在创建主机的时候会给出.pem文件 登录也是使用此文件登录
 - 如果想使用密码登录 需要登录上之后设置以下内容  vim /etc/ssh/sshd_config
-  1. 先切换到root `su root`
+- 
+  1.  先切换到root `su root` (如果不行使用 sudo su切换成root用户 无需使用密码)
   2. `PasswordAuthentication no` 改成 `yes`
   3. `PermitRootLogin no` 改成`yes` 此为允许root用户登录 也可以不加 使用其他用户登录 使用过哪个用户登录就修改哪个用户的密码
-  4. `passwd root` 
+  4. `passwd root` 设置root密码
+  5. service sshd restart 重新启动sshd服务
 - 注意事项 初次使用aws需要注意他们的初始用户是系统名 比如 `centos`用户名 就是 centos `ubuntu`就是ubuntu 
 -------------------------
 ### tail 命令
@@ -160,7 +162,7 @@ $ pm2 start "脚本或可执行文件名" --name "别名" -- start .
         
       find ./ -name test
 
-- 查找名字符合正则表达式的文件,注意前面的‘.*’(查找到的文件带有目录)
+- 查找名字符合正则表达式的文件,注意前面的`.*`(查找到的文件带有目录)
 
       find ./ -regex .*so.*\.gz
 
@@ -172,7 +174,7 @@ $ pm2 start "脚本或可执行文件名" --name "别名" -- start .
 
 - 查找目录并列出目录下的文件(为找到的每一个目录单独执行ls命令,执行命令前需要确认)
 
-      find ./ -type d -ok ls {} \;
+       find ./ -type d -ok ls {} \;
 
 - 查找目录并列出目录下的文件(将找到的目录添加到ls命令后一次执行，参数过长时会分多次执行)
 >      find ./ -type d -exec ls {} +
@@ -194,10 +196,10 @@ $ pm2 start "脚本或可执行文件名" --name "别名" -- start .
  >     -r，不放过子目录
  >   
  >     find /www/* -iname “*.php” | xargs grep -H -n "eval(base64_decode"
-
-
-
-- 查找文件名匹配*.c的文件
+ >
+ >
+ >
+- 查找文件名匹配`*.c`的文件
 
       find ./ -name \*.c
 
@@ -3963,5 +3965,72 @@ vim 输入 %!xxd 转换 vi 输入 %xxd 转换
   pidof nginx
   13312 5371
 ```
+### shadowsocks
+
+L2TP/IPSec一键安装脚本
+
+wget --no-check-certificate https://raw.githubusercontent.com/teddysun/across/master/l2tp.sh
+chmod +x l2tp.sh
+./l2tp.sh
 
 
+Shadowsocks 一键安装脚本（四合一）
+
+wget --no-check-certificate -O shadowsocks-all.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh
+chmod +x shadowsocks-all.sh
+./shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
+
+
+Shadowsocks-go一键安装脚本
+
+wget --no-check-certificate -O shadowsocks-go.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-go.sh
+chmod +x shadowsocks-go.sh
+./shadowsocks-go.sh 2>&1 | tee shadowsocks-go.log
+
+
+ShadowsocksR一键安装脚本
+
+wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR.sh
+chmod +x shadowsocksR.sh
+./shadowsocksR.sh 2>&1 | tee shadowsocksR.log
+
+
+
+Shadowsocks Python版一键安装脚本
+
+wget --no-check-certificate -O shadowsocks.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks.sh
+chmod +x shadowsocks.sh
+./shadowsocks.sh 2>&1 | tee shadowsocks.log
+
+
+
+Debian下shadowsocks-libev一键安装脚本
+
+wget --no-check-certificate -O shadowsocks-libev-debian.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian.sh
+chmod +x shadowsocks-libev-debian.sh
+./shadowsocks-libev-debian.sh 2>&1 | tee shadowsocks-libev-debian.log
+
+
+
+CentOS下shadowsocks-libev一键安装脚本
+
+wget --no-check-certificate -O shadowsocks-libev.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev.sh
+chmod +x shadowsocks-libev.sh
+./shadowsocks-libev.sh 2>&1 | tee shadowsocks-libev.log
+
+
+
+### 安装出错 已经安装过了
+
+错误：软件包：glibc-2.17-196.el7.i686 (centos7)
+需要：glibc-common = 2.17-196.el7
+已安装: glibc-common-2.17-222.el7.x86_64 (@anaconda)
+glibc-common = 2.17-222.el7
+可用: glibc-common-2.17-196.el7.x86_64 (centos7)
+
+原文链接：https://blog.csdn.net/qq_38900565/article/details/83869112
+```
+ wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+ sed -i  's/$releasever/7/g' /etc/yum.repos.d/CentOS-Base.repo
+ yum repolist 
+ ```
