@@ -57,3 +57,26 @@
 - capture the flag  抢夺旗帜  获取旗帜
 
 
+
+### 阿里云rds后台连接请求
+- 通过注入写进来文件在build文件中里面 用的是 Adminer 只有一个PHP文件的MySQL管理客户端
+
+HTTP/1.1" 200 11534 "http://system.hzctoken.com/build.php?server=rm-j6ce63wap86odtcb490150.mysql.rds.aliyuncs.com&username=hzc_root&db=hzc&table=admin_log" "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
+
+./wwwlogs/admin.hzc.com.log:93.70.127.224 - - [23/May/2020:01:47:52 +0800] "GET /
+
+build.php?server=rm-j6ce63wap86odtcb490150.mysql.rds.aliyuncs.com&username=hzc_root&db=hzc&table=config 
+
+HTTP/1.1" 200 3641 "http://system.hzctoken.com/build.php?server=rm-j6ce63wap86odtcb490150.mysql.rds.aliyuncs.com&username=hzc_root&db=hzc&select=admin" "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36"
+
+./wwwlogs/admin.hzc.com.log:47.53.199.20 - - [31/May/2020:15:45:35  0800] 
+
+"GET /build.php?server=rm-j6ce63wap86odtcb490150.mysql.rds.aliyuncs.com&username=hzc_root&db=hzc&select=user_asset&columns[0][fun]=&columns[0][col]=&where[0][col]=&where[0][op]==&where[0][val]=0x8c0d43b01494ac19909bdb147c25873ecd1a7141&where[01][col]=&where[01][op]==&where[01][val]=&order[0]=&limit=50&text_length=100 
+
+HTTP/1.1" 200 4615 "http://system.hzctoken.com/build.php?server=rm-j6ce63wap86odtcb490150.mysql.rds.aliyuncs.com&username=hzc_root&db=hzc&select=user_asset" "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36"
+
+./wwwlogs/admin.hzc.com.log:47.53.199.20 - - [31/May/2020:15:45:40  0800] "GET /build.php?server=rm-j6ce63wap86odtcb490150.mysql.rds.aliyuncs.com&username=hzc_root&db=hzc&select=user_asset&columns[0][fun]=&columns[0][col]=&where[0][col]=&where[0][op]==&where[0][val]=01494ac19909bdb147c25873ecd1a7141&where[1][col]=&where[1][op]==&where[1][val]=&order[0]=&limit=50&text_length=100 
+
+HTTP/1.1" 200 4600 "http://system.hzctoken.com/build.php?server=rm-j6ce63wap86odtcb490150.mysql.rds.aliyuncs.com&username=hzc_root&db=hzc&select=user_asset&columns[0][fun]=&columns[0][col]=&where[0][col]=&where[0][op]==&where[0][val]=0x8c0d43b01494ac19909bdb147c25873ecd1a7141&where[01][col]=&where[01][op]==&where[01][val]=&order[0]=&limit=50&text_length=100" "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36"
+
+
