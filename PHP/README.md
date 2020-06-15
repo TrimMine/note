@@ -957,7 +957,7 @@ var_dump之后我们很容易发现，即使取到的空结果集， Eloquent仍
 
 -------------------------------------------------------------------
 
-### PHP  更快的取到$_POST的值  
+### PHP  更快的取到`$_POST`的值  
     
     file_get_contents("php://input");
 
@@ -1142,7 +1142,8 @@ var_dump之后我们很容易发现，即使取到的空结果集， Eloquent仍
         $b = 0.7;
         var_dump(bcadd($a,$b,2) == 0.8);
  
- 
+ #### 备注
+ - 在计算商品价格,订单结算 订单回调 金额对比等严谨处务必使用高精度对比 否则很容易出现精度问题
 -------------------------------------------------------------------
 ### PHP 处理XML数据 
     $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -1687,7 +1688,16 @@ basename() 函数返回路径中的文件名部分。
   
       strtotime("last Thursday")
   
-  
+- 计算本周一的0点时间
+
+        $week = date('w');
+        if ($week == 0) {
+          //周日是0
+            $week = 7;
+        }
+        $week -= 1;
+        $monday = date('Y-m-d H:i:s', (strtotime(date('Ymd')) - $week * 3600 * 24));
+        echo $monday;
 -------------------------------------------------------------------
 
 ### PHP  显示月份 获取当前月份显示
@@ -1743,7 +1753,51 @@ basename() 函数返回路径中的文件名部分。
     echo(abs(-3));  3
     echo(abs(3));   3
 
+-------------------------------------------------------------------
 
+###  php遍历文件夹 转
+- 项目中用到 网上查找记录下来
+```php
+function read_all ($dir){
+   if(!is_dir($dir)) return false;
+   $handle = opendir($dir);
+   if($handle){
+         while(($fl = readdir($handle)) !== false){
+             $temp = $dir.DIRECTORY_SEPARATOR.$fl;
+             //如果不加  $fl!='.' && $fl != '..'  则会造成把$dir的父级目录也读取出来
+             if(is_dir($temp) && $fl!='.' && $fl != '..'){
+                 echo '目录：'.$temp.'<br>';
+                 read_all($temp);
+             }else{
+                 if($fl!='.' && $fl != '..'){
+
+                     echo '文件：'.$temp.'<br>';
+                 }
+             }
+         }
+    }
+ }
+
+```
+<!--more-->
+```php
+<?php
+
+$file_path = "test.txt";
+if(file_exists($file_path)){
+$fp = fopen($file_path,"r");
+$str = fread($fp,filesize($file_path));//指定读取大小，这里把整个文件内容读取出来
+echo $str = str_replace("\r\n","<br />",$str);
+}
+?>
+ read_all('D:\wamp\www\test');
+
+
+//找到之后赋值替换 并写入
+$f='a.html';
+file_put_contents($f,str_replace('[我的电脑]','PHP学习',file_get_contents($f)));
+
+```
 -------------------------------------------------------------------
 
 ### php  删除数组元素 根据值或键 
@@ -2236,7 +2290,7 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
 
         $redis->connect("127.0.0.1","6379");
 - 第三部：配置连接密码 检测redis服务器连接状态  连接失败直接结束 并输出
-  
+  12
         $auth = $redis->auth('zhenai')  or die("redis 服务器连接失败");
         var_dump($auth);连接成功 返回 true 反之 返回false
 - 第四步  可用可不用
@@ -2296,7 +2350,7 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     -m 0  不生成model
     php think crud -t users -c users/users  -m users  --enumradiosuffix=satatus --force=true
     
-    php think menu -c orders/ordersConfirm
+    php think menu -c voucher/dashboard
     good/rushactivity/index
     
     状态 类型 不显示字段 上传图片 地址  --enumradiosuffix=title_id 生成后会加载控制title来选择selectpage   -u 1 生成菜单 菜单名为标注释
@@ -2305,11 +2359,11 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     
     php think crud -t withdraw -c withdraw/withdraw  -m withdraw --enumradiosuffix=status  --intdatesuffix=createtime   --intdatesuffix=accesstime  --force=true  -u 1
     
-    php think crud -t prize_list -c gift/prizegift  -m prizegift --enumradiosuffix=status  --enumradiosuffix=type --intdatesuffix=createtime   --imagefield=image  --ignorefields=updatetime    -u 1 
+    php think crud -t xx_print_list -c prints/printlist  -m printlist --enumradiosuffix=is_self  --enumradiosuffix=status --intdatesuffix=createtime     --ignorefields=updatetime    -u 1 
     
     php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --enumradiosuffix=type --enumradiosuffix=money_type  --enumradiosuffix=is_add --intdatesuffix=accesstime  --intdatesuffix=gonetime --ignorefields=updatetime   
 
-    php think crud -t users -c users/users  -m users --imagefield=head_img --enumradiosuffix=status --enumradiosuffix=auth_realname --ignorefields=updatetime    -u 1
+    php think crud -t version -c version/index  -m version    --enumradiosuffix=type  
 
     {:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
 
@@ -2353,19 +2407,7 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
 
       Table.api.bindevent(table);      
       //点击通过
-      $(document).on('click', ".access", function () {
-          var data = $(this);
-          var id = data.data('id');
-          $.post('shop/shopapply/access', {id: id}, function (res) {
-              if (res.status == 200) {
-                  layer.alert(res.message);
-                  data.parent().siblings('.status').html('<a href="javascript:;" class="searchit" data-toggle="tooltip" title="" data-field="status" data-value="2" data-original-title="点击搜索 通过"><span class="text-success"><i class="fa fa-circle"></i> 通过</span></a>');
-                   data.parent().html('已处理');
-              }else{
-                  layer.alert(res.message);
-              }
-          })
-      });
+     .≤-09 
 
 ######  第三步 下面的api绑定加入方法
         api: {
@@ -2387,7 +2429,10 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
         $(document).on("click", ".ajax_buttons", function () {
            console.log($(this).parent().siblings('.status').text('通过'));
         });
-    
+#####  dilog页面关闭事件 触发父页面 dialog callback函数
+            parent.window.$(".layui-layer-iframe").find(".layui-layer-close").on('click',function () {
+                Fast.api.close("父页面callback回调信息");
+            });
 ##### 弹窗获取 id
         Fast.api.open("coupons/allot?ids="+allotData);
     
@@ -2421,6 +2466,28 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
 ##### js回调刷新
     table.bootstrapTable('refresh');
 
+### PHP fastadmin 开关选项
+- 后台列表需要使用 开关形式决定参数值
+
+1. 可以使用formatter:Table.api.formatter.toggle来生成开关组件
+2. 默认情况下是根据数据库值1和0来表示开和关
+<!--more-->
+- 可以通过额外的配置和定义开和关，
+- 例子 
+```
+{
+    field: 'coupon_join',
+    title: __('是否参与优惠券'),
+    align: 'center',
+    yes: '1',//参与
+    no: '2',//不参与
+    formatter: Table.api.formatter.toggle
+},
+```
+3. 开关在点击的时候默认是只允许修改数据库的status字段的，如果我们开关不是status字段，我们需要在服务端对应的控制器中定义protected $multiFields="id,name,swith";，多个字段以,进行分隔
+
+[官方链接:一张图解析fastadmin表格使用详情]('https://ask.fastadmin.net/article/323.html')
+
 
 ##### 关联时修改where查询条件 fastadmin
 ```php
@@ -2441,7 +2508,25 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
         foreach ($filter as $k => $v) {
             $sym = isset($op[$k]) ? $op[$k] : '=';
             if (stripos($k, ".") === false) {
-```                
+```            
+### fastadmin 搜索多选(selectpicker)的重置不能消除样式的问题
+``` js
+            //在bootstrap-table-commonsearch.js中
+             // 重置搜索
+        form.on("click", "button[type=reset]", function (event) {
+            form[0].reset();
+            $('.selectpicker').selectpicker('refresh');
+            that.onCommonSearch();
+        });
+            //在form[0].reset下面加入这行代码即可
+            $('.selectpicker').selectpicker('refresh');
+```
+### fastadmin 添加字段排序
+
+只需要在js文件中添加 sortable:true 即可
+```
+ {field: 'asset', title: __('Asset'), operate: 'BETWEEN', sortable: true},
+ ```
 -------------------------------------------------------------------
 
 ### PHP 上传文件 原生
@@ -3308,8 +3393,47 @@ github [安装地址](https://github.com/xdebug/xdebug)
 
 
 -------------------------------------------------------------------
+### PHP 发送邮件 PHPMailer
+
+  function sendEmail()
+    {
+        $mail = new PHPMailer();
+        $mail->IsSMTP();
+        $mail->CharSet = 'utf-8';
+        //邮箱网关
+        $mail->Host = 'smtp.qq.com';  
+        //ssl加密方式 qq邮箱必须有这个选项
+        $mail->SMTPSecure = 'ssl'; 
+        // smtp服务器的远程服务器端口号 465对应ssl 587对应tls
+        $mail->Port = 465;   
+        //开启debug 调试阶段一定要开启 否则看不到错误提示
+        $mail->SMTPDebug = 1;  
+        //鉴权
+        $mail->SMTPAuth = true; 
 
 
+        //邮箱的用户名和发送邮件地址一样 否则会提示你授权失败
+        $mail->Username = '12414214@qq.com';
+        //客户端授权码
+        $mail->Password = "afahkahfgfajhgfy";
+        //发送邮件的邮箱地址
+        $mail->From = '12414214@qq.com';
+
+
+        $mail->FromName = '测试';//发送邮件的名字
+        $mail->Subject = '测试';
+        $mail->Body = '测试邮件'
+
+        ;
+        $mail->AddAddress("837390478@qq.com", "张三");
+        $result = $mail->send();
+        dump($mail->ErrorInfo);
+        if (!$result) {
+            echo '发送失败';die;
+        }
+        echo '发送成功';
+
+    }
 
 -------------------------------------------------------------------
 

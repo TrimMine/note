@@ -10,11 +10,22 @@ https://api.etherscan.io/api?module=account&action=balance&address=0x0975CA9F986
 001028999999790000 如果不到18位在第一位向前补0到18位
 0.001028999999790000
 
+### eth 安装 
+
+1. github 克隆源码
+git clone https://github.com/ethereum/go-ethereum 
+2. 安装golang
+yum install golang
+3. 执行命令  (进入源码目录)
+make geth 或 make all
+4. 创建软链
+ln -s /root/go-ethereum/build/bin/geth /usr/bin/
+
 #### 启动命令
 ```sh
 geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jhain.com
 
-nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "*" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
+nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain "*" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
 ```
 #### 后台运行并输出到文件
 ```
@@ -32,7 +43,7 @@ nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc
 实例 ： 计算网络增强型 sn1ne / ecs.sn1ne.2xlarge(8vCPU 16GiB)
 购买数量 ： 1 台
 镜像 ： CentOS 7.4 64位
-系统盘 ： 高效云盘 500GiB
+系统盘 ： SSD 500GiB
 网络 ： 专有网络VPC ： 
 公网带宽 ： 按固定带宽 5Mbps
 安全组 ：  / sg-j6c5whqo9wn6i68f4qfe
@@ -225,14 +236,6 @@ Syncing方法的源代码很简单，注释说明也已经很清楚了。通过�
 - knownStates：当前已知的待拉取的总状态条目数；
 
 
-### eth 安装 
-
-1. github 克隆源码
-git clone https://github.com/ethereum/go-ethereum 
-2. 安装golang
-yum install golang
-3. 执行命令  (进入源码目录)
-make geth 或 make all
 
 ### eth eth_sendTransaction
 
@@ -250,17 +253,17 @@ make geth 或 make all
   "value": "0x0",  
   "data": "0xa9059cbb000000000000000000000000696d69b81c6bdf6d46ddb66ee2175df7f9de7c4600000000000000000000000000000000000000000000000ad78ebc5ac6200000"
 }],"id":666}
-
-nonce：交易顺序十六进制。由eth_getTransactionCount获取
+ 
+nonce：交易顺序十六进制。由 eth_getTransactionCount 获取
 from：转账方地址
 to：代币合约地址
-gas：燃料十六进制。由eth_estimateGas获取
-gasPrice：燃料单价十六进制。由eth_gasPrice获取
+gas：燃料十六进制。由 eth_estimateGas 获取
+gasPrice：燃料单价十六进制。由 eth_gasPrice 获取
 value：由于是发送代币，这里为0
 data：附加的消息。这里由合约中transfer方法，方法参数一(接收方地址)，方法参数二(代币数量)的十六进制组成
 
 ```
-##### data的组成
+##### data的组成 go
   data的组成，由：0x + 要调用的合约方法的function signature + 要传递的方法参数，每个参数都为64位(对transfer来说，第一个是接收人的地址去掉0x，第二个是代币数量的16进制表示，去掉前面0x，然后补齐为64位)
   
   `data: '0x' + 'a9059cbb' + addPreZero('3b11f5CAB8362807273e1680890A802c5F1B15a8') + addPreZero(web3.utils.toHex(1000000000000000000).substr(2))`
@@ -271,3 +274,53 @@ data：附加的消息。这里由合约中transfer方法，方法参数一(接�
 
   addPreZero 是补齐0 不够64位的 前面用0补齐到64位
 
+ --------------------
+
+### Error: account unlock with HTTP access is forbidden
+
+解锁时不能解锁 
+重新启动  启动时加入参数 
+
+--allow-insecure-unlock
+
+例如: geth --rpc --rpcapi eth,web3,personal --allow-insecure-unlock
+
+----------------------
+
+### 守护节点进程 防止节点自己停掉
+
+1. vim deamon.sh 
+```
+#!/bin/sh
+while true;
+do
+  count=$(ps -ef | grep -c geth) 
+  if [ $count -lt 2 ]; then     
+    sh /root/startGeth.sh              #需要重启的进程命令或脚本
+  fi
+  sleep 10                        
+done
+```
+2. chmod +x ./deamon.sh
+3. bash deamon.sh &
+
+
+### 节点异常死亡或者多次请求导致节点死亡
+- 查询是否是内存溢出被系统杀死
+```
+	egrep -i -r 'killed process' /var/log
+
+```
+
+- 日志内容
+```
+	/var/log/messages:Jun  1 22:32:51 iZj6c3tg504x0j75q3prvyZ kernel: Out of memory: Killed process 27204 (geth) total-vm:9291304kB, anon-rss:7085704kB, file-rss:0kB, shmem-rss:0kB
+```
+- 当报出`OOM(Out of memory)`的时候，系统的内存已经不足了，于是linux会决定杀掉进程，但是linux采用的策略并非是杀掉最占用内存的进程(Android是这样)。
+- linux会给每个进程评分：oom_score 根据这个评分去kill，决定这个分数的因素除了内存占用大小之外，还有内存增加的速率，内存的占用会突然爆发式增长！发现这时候的分数很高,然后就把它kill了
+
+
+#### 解决方案
+
+1. 升级硬件(cpu4核心 内存 8G及以上)
+2. swap分区设置 但是会降低拉块速度 (https://blog.csdn.net/Little_Ji/article/details/104124578)

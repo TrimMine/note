@@ -328,5 +328,55 @@ git checkout -- 文件名
 git checkout . 全部放弃  添加的文件需要手动删除 
 ```
 
+###  git 不忽略某文件或者文件夹 
+```
+在.gitignore 文件中需要不忽略的文件前面加 !
+!public/index.php
 
+```
+
+### fatal: git fetch-pack: expected shallow list
+
+git 版本过低 需要更新git
+
+
+### 设置全局忽略文件
+
+    
+    git config --global core.excludesfile /Users/cabbage/.gitignore_global
+
+  1. 一般默认git会建立 .gitignore_global文件
+  2. 也可以直接修改.gitconfig文件
+      1. 编辑文件 vim .gitconfig 里面的
+        ```
+        excludesfile = /Users/cabbage/.gitignore_global
+        ```
+
+---------
+
+### git 本地文件全局忽略备份
+```
+_Store
+.idea
+runtime/
+host.txt
+Temp
+Idea.md
+tmp
+.vscode
+register.html
+.user.ini
+.DS_Store
+归档.zip
+Email
+Background
+-JSON-handle_0.5.6.crx
+node_modules/
+themes/
+composer.lock
+main
+nohup.out
+public/
+!public/assets/js
+```  
 

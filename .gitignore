@@ -15,3 +15,7 @@ Note/Server_note.php
 Email/
 Chrome/
 Background/*
+.idea/
+host.txt
+Idea.md
+.DS_Store
