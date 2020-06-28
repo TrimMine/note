@@ -988,3 +988,140 @@ func (b *BetweenTime) GetMonth(Month int, currentTime *time.Time) {
 
 #### 注意
 goto 到End中间不能有新的变量声明 
+
+
+
+### 协程配合管道使用和管道取值的三种方式
+
+```golang
+//数据结构体
+type ChData struct {
+    Total int
+    Error error //方便业务逻辑内容错误做判断
+}
+
+// 构建一个通道
+var SumCh chan ChData
+//任务等待
+var Wait sync.WaitGroup
+//计算余额
+func taskDo() {
+    //一定要初始化管道 否则写不进去值
+    SumCh = make(chan ChData, 4)
+    var total int
+    Wait.Add(4) //设置4个任务 如果使用wait包的话任务会从最后一个先执行 然后再从第一个开始执行
+
+    //开始任务
+    go func() {
+        fmt.Println(1)
+        time.Sleep(time.Second * 2)
+        SumCh <- ChData{Total: 1}
+        Wait.Done()
+    }()
+    go func() {
+        fmt.Println(2)
+        time.Sleep(time.Second * 2)
+        SumCh <- ChData{Total: 2}
+        Wait.Done()
+    }()
+    go func() {
+        fmt.Println(3)
+        time.Sleep(time.Second * 2)
+        SumCh <- ChData{Total: 3}
+        Wait.Done()
+    }()
+    go func() {
+        fmt.Println(4)
+        time.Sleep(time.Second * 2)
+        SumCh <- ChData{Total: 4}
+        Wait.Done()
+    }()
+
+    //等待执行完毕才会向下面执行
+    Wait.Wait()
+
+    //如果不关闭管道 下面的for会一直循环直到管道关闭
+    close(SumCh)
+
+    // 遍历接收通道数据
+    for data := range SumCh {
+        //判断自己业务逻辑向管道输出的错误
+        if data.Error != nil {
+            fmt.Println(data.Error)
+            return
+        }
+        fmt.Println(data.Total)
+        total += data.Total
+    }
+    //结束循环
+    fmt.Println("循环结束输出总数:", total)
+
+    //上面协程任务输出 4 1 2 3  用了wait包先执行最后一个
+    //for遍历管道输出 3 1 2 4  循环结束输出总数: 10
+    //
+}
+
+```
+#### 循环取管道值的另一种方式
+
+- 这种方案适合单管道取值 持久任务和上面的等待短任务都可以使用 
+- 这种持久任务,关闭管道需要单独判断 比如 data.Total ==0 的时候 关闭 close(SumCh)
+
+```golang
+for {
+        if data, ok := <-SumCh; ok {
+            if data.Error != nil {
+                fmt.Println(data.Total)
+                return
+            }
+            total += data.Total
+        } else {
+            break
+        }
+    }
+```
+
+- 这种更适合不确定任务数,不会停掉,持久性的任务
+
+```golang
+    for{
+        select {
+            case data:=<-SumCh:
+                fmt.Println(data)
+            case data:=<-CloseCh: //另一个用来关闭其他管道的管道,需要关闭时发送一个信号
+                close(SumCh)
+                close(CloseCh)
+                break//跳出循环
+        default:
+            //fmt.Println("没有值")
+        }
+    }
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -501,3 +501,28 @@ rpcbind=0.0.0.0:8332
 `bitcoind -conf=/root/.bitcoin/bitcoin.conf -daemon` 启动命令
 
 - 可在 `~/.bitcoin/debug.log` 查看日志信息
+
+
+
+### 高版本的节点生成地址和查询地址列表及查询余额
+ 
+1. 新建地址 `getnewaddress`
+ - 参数两个 
+ ```
+ - label 标签名 可选 默认 ""
+ - type  类型   可选(Options are “legacy”, “p2sh-segwit”, and “bech32”.)
+ ```
+2. 获取标签下的地址列表 `getaddressesbylabel`
+- 参数一个
+```
+- label 标签名 必填
+```
+
+3. 获取地址的余额 `listunspent`
+- 参数三个
+```
+- 开始块 0
+- 结束块 99999999
+- 地址 [address])
+```
+
