@@ -1,9 +1,9 @@
 
 #### 介绍
 我的服务器是 `centos` ,`ubantu`和`debian` 参考 [官方文档](https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md)
-- 可安装的库 
+- 安装库 (centos必须安装的库)
 ```bash
-sudo yum install gcc-c++ libtool make autoconf automake openssl-devel libevent-devel boost-devel libdb4-devel libdb4-cxx-devel
+sudo yum install gcc-c++ libtool make autoconf automake openssl-devel libevent-devel boost-devel libdb4-devel libdb4-cxx-devel 
 ```
 <!--more-->
 - 如果你是基于最小化安装的linux系统，需要执行如下命令，安装必要的库，如果是安装过的可以跳过此步骤 
@@ -15,7 +15,7 @@ yum -y install wget vim git texinfo patch make cmake gcc gcc-c++ gcc-g77 flex bi
 ##### 方法一: 源码编译
   
 - 没有`git` 要安装`git` `centos` 安装 `git yum install git` 
-- 使用`accounts`的码农注意 尽量不要下载0.18版本及以上 因为在这个版本我遇到过 加入  `-deprecatedrpc=accounts`参数  `account`有关的`api`仍然不能使用 克隆的时候选择版本
+- 使用`accounts`的码农注意 尽量不要下载0.18版本及以上 因为在这个版本我遇到过 加入  `-deprecatedrpc=accounts`参数  `account`有关的`api`仍然不能使用 克隆的时候选择版本 不过还是建议使用最新版本
 ``` sh
 git clone -b 0.17  https://github.com/bitcoin/bitcoin.git 
 ```
@@ -31,46 +31,8 @@ git clone https://github.com/bitcoin/bitcoin.git
   ```bash
   ./autogen.sh 
   ```
+
 - 出现报错 
-```sh
-  which: no autoreconf in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin)
-  configuration failed, please install autoconf first
-  或
-  Makefile.am:3: Libtool library used but `LIBTOOL' is undefined
-  Makefile.am:3:   The usual way to define `LIBTOOL' is to add `AC_PROG_LIBTOOL'
-  Makefile.am:3:   to `configure.ac' and run `aclocal' and `autoconf' again.
-  Makefile.am:3:   If `AC_PROG_LIBTOOL' is in `configure.ac', make sure
-  Makefile.am:3:   its definition is in aclocal's search path.
-  autoreconf: automake failed with exit status: 1
-```
-- 解决方案
-
-  - 安装`autoreconf` 和 `libtool` 
-    ```bash
-  yum install autoconf automake libtool 
-    ```
-    - 安装完成执行上个未执行的步骤
-
-###### 配置检查和装载   `-without-gui`不安装gui图形界面
-
-```sh
- ./configure -without-gui
-```
-
-- 报错
-
-```sh
-  checking whether the C++ compiler works... no
-  configure: error: in `/home/ljw/bitcoin-master':
-  configure: error: C++ compiler cannot create executables
-  See `config.log' for more details
-```
-- 解决
-```bash
-yum install gcc-c++
-```
-
-- 再次出现报错 
 ```sh   
       configure: error: libdb_cxx headers missing, Bitcoin Core requires this library for wallet functionality (--disable-wallet to disable wallet functionality)
   
@@ -87,27 +49,27 @@ cd db-5.1.29.NC/build_unix/
 ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/usr/local
 make install
 ```
+##### 回到目录
 
- - 报错  
+```sh
+./configure -without-gui
+
+```
+ - 如果报此错  
   `configure: error: Found Berkeley DB other than 4.8, required for portable wallets (--with-incompatible-bdb to ignore or --disable-wallet to disable wallet functionality)`
  - 解决 加上编译参数 `--with-incompatible-bdb `
 ```bash 
 ./configure -without-gui --with-incompatible-bdb 
 ```
 
- - 报错
-`configure: error: No working boost sleep implementation found.`
- - 解决
-` yum install boost-devel `
-
-
 ###### 最后执行编译
 ```bash
-make  #执行时间较长
-make install
+sudo make  #执行时间较长
+sudo make install
 ```
 
 #### 内容补充
+- 如果有解决不了的问题 建议重新选择低一个版本的git文件 再走流程
 - 创建软链  可省略看个人喜好
 ```bash
     ln -s ~/bitcoin/src/bitcoin-cli /usr/bin/bitcoin-cli
@@ -164,7 +126,7 @@ rpcbind=0.0.0.0:8332
 启动节点的时候配置用户密码的情况下需要有用户名和密码 不配置则可以加此类参数查询使用cli
 启动如果不配置 后面可能加不上哦  建议 ...
 ```bash
-bitcoin-cli -rpcuser=username -rpcpassword=password -rpcconnect=0.0.0.0 -rpcport=8332  getblockchaininfo
+bitcoin-cli -rpcuser=otcuser -rpcpassword=otc2020//..pass -rpcconnect=0.0.0.0 -rpcport=8332  getblockchaininfo
 #指定区块的目录 不是默认的情况下使用 -datadir
 bitcoin-cli -rpcuser=REPLACED -rpcpassword=REPLACED -rpcconnect=127.0.0.1 -rpcport=8332 -datadir=/data/btc getblockchaininfo
 ```

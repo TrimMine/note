@@ -338,7 +338,7 @@ var_dump之后我们很容易发现，即使取到的空结果集， Eloquent仍
 
 -------------------------------------------------------------------
 
-### PHP $_SERVER 选项 
+### PHP `$_SERVER` 选项 
 
 > ##### 获取当前服务器项目的根目录
     $_SERVER['REMOTE_PORT'] //端口。 
@@ -2031,6 +2031,10 @@ compsoer包  "phpoffice/phpexcel":"1.8.1"
 - 按照文档和demo配置好内容以后需要在支付宝账户管理下载操作证书 中间会回答密码问题, 并要求提供营业执照注册码
 - 需要使用UC浏览器或者ie安装 主流浏览器不支持申请安装证书
 
+### PHP   支付宝支付
+
+- 对接时文件中支付宝配置中的私钥是自己生成的私钥
+- 公钥不是自己生成的公钥 是在支付宝开放平台生成之后获取的支付宝给的公钥 否则验签失败!
 
 -------------------------------------------------------------------
 
@@ -2327,7 +2331,8 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     -o, --relationmode[=RELATIONMODE]              关联模型,hasone或belongsto [default: "belongsto"]
     -d, --delete[=DELETE]                          删除模式,将删除之前使用CRUD命令生成的相关文件
     -u, --menu[=MENU]                              菜单模式,生成CRUD后将继续一键生成菜单
-    --setcheckboxsuffix[=SETCHECKBOXSUFFIX]    自动生成复选框的字段后缀
+    --db[=key]                                     多数据库支持(参数为tp5中配置的数据库key 在application\config.php添加数据库配置信息)
+   --setcheckboxsuffix[=SETCHECKBOXSUFFIX]    自动生成复选框的字段后缀
     --enumradiosuffix[=ENUMRADIOSUFFIX]        自动生成单选框的字段后缀
     --imagefield[=IMAGEFIELD]                  自动生成图片上传组件的字段后缀
     --filefield[=FILEFIELD]                    自动生成文件上传组件的字段后缀
@@ -2350,6 +2355,9 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     -m 0  不生成model
     php think crud -t users -c users/users  -m users  --enumradiosuffix=satatus --force=true
     
+    //多数据库 表生产
+    php think crud -t main_fund -c conf/fund -u 1  --force=true --db=MainPool
+
     php think menu -c voucher/dashboard
     good/rushactivity/index
     
@@ -2363,7 +2371,12 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
     
     php think crud -t platform -c platform/platform  -m platform --enumradiosuffix=status --enumradiosuffix=type --enumradiosuffix=money_type  --enumradiosuffix=is_add --intdatesuffix=accesstime  --intdatesuffix=gonetime --ignorefields=updatetime   
 
-    php think crud -t version -c version/index  -m version    --enumradiosuffix=type  
+    php think crud -t goods -c goods/goods  -m goods --imagefield=banner   -u1 
+
+    php think crud -t delivery_start_apply -c delivery/deliverystartapply -m deliverystartapply -u1   
+
+    //指定数据库
+    php think crud -t otc_order_appeal -c otc/orderappeal -m orderappeal -u1 --db=db_otc 
 
     {:build_select('row[status]', $statusList, null, ['class'=>'form-control', 'required'=>''])}
 
@@ -2488,7 +2501,26 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
 
 [官方链接:一张图解析fastadmin表格使用详情]('https://ask.fastadmin.net/article/323.html')
 
-
+### fastadmin搜索下拉框多选 (未更新blog)
+```
+   {
+        field: 'status',
+        title: __('Status'),
+        searchList: {
+            "1": __('Status 1'),
+            "2": __('Status 2'),
+            "3": __('Status 3'),
+            "4": __('Status 4'),
+            "5": __('Status 5'),
+            "6": __('Status 6'),
+            "7": __('Status 7')
+        },
+        formatter: Table.api.formatter.status,
+        addclass: 'selectpicker',
+        operate: 'IN',
+        data: 'multiple'
+      }
+```
 ##### 关联时修改where查询条件 fastadmin
 ```php
      /* =============修改关联查询字段 开始   修改backend文件搜索条件 ================*/
@@ -2527,6 +2559,26 @@ echo json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
 ```
  {field: 'asset', title: __('Asset'), operate: 'BETWEEN', sortable: true},
  ```
+
+### fastadmin selectpage 自定义参数和字段
+
+ ```js
+  <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Link_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-shop_id" data-rule="required" data-source="general/navigation/index" data-params='{"custom[type]":"3","custom[status]":"1"}' data-field="title" class="form-control selectpage" name="row[link_id]" type="text" value="">
+        </div>
+    </div>
+ ```
+ - data-params 搜索参数
+ - data-field 查询的字段
+-------
+
+### 去除默认的排序按钮
+
+- 在js文件中设置此url为空
+`dragsort_url: "",`
+
 -------------------------------------------------------------------
 
 ### PHP 上传文件 原生
@@ -3437,23 +3489,100 @@ github [安装地址](https://github.com/xdebug/xdebug)
 
 -------------------------------------------------------------------
 
+### sql order by 多个字段排序
+- 每个子段后面都写排序方式 desc或者asc 否则默认asc
+```php
+$orderSqlStr = 'order by `sort` desc, collection_num desc ,sales_num desc,appraise_ratio desc ';
+$sql = "SELECT id,`name`,image,sort,collection_num,`desc`,sales_num,go_time,appraise_ratio,full_delivery $order";
+```
+-------------------------------------------------------------------
+### 根据定位查询附近5公里的店铺信息
+
+```php
+//获取用户当前位置
+$position = input("location"); //112.845355,112.845355
+$position = explode(",", $position);
+if (count($position) != 2) {
+    return msg(19031, "获取地址定位失败");
+}
+$slng = $position[0];//经度
+$slat = $position[1];//纬度
+$long = 5;//附近5公里的店铺
+//查找附近的店铺
+$sql = "SELECT id,image,sales_num,go_time,appraise_ratio,full_delivery,freight_fee, ROUND(6378.138*2*ASIN(SQRT(POW(SIN(($slat*PI()/180-lat*PI()/180)/2),2)+COS($slat*PI()/180)*COS(lat*PI()/180)*POW(SIN(($slng*PI()/180-lng*PI()/180)/2),2))),2) AS distance  
+FROM shop_user where status=1 and is_take='yes'   HAVING distance <= $long $order";
+$data = Db::query($sql);
+```
+
+- 关键部分
+
+- `lng` 数据库经度字段
+- `lat` 数据库纬度字段
+
+- $slng 用户此次位置的经度
+- $slat 用户此次位置的纬度
+- `ROUND` mysql四舍五入函数 这里保留了两位小数
+```php
+ROUND(6378.138*2*ASIN(SQRT(POW(SIN(($slat*PI()/180-lat*PI()/180)/2),2)+COS($slat*PI()/180)*COS(lat*PI()/180)*POW(SIN(($slng*PI()/180-lng*PI()/180)/2),2))),2) AS distance
+```
+-------------------------------------------------------------------
+### PHP 根据查到的id集合排序 
+
+- tp5  查询时加上原生sql
+```
+$ids = (2,3,1);
+db("books")->where(['id'=>['in',$ids]])->order(new \think\db\Expression('field(id,'.$ids.')'))->select();
+```
+
+- sql 
+```sql
+SELECT * FROM books WHERE `id` IN ('2','3','1') ORDER BY FIELD(id, '2','3','1');
+```
+
 
 
 -------------------------------------------------------------------
+### TP6保存session问题
+1. 默认不开启session 需要手动开启 在app/middleware.php中加入
+```
+// Session初始化
+\think\middleware\SessionInit::class
+```
+2. 设置和获取
+```
+Session::set("home.user_id",1001);//设置值
+Session::save();//保存session
 
+Session::get("home.user_id");//获取 也可以使用助手函数 session("home.user_id")
 
-
-
+Session::getId() //获取session_id
+```
+3. 如果要对接小程序 
+- 因为小程序没有cookie 需要前端手动带上cookie
+- `PHPSESSID=`+后端给的session_id
+```
+Cookie: PHPSESSID=50dea71ee096c1ecd7f7e66b327e0f07
+```
 -------------------------------------------------------------------
 
+### tp5多数据库配置
+1. 新建数据库文件和database.php文件一致 修改其中的库名 如果在同一用户名下可使用.env文件配置相同的用户名和密码 否则单独配置
+2. 在config.php最上面文件中引入配置
+```
+$db_user = require_once('databaseuser.php');
+$db_main = require_once('databasemain.php');
+//然后在配置中加入
+'db_user' => $db_user,
+'db_main' => $db_main,
+```
+3. 在对应表model中加入 
+```
+ protected $connection='db_user';
+ ```
+4. 使用时需要用model查询修改
 
-
--------------------------------------------------------------------
-
-
-
--------------------------------------------------------------------
-
-
-
-
+5. 如果是fastadmin 可一直用一键命令生成对应model无需手动填写(--db=)
+```
+//指定数据库
+php think crud -t user_info -c user/userinfo -m userinfo -u1 --db=db_user 
+```

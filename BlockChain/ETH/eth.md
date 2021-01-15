@@ -25,15 +25,17 @@ ln -s /root/go-ethereum/build/bin/geth /usr/bin/
 ```sh
 geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jhain.com
 
-nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain "*" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
+nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain "*" --syncmode "fast" --maxpeers=25 --allow-insecure-unlock  --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &  
 ```
 #### 后台运行并输出到文件
 ```
-nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1 --rpccorsdomain api.jxym2.cn >> ./eth.log 2>&1 & 
+nohup geth --datadir /mnt/.ethereum  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 127.0.0.1  --maxpeers=25 --allow-insecure-unlock --rpccorsdomain api.jxym2.cn >> ./eth.log 2>&1 & 
 
 --rpcaddr 0.0.0.0  //全部允许
 --rpccorsdomain api.jicin.com //允许域名
 --datadir  指定块的存储路径
+--allow-insecure-unlock 允许解锁
+--maxpeers=25 连接诶最大节点数
 开启阿里云和宝塔端口
 
 nohup geth  --rpcapi admin,db,debug,eth,miner,net,personal,shh,txpool,web3 --rpc --rpcaddr 0.0.0.0 --rpccorsdomain "http://115.60.60.173,http://192.168.2.100,http://192.168.2.235" --syncmode "fast" --cache=4048 --maxpeers 9999 >> ./geth.log 2>&1 &
@@ -324,3 +326,20 @@ done
 
 1. 升级硬件(cpu4核心 内存 8G及以上)
 2. swap分区设置 但是会降低拉块速度 (https://blog.csdn.net/Little_Ji/article/details/104124578)
+
+
+### 节点卡到 11234872 无法拉块 并报错
+
+```
+retrieved hash chain is invalid: invalid merkle root 
+```
+- eth 在这个高度的时候进行了硬分叉 11234872
+- 重新安装geth包 ，升级 geth 
+- 修复并运行 debug.setHead("0xab6e38")
+
+
+
+
+
+
+

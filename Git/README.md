@@ -354,6 +354,36 @@ git 版本过低 需要更新git
 
 ---------
 
+
+### centos 更新本地git版本 (blog)
+1. 新增git库
+```
+//新增文件
+vim /etc/yum.repos.d/wandisco-git.repo
+```
+2. 编辑文件
+```
+[wandisco-git]
+name=Wandisco GIT Repository
+baseurl=http://opensource.wandisco.com/centos/7/git/$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=http://opensource.wandisco.com/RPM-GPG-KEY-WANdisco
+```
+3. 私钥
+```
+sudo rpm --import http://opensource.wandisco.com/RPM-GPG-KEY-WANdisco
+```
+4. 更新git
+```
+yum install git
+```
+5. 查看版本
+```
+git --version
+```
+
+
 ### git 本地文件全局忽略备份
 ```
 _Store

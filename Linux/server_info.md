@@ -38,7 +38,7 @@
 14.漏洞扫描
 15.函数禁用eval system exec phpinfo
 16.waf或者iptables防火墙策略
-17.socket监听文件是否改变 node
+17.socket 监听文件是否改变 node
 18.网站文件 数据库备份(1小时)
 19.chattr -R =i /www/wwwroot/web/ 
    chattr -R -i /www/wwwroot/web/ 

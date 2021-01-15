@@ -494,7 +494,9 @@ du -c log30.tar.gz log31.tar.gz
 
 -l或--count-links   重复计算硬件链接的文件。
 ```
+### 查看当前目录文件大小
 
+`ls -ahlS ./* `
 -------------------
 
 ####  rsync 快速删除
@@ -1225,7 +1227,7 @@ scp -r local_folder remote_ip:remote_folder
 $ scp remote_user@host:remote_folder local_folder
 $ scp -P 7789 root@172.31.1.22:/www/backup/site/www.baidu.com_20180522_185755.zip  /www/wwwroot/wap.baidu.com/
 $ scp -P 7789 root@172.31.1.22:/www/wwwroot/chain/chain.tar.gz  /www/wwwroot/chain
-$ scp  root@47.94.81.150:/www/wwwroot/easyswoole/  ./
+$ scp  -r root@47.94.81.150:/www/wwwroot/easyswoole/  ./
 ```
 - scp -r 可递归上传文件夹
 
@@ -1235,6 +1237,28 @@ $ scp  root@47.94.81.150:/www/wwwroot/easyswoole/  ./
 
 3.Wiki SCP :http://en.wikipedia.org/wiki/Secure_copy
 
+### rsync 命令
+```
+//本地到远程
+rsync -avzrt --progress /root/client/   root@202.112.23.12:/home/work/  
+//远程到本地
+rsync -avzrt root@47.106.234.192:/www/wwwroot/api.jms12123.com/public/uploads/ 
+   --progress ./
+
+```
+
+#### Can书说明
+```
+
+-v, --verbose 详细模式输出
+-q, --quiet 精简输出模式
+-c, --checksum 打开校验开关，强制对文件传输进行校验
+-a, --archive 归档模式，表示以递归方式传输文件，并保持所有文件属性，等于-rlptgoD
+-r, --recursive 对子目录以递归模式处理
+-R, --relative 使用相对路径信息
+-u, --update 仅仅进行更新，也就是跳过所有已经存在于DST，并且文件时间晚于要备份的文件。(不覆盖更新的文件)
+-t, --times 保持文件时间信息
+```
 ------------------------
 
 ### linux  windows商店命令行 保存的本地文件路径 
@@ -1793,7 +1817,7 @@ service nginx start
 
 如果以上方法 kill不能杀死程序,可使用命令关闭占用80端口的程序
 
-`sudo fuser -k 80/tcp`
+`sudo fuser -k 3000/tcp`
 
 -----
 
@@ -1929,6 +1953,48 @@ $pkill -u user 杀死所有该用户下面的进程
 调用方法：
 [root@localhost ~]# xkill
 ```
+5. 杀掉进程自动重启,通过父进程杀掉子进程
+
+  1. 查看当期进程号 
+  ```sh
+  #通过进程名查看进程号
+  ps aux | grep xxxx
+  #或通过端口号查看进程号
+  losf -i :3012
+  ```
+  - 查看父进程
+
+  ```sh
+  #
+   cat /proc/进程id/status 
+  ```
+  - 展示效果 其中PPid为父进程号
+  ```
+  Name: test
+  Umask:  0022
+  State:  S (sleeping)
+  Tgid: 2412003
+  Ngid: 0
+  Pid:  2412003
+  PPid: 3558939
+  TracerPid:  0
+  Uid:  1000  1000  1000  1000
+  Gid:  1000  1000  1000  1000
+  FDSize: 64
+  Groups:  
+  ....
+   ```
+  2. 查看父进程下的子进程
+  ```sh
+  # 3558939为父进程号
+  pstree -p 3558939 -a
+  ```
+  - 没问题的话就杀掉进程
+
+  3. 杀掉父进程
+  ```sh
+  kill -9 3558939
+  ```
 
 ---------------------------
 
@@ -2936,20 +3002,21 @@ glibc-common = 2.17-222.el7
 
 
 
-
-### 查询是否是内存溢出被系统杀死
+### 查询进程是否是内存溢出被系统杀死
 - 命令 
 ```
   egrep -i -r 'killed process' /var/log
 
 ```
-
+<!--more-->
 - 日志内容
 ```
   /var/log/messages:Jun  1 22:32:51 iZj6c3tg504x0j75q3prvyZ kernel: Out of memory: Killed process 27204 (geth) total-vm:9291304kB, anon-rss:7085704kB, file-rss:0kB, shmem-rss:0kB
 ```
 - 当报出`OOM(Out of memory)`的时候，系统的内存已经不足了，于是linux会决定杀掉进程，但是linux采用的策略并非是杀掉最占用内存的进程(Android是这样)。
 - linux会给每个进程评分：oom_score 根据这个评分去kill，决定这个分数的因素除了内存占用大小之外，还有内存增加的速率，内存的占用会突然爆发式增长！发现这时候的分数很高,然后就把它kill了
+
+-----------------------
 
 
 ### gcc8 更新或者安装
@@ -2967,6 +3034,25 @@ scl enable devtoolset-8 bash
 
 gcc -v
 ```
+<!--more-->
+
+-----------------------
  
+### 设置命令行代理命令
 
+#### 获取IP
+```sh
+curl ip.gs
+```
+#### 设置命令行代理命令
+``` sh
+export HTTP_PROXY=http://127.0.0.1:1081; export HTTPS_PROXY=http://127.0.0.1:1081; export ALL_PROXY=socks5://127.0.0.1:1080
+//小写的版本
+export http_proxy=http://127.0.0.1:6666 export https_proxy=http://127.0.0.1:6666;export all_proxy=socks5://127.0.0.1:1080
+```
 
+<!--more-->
+
+-----------------------
+
+# TODO  blog更新至此

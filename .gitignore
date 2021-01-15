@@ -41,3 +41,4 @@ main
 nohup.out
 public/
 !public/assets/js
+vendor/
